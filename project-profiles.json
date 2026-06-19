@@ -3,15 +3,16 @@
   "profiles": {
     "c187fb76": {
       "path": "C:\\Users\\Administrator\\ZCodeProject",
-      "type": "ZCode 技能开发与维护",
+      "type": "通用技能开发与维护",
+      "software": "ZCode",
       "fileTypes": [".md", ".mjs"],
       "techStack": ["ZCode CLI", "Markdown", "YAML"],
       "firstSeen": "2026-06-17",
-      "lastSeen": "2026-06-18",
-      "runCount": 4,
+      "lastSeen": "2026-06-19",
+      "runCount": 5,
       "skillCounts": {"user": 4, "plugin": 59},
       "archivedCount": 6,
-      "note": "本次清理3个跨平台symlink (ai-research-llm/make-game/scrapling)，归档总数从3增至6"
+      "note": "项目类型修正为通用技能开发与维护，添加 software 字段"
     }
   }
 }

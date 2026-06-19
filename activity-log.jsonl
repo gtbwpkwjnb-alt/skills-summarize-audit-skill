@@ -4,4 +4,8 @@
 {"ts":"2026-06-17T10:00:00Z","event":"action","type":"archive","skill":"ai-game-art-pipeline"}
 {"ts":"2026-06-17T10:00:00Z","event":"action","type":"archive","skill":"sprite-gen"}
 {"ts":"2026-06-18T14:00:00Z","event":"run","runN":3,"projectHash":"c187fb76","skillsFound":4,"skillsScored":4,"actions":["scored","fixed_description:1"],"avgScore":80}
-{"ts":"2026-06-18T17:00:00Z","event":"run","runN":4,"projectHash":"c187fb76","skillsFound":7,"skillsScored":7,"actions":["scored","archived:3","symlink_cleanup:3","versioned:2.3.0"],"avgScore":59}
+{"ts":"2026-06-18T17:00:00Z","event":"run","runN":4,"projectHash":"c187fb76","skillsFound":7,"skillsScored":7,"actions":["scored","archived:3","symlink_cleanup:3","versioned:2.3.0"],"avgScore":59}{"ts":"2026-06-19T10:00:00Z","event":"run","runN":5,"projectHash":"c187fb76","skillsFound":4,"skillsScored":4,"actions":["scored","fixed_description:2","bilingual_added:2","enhanced:auto_lang_detection"],"avgScore":80}
+{"ts":"2026-06-19T10:00:00Z","event":"action","type":"fix_description","skill":"summarize","change":"multiline_to_single+bilingual_added"}
+{"ts":"2026-06-19T10:00:00Z","event":"action","type":"fix_description","skill":"last30days","change":"bilingual_added:description_zh+description_en"}
+{"ts":"2026-06-19T10:00:00Z","event":"action","type":"fix_description","skill":"skills-audit","change":"self_fix:multiline_to_single+bilingual_added"}
+{"ts":"2026-06-19T10:00:00Z","event":"action","type":"enhance","skill":"skills-audit","change":"auto_lang_detection:step_①-A+quality_bilingual_check"}

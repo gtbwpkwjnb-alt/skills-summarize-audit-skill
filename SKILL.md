@@ -1,8 +1,9 @@
 ---
 name: skills-audit
-version: "3.0.0"
-description: 技能审查 → 画像·评分·优化。多平台通用。
-           Skills audit → profile · score · optimize. Multi-platform.
+version: "3.1.0"
+description: 审查技能 → 画像·评分·优化。多平台通用。
+description_zh: 技能审查 → 画像·评分·优化。多平台通用。触发词：skills-audit / 技能审查。
+description_en: Skills audit → profile · score · optimize. Multi-platform. Trigger: skills-audit.
 user-invocable: true
 ---
 
@@ -45,6 +46,15 @@ user-invocable: true
 
 输出："扫描到 N 个工具（用户 M + 系统 K）"
 
+#### ①-A 语言检测
+
+读取 `config.yaml` 的 `output_language`：
+- `zh` / 系统语言为中文 → 优先使用 `description_zh`，回退 `description`
+- `en` / 系统语言为英文 → 优先使用 `description_en`，回退 `description`
+- `auto` → 自动检测：检查当前会话/系统语言环境，默认中文
+
+扫描结果中展示的描述字段，始终使用当前语言匹配的版本。
+
 ### ② 用户画像
 
 **首次** → 询问用户主要工作和常用工具（2个问题）。
@@ -83,7 +93,7 @@ user-invocable: true
 |------|------|---------|
 | **项目适配** | 35% | 工具功能与当前项目匹配度 |
 | **留存趋势** | 30% | 历史使用频率 + 评分稳定性 |
-| **描述质量** | 20% | 描述是否清晰、完整、双语 |
+| **描述质量** | 20% | 描述是否清晰、完整、双语（含当前语言版本）|
 | **可维护性** | 15% | 用户可编辑 + 路径有效 + 格式完整 |
 
 ```
@@ -100,13 +110,21 @@ user-invocable: true
 ```
 🔧 优化建议
 ### 描述修复
-| 工具 | 当前描述 | 建议描述 |
+| 工具 | 当前 | 建议 |
+
+### 双语描述补充（缺失 description_zh 或 description_en）
+| 工具 | 缺失字段 | 建议补充 |
 
 ### 归档建议
 | 工具 | 总分 | 原因 |
 
 ### 搭配建议
 ```
+**描述语言规则**：
+- 当前输出语言（从 `config.yaml` 读取）决定评分时展示哪个字段
+- 若工具缺少当前语言的 `description_xx` 字段 → 在建议中提示补充
+- 精炼建议始终基于当前匹配语言版本
+
 **搭配建议规则表**（以下为通用规则，用户可在 `config.yaml` 中覆盖）：
 
 | 条件 | 建议 | 理由 |
@@ -126,7 +144,8 @@ user-invocable: true
 
 ### ⑦ 执行
 
-- 描述修复：修改工具定义文件的 description 字段
+- 描述修复：修改工具定义文件的 `description` 字段
+- 双语补充：为缺少 `description_zh` 或 `description_en` 的工具添加对应字段
 - 归档：移入 `config.yaml` 中的 `archive_dir`
 - 只操作用户工具，不碰系统级
 
@@ -168,13 +187,15 @@ custom_rules:
 # 可选：描述质量检查维度
 quality_checks:
   - name: "中文描述"
-    weight: 25
+    weight: 20
   - name: "触发词清晰"
-    weight: 25
+    weight: 20
   - name: "≤40字符"
-    weight: 25
+    weight: 20
   - name: "单行无换行"
-    weight: 25
+    weight: 20
+  - name: "双语字段完整(description_zh+_en)"
+    weight: 20
 
 output_language: "auto"  # auto / zh / en
 ```
