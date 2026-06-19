@@ -1,0 +1,17 @@
+# Build output
+dist/
+
+# Runtime data (v3.0)
+harvests/*/202[0-9]-*.md
+harvests/*/20[0-9][0-9]-*.md
+!harvests/index.md
+!harvests/error-ledger.md
+!harvests/_self-stats.md
+!harvests/*/errors.md
+
+# Runtime data (v4.x)
+usage-*.json
+activity-log.jsonl
+stats.json
+user-profile.md
+project-profiles.json

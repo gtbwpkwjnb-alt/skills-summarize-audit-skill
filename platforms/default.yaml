@@ -1,0 +1,7 @@
+platform: generic
+scan_paths:
+  user: "~/.agent-skills/*/"
+  plugin: ""
+archive_dir: "~/.agent-skills-archived/"
+trigger_words: ["skills-audit", "project-audit"]
+project_scan_default_depth: 8

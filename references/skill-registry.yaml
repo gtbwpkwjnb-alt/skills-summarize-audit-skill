@@ -1,0 +1,192 @@
+# ============================================================================
+# Skill Registry — 已知技能注册表
+# ============================================================================
+# 本文件维护已知技能的元数据：版本号、分类、来源。
+# 用途：
+#   1. 版本对比 → 检测已安装技能是否需要更新
+#   2. 分类标记 → 推荐时按类别分组
+#   3. 来源追溯 → 用户可查安装来源
+#
+# 更新方式：手动维护 + web 搜索辅助验证
+
+skills:
+  # ---- User Skills (用户技能, .agents/skills/) ----
+
+  - name: "skills-audit"
+    version: "4.0.0"
+    category: management
+    tags: ["audit", "project-scan", "recommendation"]
+    description: "项目技能审计 — 扫描项目，推荐最佳技能搭配"
+    source: "local"
+    homepage: "https://github.com/gtbwpkwjnb-alt/skills-audit-skill"
+
+  - name: "summarize"
+    version: "5.0.0"
+    category: docs
+    tags: ["summary", "session", "context"]
+    description: "精炼会话 → 进度/错误/自进化"
+    source: "local"
+
+  # ---- Plugin Skills (系统/插件技能) ----
+
+  - name: "skill-creator"
+    version: "0.1.0"
+    category: dev
+    tags: ["skill", "creation", "iteration"]
+    description: "创建新技能、编辑现有技能并迭代措辞"
+    source: "zcode-plugins-official"
+    plugin: "skill-creator"
+
+  - name: "docx"
+    version: "0.1.0"
+    category: docs
+    tags: ["word", "document", "office"]
+    description: "完整的 DOCX 文档创建、编辑与分析"
+    source: "zcode-plugins-official"
+    plugin: "document-skills"
+
+  - name: "pdf"
+    version: "0.1.0"
+    category: docs
+    tags: ["pdf", "document", "report"]
+    description: "专业 PDF 工具集"
+    source: "zcode-plugins-official"
+    plugin: "document-skills"
+
+  - name: "android-dev"
+    version: "0.1.0"
+    category: mobile
+    tags: ["android", "mobile", "emulator"]
+    description: "通过 android-emulator MCP 构建、运行、检查 Android 应用"
+    source: "zcode-plugins-official"
+    plugin: "android-emulator"
+
+  - name: "ios-dev"
+    version: "0.1.0"
+    category: mobile
+    tags: ["ios", "mobile", "simulator"]
+    description: "通过 ios-simulator MCP 构建、运行、检查 iOS 应用"
+    source: "zcode-plugins-official"
+    plugin: "ios-simulator"
+
+  - name: "restore-legacy-sessions"
+    version: "0.1.0"
+    category: management
+    tags: ["session", "restore", "migration"]
+    description: "检查、规划、执行旧会话的恢复"
+    source: "zcode-plugins-official"
+    plugin: "restore-legacy-sessions"
+
+  # ---- Superpowers 套件 (v5.1.0) ----
+
+  - name: "brainstorming"
+    version: "5.1.0"
+    category: design
+    tags: ["creative", "design", "planning"]
+    description: "创意工作前的需求、意图和设计探索"
+    source: "zcode-plugins-official"
+    plugin: "superpowers"
+
+  - name: "dispatching-parallel-agents"
+    version: "5.1.0"
+    category: dev
+    tags: ["parallel", "concurrent", "multi-task"]
+    description: "独立任务的并行调度"
+    source: "zcode-plugins-official"
+    plugin: "superpowers"
+
+  - name: "executing-plans"
+    version: "5.1.0"
+    category: dev
+    tags: ["plan", "execution", "implementation"]
+    description: "按实施计划在独立会话中执行"
+    source: "zcode-plugins-official"
+    plugin: "superpowers"
+
+  - name: "finishing-a-development-branch"
+    version: "5.1.0"
+    category: dev
+    tags: ["branch", "merge", "cleanup", "pr"]
+    description: "完成开发分支后的集成决策引导"
+    source: "zcode-plugins-official"
+    plugin: "superpowers"
+
+  - name: "receiving-code-review"
+    version: "5.1.0"
+    category: review
+    tags: ["review", "feedback", "code-quality"]
+    description: "接收代码审查反馈时的技术严谨性验证"
+    source: "zcode-plugins-official"
+    plugin: "superpowers"
+
+  - name: "requesting-code-review"
+    version: "5.1.0"
+    category: review
+    tags: ["review", "code-quality", "checklist"]
+    description: "完成任务或合并前验证工作是否符合要求"
+    source: "zcode-plugins-official"
+    plugin: "superpowers"
+
+  - name: "subagent-driven-development"
+    version: "5.1.0"
+    category: dev
+    tags: ["subagent", "parallel", "implementation"]
+    description: "使用子代理并行执行实施任务"
+    source: "zcode-plugins-official"
+    plugin: "superpowers"
+
+  - name: "systematic-debugging"
+    version: "5.1.0"
+    category: debug
+    tags: ["debug", "bug", "troubleshooting"]
+    description: "遇到 Bug 时的标准化排查流程"
+    source: "zcode-plugins-official"
+    plugin: "superpowers"
+
+  - name: "test-driven-development"
+    version: "5.1.0"
+    category: dev
+    tags: ["test", "tdd", "quality"]
+    description: "实现功能或修复前的测试驱动开发"
+    source: "zcode-plugins-official"
+    plugin: "superpowers"
+
+  - name: "using-git-worktrees"
+    version: "5.1.0"
+    category: dev
+    tags: ["git", "worktree", "isolation"]
+    description: "特性隔离工作区管理"
+    source: "zcode-plugins-official"
+    plugin: "superpowers"
+
+  - name: "using-superpowers"
+    version: "5.1.0"
+    category: management
+    tags: ["superpowers", "discovery", "skills"]
+    description: "建立技能发现和使用规范"
+    source: "zcode-plugins-official"
+    plugin: "superpowers"
+
+  - name: "verification-before-completion"
+    version: "5.1.0"
+    category: dev
+    tags: ["verification", "quality", "completion"]
+    description: "声称完成前的验证流程"
+    source: "zcode-plugins-official"
+    plugin: "superpowers"
+
+  - name: "writing-plans"
+    version: "5.1.0"
+    category: dev
+    tags: ["plan", "design", "architecture"]
+    description: "多步骤任务的实施计划编写"
+    source: "zcode-plugins-official"
+    plugin: "superpowers"
+
+  - name: "writing-skills"
+    version: "5.1.0"
+    category: dev
+    tags: ["skill", "authoring", "best-practice"]
+    description: "创建、编辑和验证技能"
+    source: "zcode-plugins-official"
+    plugin: "superpowers"

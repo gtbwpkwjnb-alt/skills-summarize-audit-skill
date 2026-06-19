@@ -1,0 +1,370 @@
+# ============================================================================
+# Project Types → Skill Recommendations
+# 项目类型 → 推荐技能映射表
+# ============================================================================
+# Each entry defines:
+#   - pattern:      特征文件或文件内容匹配规则
+#   - type:         项目类型名称
+#   - description:  简要说明
+#   - aliases:      同义词/别名
+#   - skills:       推荐技能列表（按优先级排序）
+#     - name:       技能名
+#     - priority:   essential | recommended | optional
+#     - category:   分类（dev/test/debug/review/deploy/docs/general）
+#     - why:        为什么适合此项目
+#     - effect:     安装/使用后的预期效果
+#     - use_case:   具体使用场景
+
+# ============================================================================
+# Web Frontend
+# ============================================================================
+
+- pattern:
+    files: ["package.json"]
+    contains_deps: ["react", "react-dom"]
+  type: "Web前端-React"
+  description: "React 前端项目"
+  aliases: ["React", "React.js", "React 前端"]
+  skills:
+    - name: "test-driven-development"
+      priority: essential
+      category: dev
+      why: "React 组件本质是函数 + 状态，天然适合 TDD 的红-绿-重构循环"
+      effect: "组件测试覆盖率从 ≈20% 提升到 80%+，重构时无心理负担"
+      use_case: "写新组件前先写测试用例，确保每个 prop 组合和状态变化都被覆盖"
+    - name: "systematic-debugging"
+      priority: essential
+      category: debug
+      why: "React 的 useState/useEffect/Context 异步更新链路复杂，凭直觉调试经常漏掉根因"
+      effect: "将 Bug 定位从平均 45 分钟缩短到 10-15 分钟，减少反复 console.log"
+      use_case: "当组件渲染不符合预期时，按 假设→验证→定位→修复 闭环排查"
+    - name: "requesting-code-review"
+      priority: essential
+      category: review
+      why: "React 组件 props 流转和副作用管理是 review 重点，结构化检查不容易遗漏"
+      effect: "拦截约 60% 的潜在问题（遗漏 key、多余 re-render、内存泄漏）"
+      use_case: "完成功能后提 PR 前，自动生成审查清单"
+    - name: "verification-before-completion"
+      priority: essential
+      category: dev
+      why: "前端开发常忽略空状态、加载态、错误态等边界场景"
+      effect: "每次完成都有可重复验证流程，避免『以为做完了→上线出 Bug』"
+      use_case: "在声称『完成』前，自动运行测试 + 检查清单"
+    - name: "brainstorming"
+      priority: recommended
+      category: design
+      why: "React 组件设计需要在多个方案间做权衡（状态提升/下放、拆分粒度）"
+      effect: "减少『写完发现设计不对』的返工，提前暴露设计盲区"
+      use_case: "开始新组件前用结构化 brainstorming 探索设计方案"
+    - name: "dispatching-parallel-agents"
+      priority: recommended
+      category: dev
+      why: "前端开发常有多文件修改（组件+样式+测试+类型定义），串行效率低"
+      effect: "并行处理独立任务，总耗时减少 30-40%"
+      use_case: "同时修改多个独立组件时，并行分配任务"
+    - name: "using-git-worktrees"
+      priority: optional
+      category: dev
+      why: "React 项目 node_modules 大，切换分支频繁 reinstall 很耗时"
+      effect: "特性间互不干扰，切换无需重启 dev server，省 5-10 分钟/次"
+      use_case: "多特性并行开发时，每个特性一个独立工作目录"
+    - name: "finishing-a-development-branch"
+      priority: optional
+      category: dev
+      why: "分支开发完成后的合并/清理步骤容易遗漏"
+      effect: "确保每次分支收尾一致，减少『忘记删分支』的仓库污染"
+      use_case: "特性完成后，引导完成 merge/PR/cleanup 闭环"
+
+- pattern:
+    files: ["package.json"]
+    contains_deps: ["vue", "vue-router"]
+  type: "Web前端-Vue"
+  description: "Vue 前端项目"
+  aliases: ["Vue", "Vue.js", "Vue 前端"]
+  skills:
+    - name: "test-driven-development"
+      priority: essential
+      category: dev
+      why: "Vue 组件逻辑集中在 script setup 和 composables，与测试框架契合度高"
+      effect: "提升组件可测试性，减少回归测试工作量"
+      use_case: "组合式函数和组件逻辑的测试驱动开发"
+    - name: "systematic-debugging"
+      priority: essential
+      category: debug
+      why: "Vue 的响应式系统在复杂场景下调试链路长"
+      effect: "缩短调试周期 50%"
+      use_case: "当响应式数据更新不符合预期时系统化排查"
+    - name: "requesting-code-review"
+      priority: recommended
+      category: review
+      why: "Vue 模板语法和 Composition API 的组合方式多样，review 需结构化工"
+      effect: "确保代码风格和架构一致性"
+      use_case: "提 PR 前生成审查清单"
+    - name: "brainstorming"
+      priority: recommended
+      category: design
+      why: "Vue 组件设计涉及 options/composition API 选择、组件拆分粒度"
+      effect: "提前确定最优方案，减少返工"
+      use_case: "设计和组织组件结构时的思维发散"
+
+- pattern:
+    files: ["package.json"]
+    contains_deps: ["@angular/core"]
+  type: "Web前端-Angular"
+  description: "Angular 前端项目"
+  aliases: ["Angular", "Angular 前端", "Angular 2+"]
+  skills:
+    - name: "systematic-debugging"
+      priority: essential
+      category: debug
+      why: "Angular 的 DI 容器、RxJS Observable 和变更检测机制排查链路长"
+      effect: "将调试周期从小时级缩短到分钟级"
+      use_case: "当依赖注入报错或 Observable 不触发时的系统排查"
+    - name: "test-driven-development"
+      priority: essential
+      category: dev
+      why: "Angular 内置 TestBed 和 Jasmine，测试基础设施完善"
+      effect: "充分利用 Angular 的测试能力，提升代码质量"
+      use_case: "Service 和 Component 的单元测试和集成测试"
+
+- pattern:
+    files: ["package.json"]
+    contains_deps: ["next"]
+  type: "Web全栈-Next.js"
+  description: "Next.js 全栈项目"
+  aliases: ["Next.js", "Next", "Next 全栈"]
+  skills:
+    - name: "test-driven-development"
+      priority: essential
+      category: dev
+      why: "Next.js 同时包含前端组件和后端 API 路由，两端都需要测试覆盖"
+      effect: "前后端一致的 TDD 流程，减少跨端 Bug"
+      use_case: "API route 和页面组件的测试驱动开发"
+    - name: "systematic-debugging"
+      priority: essential
+      category: debug
+      why: "SSR/SSG/ISR 多种渲染模式交叉，定位问题需系统方法"
+      effect: "区分客户端/服务端问题的能力提升，减少无效排查"
+      use_case: "当 SSG 静态生成结果与服务端不一致时系统排查"
+    - name: "verification-before-completion"
+      priority: essential
+      category: dev
+      why: "全栈项目完成标准更难定义（需验证前端+API+数据库）"
+      effect: "避免前端改完了但 API 没改完的情况"
+      use_case: "完成特性时同时验证前端展示和后端接口"
+
+# ============================================================================
+# Node.js Backend
+# ============================================================================
+
+- pattern:
+    files: ["package.json"]
+    contains_deps: ["express", "koa", "fastify"]
+  type: "Node后端"
+  description: "Node.js 后端项目"
+  aliases: ["Node.js", "Node Backend", "Node后端", "Express", "Koa", "Fastify"]
+  skills:
+    - name: "test-driven-development"
+      priority: essential
+      category: dev
+      why: "后端 API 的输入输出边界清晰，是最适合 TDD 的场景"
+      effect: "接口覆盖率达到 90%+，重构时无需担心破坏契约"
+      use_case: "写路由 handler 前先写请求→响应测试用例"
+    - name: "systematic-debugging"
+      priority: essential
+      category: debug
+      why: "Node 异步错误栈有时不清晰，中间件链路排查容易迷失"
+      effect: "系统化方法让错误定位从『猜』变成『推演』"
+      use_case: "当请求链路中某中间件报错时，分段排查定位"
+    - name: "requesting-code-review"
+      priority: recommended
+      category: review
+      why: "API 变更影响前端/客户端，review 需关注向后兼容性"
+      effect: "减少破坏性 API 变更，降低与其他服务的集成成本"
+      use_case: "修改 API 路由/参数时，自动检查兼容性影响"
+
+# ============================================================================
+# ZCode Skill Development
+# ============================================================================
+
+- pattern:
+    contains_files: ["SKILL.md"]
+    count_min: 2
+  type: "ZCode技能开发"
+  description: "ZCode 技能/插件开发项目"
+  aliases: ["Skill Dev", "技能开发", "SKILL.md", "ZCode Skill"]
+  skills:
+    - name: "skill-creator"
+      priority: essential
+      category: dev
+      why: "当前目录包含 SKILL.md 表明正在开发技能，skill-creator 是官方创作工具"
+      effect: "提供从草稿→测试→迭代的标准化流程，减少忘记步骤的返工"
+      use_case: "编写新 SKILL.md 或迭代已有技能时引导完整流程"
+    - name: "writing-skills"
+      priority: essential
+      category: dev
+      why: "writing-skills 提供 Anthropic 最佳实践和模板，适合技能开发参考"
+      effect: "基于行业最佳实践编写技能，减少试错成本"
+      use_case: "参考技能结构、触发词设计、description 撰写最佳实践"
+    - name: "verification-before-completion"
+      priority: recommended
+      category: dev
+      why: "技能开发完成后容易遗漏配置或路径问题"
+      effect: "确保每次完成都经过: 描述检查→路径验证→触发测试"
+      use_case: "完成技能编写后，在声称完成前运行验证"
+    - name: "summarize"
+      priority: recommended
+      category: docs
+      why: "技能开发迭代周期长，会话容易累积大量上下文"
+      effect: "保持会话清洁，减少 token 浪费"
+      use_case: "长会话结束时自动精炼进度和待办事项"
+
+# ============================================================================
+# Rust
+# ============================================================================
+
+- pattern:
+    files: ["Cargo.toml"]
+  type: "Rust"
+  description: "Rust 项目"
+  aliases: ["Rust", "Cargo", "Rust 项目"]
+  skills:
+    - name: "systematic-debugging"
+      priority: essential
+      category: debug
+      why: "Rust 的所有权模型和生命周期编译错误对新手有门槛"
+      effect: "系统化方法帮助理解编译器的『提示』而不是被错误信息吓退"
+      use_case: "当 borrow checker 报错时按步骤分析引用关系"
+    - name: "test-driven-development"
+      priority: recommended
+      category: dev
+      why: "Rust 内置测试框架，cargo test 是标准实践"
+      effect: "利用 Rust 的类型系统和测试框架写出更安全的代码"
+      use_case: "函数和模块的测试驱动开发"
+
+# ============================================================================
+# Python
+# ============================================================================
+
+- pattern:
+    files: ["pyproject.toml"]
+  type: "Python"
+  description: "Python 项目"
+  aliases: ["Python", "Py", "Python 项目"]
+  skills:
+    - name: "systematic-debugging"
+      priority: essential
+      category: debug
+      why: "Python 动态类型在大型项目中调试成本高"
+      effect: "系统化调试弥补动态类型的不足"
+      use_case: "当 TypeError 或 AttributeError 出现时系统化定位"
+
+- pattern:
+    files: ["requirements.txt"]
+    type: "Python"
+    description: "Python 项目"
+    aliases: ["Python", "Py", "Python 项目"]
+    skills:
+      - name: "systematic-debugging"
+        priority: essential
+        category: debug
+        why: "Python requirements.txt 项目通常无类型约束，运行时错误靠调试"
+        effect: "结构化调试减少排查时间"
+        use_case: "运行时错误排查"
+
+# ============================================================================
+# Go
+# ============================================================================
+
+- pattern:
+    files: ["go.mod"]
+  type: "Go"
+  description: "Go 项目"
+  aliases: ["Go", "Golang", "Go 项目"]
+  skills:
+    - name: "test-driven-development"
+      priority: essential
+      category: dev
+      why: "Go 内置测试工具和表格驱动测试范式，与 TDD 天然契合"
+      effect: "充分利用 Go 的测试基础设施，测试即文档"
+      use_case: "写函数前先写表格驱动测试"
+
+# ============================================================================
+# Java / JVM
+# ============================================================================
+
+- pattern:
+    files: ["pom.xml"]
+  type: "Java-Maven"
+  description: "Java Maven 项目"
+  aliases: ["Java", "Maven", "Java 项目"]
+  skills: []
+
+- pattern:
+    files: ["build.gradle", "build.gradle.kts"]
+  type: "Java-Gradle"
+  description: "Java Gradle 项目"
+  aliases: ["Java", "Gradle", "Kotlin", "Java 项目"]
+  skills: []
+
+# ============================================================================
+# C# / .NET
+# ============================================================================
+
+- pattern:
+    files: [".csproj"]
+  type: "C#/.NET"
+  description: "C# / .NET 项目"
+  aliases: ["C#", ".NET", "Dotnet", "CSharp"]
+  skills: []
+
+# ============================================================================
+# Ruby
+# ============================================================================
+
+- pattern:
+    files: ["Gemfile"]
+  type: "Ruby"
+  description: "Ruby 项目"
+  aliases: ["Ruby", "Ruby on Rails", "Rails"]
+  skills: []
+
+# ============================================================================
+# Container / DevOps
+# ============================================================================
+
+- pattern:
+    files: ["Dockerfile"]
+  type: "容器化"
+  description: "使用 Docker 的项目"
+  aliases: ["Docker", "Container", "容器化"]
+  skills:
+    - name: "using-git-worktrees"
+      priority: optional
+      category: dev
+      why: "容器化项目通常涉及多服务协同，工作区隔离需求高"
+      effect: "服务间互不干扰的独立开发环境"
+      use_case: "同时开发多个微服务时，每个服务一个独立工作区"
+
+# ============================================================================
+# Generic / Fallback
+# ============================================================================
+
+- pattern:
+    fallback: true
+  type: "通用"
+  description: "未能识别类型的项目"
+  aliases: ["Generic", "通用项目"]
+  skills:
+    - name: "systematic-debugging"
+      priority: recommended
+      category: debug
+      why: "任何类型的开发项目都会遇到 Bug，系统化调试是通用能力"
+      effect: "减少随机试错，提升调试效率"
+      use_case: "遇到任何 Bug 时的标准化排查流程"
+    - name: "verification-before-completion"
+      priority: recommended
+      category: dev
+      why: "无论什么项目，『完成』的标准需要有可重复验证流程"
+      effect: "每次完成有据可查，减少遗漏"
+      use_case: "开发任务完成后的标准化验证"
