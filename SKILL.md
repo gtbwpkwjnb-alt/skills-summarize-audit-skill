@@ -1,8 +1,8 @@
 ---
 name: skills-audit
 version: "4.2.0"
-description: 项目技能审计 → 项目角色画像驱动。四维评分(含外部⭐+描述质量)，自动精炼技能描述为触发词→功能简介。5块报告，已安装≠网络推荐。支持 ZCode / Claude Code / Codex / Cursor / Windsurf。
-           Project Skill Audit → role-profile driven. 4D scoring (external stars + description quality), auto-optimize descriptions. 5-block non-collapsing report. Multi-platform.
+description: 技能审计/skills-audit → 画像驱动·四维评分·描述精炼
+           Skill Audit → role-profile driven. 4D scoring. Auto-optimize descriptions.
 user-invocable: true
 ---
 

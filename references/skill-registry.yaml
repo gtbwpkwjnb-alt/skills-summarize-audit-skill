@@ -13,18 +13,18 @@ skills:
   # ---- User Skills (用户技能, .agents/skills/) ----
 
   - name: "skills-audit"
-    version: "4.0.0"
+    version: "4.2.0"
     category: management
     tags: ["audit", "project-scan", "recommendation"]
-    description: "项目技能审计 — 扫描项目，推荐最佳技能搭配"
+    description: "技能审计/skills-audit → 画像驱动·四维评分·描述精炼"
     source: "local"
     homepage: "https://github.com/gtbwpkwjnb-alt/skills-audit-skill"
 
   - name: "summarize"
-    version: "5.0.0"
+    version: "5.1.0"
     category: docs
     tags: ["summary", "session", "context"]
-    description: "精炼会话 → 进度/错误/自进化"
+    description: "总结/summarize → 会话精炼·进度·自进化"
     source: "local"
 
   # ---- Plugin Skills (系统/插件技能) ----
