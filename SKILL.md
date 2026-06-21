@@ -1,8 +1,7 @@
 ---
 name: skills-audit
 version: "4.2.0"
-description: 技能审计/skills-audit → 画像驱动·四维评分·描述精炼
-           Skill Audit → role-profile driven. 4D scoring. Auto-optimize descriptions.
+description: 技能审查 → 画像驱动·四维评分·描述精炼（同义：技能审计/项目审查/项目审计）| Skill Audit → profile-driven 4D scoring & refine
 user-invocable: true
 ---
 
@@ -18,13 +17,13 @@ user-invocable: true
 
 | 平台 | 触发 | 示例 |
 |------|------|------|
-| **ZCode** | `skills-audit` 或 `技能审查` 或 `项目审计` | `> skills-audit ./my-project` |
+| **ZCode** | `技能审查`（主）/ `技能审计` `项目审查` `项目审计` / `skills-audit` | `> skills-audit ./my-project` |
 | **Claude Code** | `/skills-audit` | `> /skills-audit ./my-project` |
-| **Codex** | `skills-audit` 或 `项目审计` | `> skills-audit ./my-project` |
+| **Codex** | `技能审查` / `skills-audit` | `> skills-audit ./my-project` |
 | **Cursor** | `@skills-audit` | `> @skills-audit ./my-project` |
 
 **参数**: 项目路径可选。不传则用当前工作目录。
-**只认独立词触发**。句子中不触发。
+**触发规则**: 独立词触发。嵌入句子中不触发（如"帮我做一下技能审查"不触发）。
 
 ---
 
@@ -141,12 +140,21 @@ user-invocable: true
 
 | 检查项 | 规则 | 不合格的处理 |
 |--------|------|-------------|
-| 语言 | 中文优先。纯英文→优化为中文 | 自动生成中文化版本 |
+| 语言 | 根据 `output_language` 设置决定（见下表） | 自动生成目标语言版本 |
 | 格式 | 必须遵循 `触发词 → 功能简介` | 自动重排为规范格式 |
 | 长度 | 单行，≤40 字符 | 截断并保留核心语义 |
-| 双语 | 中英双语最佳 | 单语也接受，不扣分 |
+| 双语 | `auto` 模式建议双语，其他模式尊重设置 | 单语也接受，不扣分 |
+
+**语言判定规则（根据 `output_language`）：**
+
+| output_language | 行为 |
+|-----------------|------|
+| `auto`（默认） | 保持原文语言。纯英文→建议同时提供中文版（`\|` 分隔双语）；纯中文→建议同时提供英文版 |
+| `zh` | 中文优先。纯英文→生成中文优化版 |
+| `en` | 英文优先。纯中文→生成英文优化版 |
 
 > 系统/插件技能（editable=false）只标注问题，不自动修改。
+> 审计完成后必须回头检查 skills-audit 自身的 description 是否符合以上规范，不符合则自动修正（解决自指盲区）。
 
 **评分表行格式（已安装技能）：**
 ```
@@ -224,6 +232,8 @@ PyPI:   WebFetch pypi.org/pypi/{package}/json
  2 systematic-debug   纯英文             系统化调试 → 假设驱动·二分定位·根因分析
  ...
 ── 描述全部合格，无需优化 ── （无不合格项时的兜底）
+
+是否更新以上描述？ [回复"是"全部更新，或回复编号如"1 3"指定更新]
 ════════════════════════════════════════════════
 
 🌐 网络推荐备选（未安装，供评估）
@@ -254,6 +264,7 @@ PyPI:   WebFetch pypi.org/pypi/{package}/json
 只操作用户层技能（editable=true），不碰系统/插件层。
 
 - **归档**：技能目录移入 `config.yaml` 的 `archive_dir`
+- **修改描述**：用户确认后，Edit 对应技能 SKILL.md frontmatter 的 `description:` 行，替换为优化版描述
 - **安装**：给出安装命令示例（clone / 下载 / 安装脚本）
 - **更新**：给出更新方式
 - **搜索安装**：给出来源 URL
@@ -372,7 +383,7 @@ output_language: "auto"  # auto / zh / en
 
 ## 边界规则
 
-- **触发**：仅 `skills-audit` / `技能审查` / `项目审计` 独立打出
+- **触发**：仅 `技能审查`（主）/ `技能审计` / `项目审查` / `项目审计` / `skills-audit` 独立打出；嵌入句子不触发
 - **路径参数**：支持绝对路径和相对路径；路径不存在时报错终止
 - **三级分层**：T1/T2/T3 判定以项目角色画像的"核心活动"为唯一尺度，禁止退回全局/领域二分
 - **评分必出**：每个已安装技能必须有分数+层级+外部信号+简评。未安装技能不进评分表

@@ -21,11 +21,12 @@ skills:
     homepage: "https://github.com/gtbwpkwjnb-alt/skills-audit-skill"
 
   - name: "summarize"
-    version: "5.1.0"
+    version: "5.2.0"
     category: docs
-    tags: ["summary", "session", "context"]
-    description: "总结/summarize → 会话精炼·进度·自进化"
+    tags: ["summary", "session", "context", "token-tracking", "skill-analytics"]
+    description: "总结 → 会话精炼·进度追踪·自动迭代"
     source: "local"
+    homepage: "https://github.com/gtbwpkwjnb-alt/summarize-skill"
 
   # ---- Plugin Skills (系统/插件技能) ----
 
