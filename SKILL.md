@@ -77,9 +77,9 @@ user-invocable: true
 痛点   状态管理复杂度 · 组件拆分粒度 · SSR 调试
 ```
 
-画像示例（ZCode 技能开发项目）：
+画像示例（AI Agent 技能开发项目）：
 ```
-类型   ZCode 工作区配置 / 技能管理
+类型   AI Agent 工作区配置 / 技能管理
 活动   技能编写 · Agent 编排 · 工具链优化 · MCP 集成 · 规则维护
 产物   SKILL.md · AGENTS.md · YAML · .mjs · 安装脚本
 痛点   跨项目技能复用 · 版本追踪 · 冗余清理 · 新技能发现
@@ -294,7 +294,7 @@ PyPI:   WebFetch pypi.org/pypi/{package}/json
 | pyproject.toml / requirements.txt | Python | 中 |
 | go.mod | Go | 中 |
 | pom.xml / build.gradle | Java | 中 |
-| SKILL.md (多文件) | ZCode技能开发 | 高 |
+| SKILL.md (多文件) | AI Agent 技能开发 | 高 |
 | .csproj | C#/.NET | 中 |
 | Gemfile | Ruby | 中 |
 | Dockerfile | 容器化 | 低（辅助） |
@@ -329,14 +329,18 @@ archive_dir: "$SKILL_DIR/../archived"  # 归档目录
 
 scan_paths:
   - name: "用户技能"
-    path: "~/.zcode/skills/*/"
-    type: user
-    editable: true
-  - name: "用户技能(.agents)"
     path: "~/.agents/skills/*/"
     type: user
     editable: true
-  - name: "插件工具"
+  - name: "用户技能 (ZCode)"
+    path: "~/.zcode/skills/*/"
+    type: user
+    editable: true
+  - name: "Claude Code 技能"
+    path: "~/.claude/skills/*/"
+    type: user
+    editable: true
+  - name: "插件技能 (ZCode示例)"
     path: "~/.zcode/cli/plugins/cache/*/*/skills/*/"
     type: system
     editable: false
@@ -362,7 +366,7 @@ version_check:
   # registry_url 为空时仅依赖本地 skill-registry.yaml
   registry_url: ""
   # 搜索关键词模板（用于 web 搜索补充）
-  search_template: "{skill_name} ZCode skill latest version"
+  search_template: "{skill_name} AI agent skill latest version"
 
 # 输出语言
 output_language: "auto"  # auto / zh / en
@@ -414,7 +418,7 @@ project_types:
     type: "Rust"
     recommended: []
   - pattern: "SKILL.md"
-    type: "ZCode Skill"
+    type: "AI Agent Skill"
     recommended: ["skill-creator"]
 ```
 
@@ -422,4 +426,4 @@ project_types:
 
 ## 平台配置
 
-参见 `platforms/zcode.yaml` 和 `platforms/default.yaml`（维持 v3.0 格式不变）。
+参见 `platforms/zcode.yaml` 和 `platforms/default.yaml`（多平台支持，ZCode 和通用回退）。

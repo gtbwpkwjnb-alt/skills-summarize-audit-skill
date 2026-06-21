@@ -5,14 +5,22 @@ data_dir: "$SKILL_DIR"
 archive_dir: "$SKILL_DIR/../archived"
 
 scan_paths:
-  - name: "用户技能 (.zcode)"
-    path: "~/.zcode/skills/*/"
-    type: user
-    editable: true
+  # 通用路径（跨 AI 助手）— 用户技能通常在此
   - name: "用户技能 (.agents)"
     path: "~/.agents/skills/*/"
     type: user
     editable: true
+  # ZCode 特有多路径
+  - name: "用户技能 (.zcode)"
+    path: "~/.zcode/skills/*/"
+    type: user
+    editable: true
+  # Claude Code 路径
+  - name: "Claude Code 技能"
+    path: "~/.claude/skills/*/"
+    type: user
+    editable: true
+  # 插件/系统技能（各平台路径不同，此为 ZCode 示例）
   - name: "插件技能"
     path: "~/.zcode/cli/plugins/cache/*/*/skills/*/"
     type: system
@@ -42,7 +50,7 @@ project_scan:
 version_check:
   enabled: true
   registry_url: ""
-  search_template: "{skill_name} ZCode skill latest version"
+  search_template: "{skill_name} AI agent skill latest version"
 
 # 用户自定义搭配规则（可选覆盖）
 custom_rules:

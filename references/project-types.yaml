@@ -184,15 +184,15 @@
       use_case: "修改 API 路由/参数时，自动检查兼容性影响"
 
 # ============================================================================
-# ZCode Skill Development
+# AI Agent Skill Development
 # ============================================================================
 
 - pattern:
     contains_files: ["SKILL.md"]
     count_min: 2
-  type: "ZCode技能开发"
-  description: "ZCode 技能/插件开发项目"
-  aliases: ["Skill Dev", "技能开发", "SKILL.md", "ZCode Skill"]
+  type: "AI Agent 技能开发"
+  description: "AI Agent 技能/插件开发项目"
+  aliases: ["Skill Dev", "技能开发", "SKILL.md", "Agent Skill"]
   skills:
     - name: "skill-creator"
       priority: essential
