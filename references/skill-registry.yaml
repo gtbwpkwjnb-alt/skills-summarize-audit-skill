@@ -13,15 +13,15 @@ skills:
   # ---- User Skills (用户技能, .agents/skills/) ----
 
   - name: "skills-audit"
-    version: "4.2.0"
+    version: "4.3.0"
     category: management
     tags: ["audit", "project-scan", "recommendation"]
-    description: "技能审计/skills-audit → 画像驱动·四维评分·描述精炼"
+    description: "技能审查 → 画像驱动·四维评分·描述精炼"
     source: "local"
     homepage: "https://github.com/gtbwpkwjnb-alt/skills-audit-skill"
 
   - name: "summarize"
-    version: "5.3.0"
+    version: "5.3.1"
     category: docs
     tags: ["summary", "session", "context", "token-tracking", "skill-analytics", "reversible-compression", "cross-agent", "ast-aware"]
     description: "总结 → 会话精炼·进度追踪·自动迭代·可逆压缩·跨Agent交接"
