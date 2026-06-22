@@ -16,15 +16,15 @@ skills:
     version: "4.3.0"
     category: management
     tags: ["audit", "project-scan", "recommendation"]
-    description: "技能审查 → 画像驱动·四维评分·描述精炼"
+    description: "技能审查 → 画像驱动·四维评分·规划追踪"
     source: "local"
     homepage: "https://github.com/gtbwpkwjnb-alt/skills-audit-skill"
 
   - name: "summarize"
-    version: "5.3.1"
+    version: "5.3.2"
     category: docs
     tags: ["summary", "session", "context", "token-tracking", "skill-analytics", "reversible-compression", "cross-agent", "ast-aware"]
-    description: "总结 → 会话精炼·进度追踪·自动迭代·可逆压缩·跨Agent交接"
+    description: "总结 → 会话精炼·进度追踪·错误进化·可逆压缩·跨Agent交接"
     source: "local"
     homepage: "https://github.com/gtbwpkwjnb-alt/summarize-skill"
 
