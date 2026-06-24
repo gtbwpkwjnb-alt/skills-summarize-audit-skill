@@ -26,7 +26,7 @@ skills:
       tags: ["summary", "session", "context", "token-tracking", "skill-analytics", "reversible-compression", "cross-agent", "3-tier-self-healing", "git-versioned", "error-immune", "self-evolving", "error-prevention"]
       description: "🛡️ 错误免疫系统: 自动收割错误→5维分类→多信号检索→规则自进化→采纳追踪→收敛预警。保留 summarize 触发词。"
       source: "local"
-    homepage: "https://github.com/gtbwpkwjnb-alt/summarize-skill"
+    homepage: "https://github.com/gtbwpkwjnb-alt/summarize-error-skill"
 
   # ---- Plugin Skills (系统/插件技能) ----
 
