@@ -21,10 +21,10 @@ skills:
     homepage: "https://github.com/gtbwpkwjnb-alt/skills-audit-skill"
 
   - name: "summarize"
-    version: "5.3.2"
+    version: "5.4.0"
     category: docs
-    tags: ["summary", "session", "context", "token-tracking", "skill-analytics", "reversible-compression", "cross-agent", "ast-aware"]
-    description: "总结 → 会话精炼·进度追踪·错误进化·可逆压缩·跨Agent交接"
+    tags: ["summary", "session", "context", "token-tracking", "skill-analytics", "reversible-compression", "cross-agent", "ast-aware", "3-tier-self-healing", "git-versioned"]
+    description: "总结 → 会话精炼·进度追踪·错误进化·可逆压缩·跨Agent交接·三级自愈"
     source: "local"
     homepage: "https://github.com/gtbwpkwjnb-alt/summarize-skill"
 
