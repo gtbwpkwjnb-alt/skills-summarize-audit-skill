@@ -13,20 +13,60 @@ skills:
   # ---- User Skills (用户技能, .agents/skills/) ----
 
   - name: "skills-audit"
-    version: "4.3.0"
+    version: "5.2.0"
     category: management
-    tags: ["audit", "project-scan", "recommendation"]
-    description: "技能审查 → 画像驱动·四维评分·规划追踪"
+    tags: ["audit", "project-scan", "profile", "recommendation", "confidence"]
+    description: "技能审查 → 画像驱动·五维评分·置信分析·逐技能优化 | Audit → profile·5dim·conf·optimize"
     source: "local"
     homepage: "https://github.com/gtbwpkwjnb-alt/skills-audit-skill"
 
-    - name: "summarize"
-      version: "5.9.0"
-      category: docs
-      tags: ["summary", "session", "context", "token-tracking", "skill-analytics", "reversible-compression", "cross-agent", "3-tier-self-healing", "git-versioned", "error-immune", "self-evolving", "error-prevention"]
-      description: "🛡️ 错误免疫系统: 自动收割错误→5维分类→多信号检索→规则自进化→采纳追踪→收敛预警。保留 summarize 触发词。"
-      source: "local"
-    homepage: "https://github.com/gtbwpkwjnb-alt/summarize-error-skill"
+  - name: "summarize"
+    version: "5.9.0"
+    category: docs
+    tags: ["summary", "session", "context", "token-tracking", "error-harvest", "self-evolve", "compress", "cross-agent"]
+    description: "总结 → 错误收割·自进化·可逆压缩 | Summarize → error harvest·self-evolve·compress"
+    source: "local"
+    homepage: "https://github.com/gtbwpkwjnb-alt/summarize-skill"
+
+  - name: "learn"
+    version: "3.6.0"
+    category: docs
+    tags: ["video", "transcript", "knowledge", "OCR", "AI-summary"]
+    description: "学习 → 视频转文字·AI总结·知识入库 | Learn → video→text·AI summary·KB import"
+    source: "local"
+    homepage: ""
+
+  - name: "agent-reach"
+    version: "1.0.0"
+    category: research
+    tags: ["search", "social-media", "multi-platform", "research"]
+    description: "互联网调研 → 多平台搜索·13渠道·信息获取 | Web research → multi-platform·13 channels·info gathering"
+    source: "local"
+    homepage: "https://github.com/Panniantong/Agent-Reach"
+
+  - name: "caveman"
+    version: "1.0.0"
+    category: general
+    tags: ["compress", "token-saving", "minimal"]
+    description: "极简通讯 → 去冠词·省75%token·全精度 | Caveman → no articles·75% less token·full precision"
+    source: "local"
+    homepage: ""
+
+  - name: "last30days"
+    version: "1.0.0"
+    category: research
+    tags: ["aggregator", "trend", "multi-platform", "report"]
+    description: "30天调研 → 15+平台聚合·互动评分·AI报告 | 30d research → 15+ platforms·engagement·AI report"
+    source: "local"
+    homepage: ""
+
+  - name: "scrapling"
+    version: "1.0.0"
+    category: dev
+    tags: ["scraping", "crawler", "anti-bot", "js-render"]
+    description: "高级抓取 → 自适应定位·反反爬·JS渲染 | Scrapling → adaptive·anti-bot·JS render"
+    source: "local"
+    homepage: "https://github.com/D4Vinci/Scrapling"
 
   # ---- Plugin Skills (系统/插件技能) ----
 

@@ -193,6 +193,19 @@
   type: "AI Agent 技能开发"
   description: "AI Agent 技能/插件开发项目"
   aliases: ["Skill Dev", "技能开发", "SKILL.md", "Agent Skill"]
+  # 画像补充标签 — 用于多维画像生成
+  profile_tags:
+    activities:
+      - "技能编写(SKILL.md)"
+      - "Agent编排(触发词/路由)"
+      - "工具链开发(Python/JS脚本)"
+      - "MCP集成"
+      - "规则维护(AGENTS.md)"
+      - "技能测试验证"
+      - "文档撰写"
+      - "版本管理与发布"
+    tech_stacks: ["Markdown/SKILL.md", "YAML", "Python", "JavaScript", "PowerShell", "MCP"]
+    products: ["SKILL.md", "AGENTS.md", ".py", ".js", ".yaml", ".json", ".ps1"]
   skills:
     - name: "skill-creator"
       priority: essential
@@ -206,6 +219,24 @@
       why: "writing-skills 提供 Anthropic 最佳实践和模板，适合技能开发参考"
       effect: "基于行业最佳实践编写技能，减少试错成本"
       use_case: "参考技能结构、触发词设计、description 撰写最佳实践"
+    - name: "agent-reach"
+      priority: essential
+      category: dev
+      why: "技能开发前必须先搜索验证，agent-reach 是唯一互联网调研入口"
+      effect: "确保技能设计基于最新技术文档，避免闭门造车"
+      use_case: "开发新技能前搜索同类技能、最佳实践、API 文档"
+    - name: "brainstorming"
+      priority: recommended
+      category: design
+      why: "技能设计需要在多个方案间权衡（触发词设计、路由结构、输出格式）"
+      effect: "提前暴露设计盲区，减少『写完发现设计不对』的返工"
+      use_case: "设计新技能结构前用结构化 brainstorming 探索方案"
+    - name: "writing-plans"
+      priority: recommended
+      category: dev
+      why: "多模块技能开发需要清晰的实施计划"
+      effect: "将大任务拆解为可执行的原子步骤，避免遗漏"
+      use_case: "开始复杂技能开发前编写实施计划"
     - name: "verification-before-completion"
       priority: recommended
       category: dev
@@ -218,6 +249,18 @@
       why: "技能开发迭代周期长，会话容易累积大量上下文"
       effect: "保持会话清洁，减少 token 浪费"
       use_case: "长会话结束时自动精炼进度和待办事项"
+    - name: "skills-audit"
+      priority: recommended
+      category: dev
+      why: "技能开发后需要审计评分，确保质量达标"
+      effect: "检查技能是否符合规范、description 是否优化、依赖是否完整"
+      use_case: "技能开发完成后运行审计获取改进建议"
+    - name: "scrapling"
+      priority: optional
+      category: dev
+      why: "调研竞品技能或参考文档时可能需要深度抓取"
+      effect: "批量获取竞品技能实现细节，辅助设计决策"
+      use_case: "研究同类技能的 SKILL.md 实现方式"
 
 # ============================================================================
 # Rust

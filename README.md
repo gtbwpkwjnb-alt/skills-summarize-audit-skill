@@ -1,10 +1,10 @@
-# Skills Audit v4.3.0 — 项目技能推荐引擎
+# Skills Audit v5.2.0 — 置信量化 · 五维评分 · 并行编排 · 条件报告
 
-> **Project Skill Audit** — 扫描项目文件夹，分析技术栈和项目类型，生成全面的技能/插件/工具推荐报告。画像驱动·四维评分·描述精炼。
+> **Project Skill Audit** — 扫描项目文件夹，分析技术栈和项目类型，生成全面的技能/插件/工具推荐报告。画像驱动·五维评分·置信分析。新增不推荐清单、ROI成本效益分析、并行化执行流程。
 >
 > **跨平台**: ZCode · Claude Code · Codex · Cursor · Windsurf
 
-[![Version](https://img.shields.io/badge/version-4.3.0-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-5.2.0-blue)](VERSION)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-ZCode%20%7C%20Claude%20Code%20%7C%20Codex-lightgrey)]()
 
@@ -12,9 +12,9 @@
 
 ## Overview
 
-**EN**: Scans your active project folder, profiles the tech stack, then scores installed skills on 4 dimensions (Fit/Value/Fresh/Community), checks description quality, and searches the web for better alternatives. Each suggestion includes a 3-part explanation: **原因** (why), **效果** (effect), **场景** (use case).
+**EN**: Scans your active project folder, profiles the tech stack, then scores installed skills on 5 dimensions (Fit/Value/Fresh/Community/ROI), recommends with confidence scores and cost-benefit analysis. Includes negative recommendations and conditional report output.
 
-**CN**: 扫描开发中项目，构建项目角色画像，四维评分已安装技能，检查描述规范，搜索网络备选。每项建议附带三段解释：**原因**、**效果**、**场景**。
+**CN**: 扫描开发中项目，构建项目角色画像，五维评分已安装技能，检查描述规范，搜索网络备选。每项建议附带三段解释：**原因**、**效果**、**场景**。
 
 ---
 
@@ -63,34 +63,38 @@ iwr https://raw.githubusercontent.com/gtbwpkwjnb-alt/skills-audit-skill/main/ins
 
 ---
 
+## Before vs After（技能库健康度对比）
+
+| 指标 | 审计前 | 审计后 |
+|------|--------|--------|
+| 技能总数 | 23（10 个 0 次调用） | 13（全部活跃） |
+| 每次启动 token 消耗 | ~8,000 tokens | ~4,500 tokens（-44%） |
+| T3/不相关技能 | 8 个（34%） | 0 个（已归档） |
+| 描述合格率 | 8/23 不合格（35%） | 23/23 合格（100%） |
+| 功能重叠 | 3 对⚠️ | 0 对 |
+| 推荐依据 | agent 猜测 | 信心指数+ROI+证据链 |
+
+---
+
 ## Changelog
 
-### v4.3.0 (2026-06-22) — 全维度优化
+### v5.2.0 (2026-06-26) — 置信量化 · 五维评分 · 并行编排 · 条件报告
 
-- 🔄 **评分流程修正**：Community 维度步骤④暂用默认值，步骤⑤回填真实数据
-- 📉 **步骤③精简**：移除冗余初筛，仅加载参考数据到内存
-- 🎯 **Value 维度重构**：从固定类别分改为项目匹配加成（T1 +10）
-- 📊 **健康度行重设计**：活跃数(含分层) + 建议归档数，均分仅计活跃技能
-- 🧹 **边界规则去重**：15 条合并为 10 条
-- 🗑️ **去重逻辑**：同 name 技能优先用户版→版本号高者
-- ↩️ **归档/描述修改增加 undo**：复制归档+备份描述
-- 🔍 **搜索模板明确化**：中英各一次、取前5、去重规则
-- ⚡ **外部信号增量缓存**：首次全量获取，后续仅增量（GitHub 7天/npm 30天过期）
-- 📝 **简评限制放宽**：≤12字 → ≤16字
-- 📁 **project-types 扩展**：新增 Flutter/C++/Svelte/数据科学 4 种类型
+- 🔢 **五维评分**：Fit 连续计分制 + ROI 维度(10%) + Fresh 降权至15%
+- 🎯 **置信推荐**：信心指数(0-10) + ROI + 证据链，≥7强烈推荐/＜5自动不推荐
+- ❌ **不推荐清单**：5种数据驱动判定规则
+- ⚡ **并行编排**：6阶段化并行，减少35-40% tool call轮次
+- 📋 **条件报告**：无空区兜底，典型报告3-5块
+- ✅ **审计验证**：数据一致性检查 + 抽样交叉验证
+- 📌 **使用指导**：When to Use / When NOT to Use
+- 🗂️ **文档瘦身**：报告模板+深度分析+推荐示例+描述规则 → references/
+- 🧹 **去重精简**：边界规则压缩58%，并行图压缩50%，项目类型表压缩75%
 
-### v4.2.0 (2026-06-20) — 触发词·语言·自检
+### v4.x (2026-06-19~06-22) — 历史版本
 
-- 🏷️ 触发词优化：`技能审查` 为主，`技能审计/项目审查/项目审计` 为同义词
-- 🌐 output_language 三态驱动（auto/zh/en）
-- 🔍 自检锚点：审计完成后必须检查自身 description
-- ✏️ 描述优化询问 + 修改描述执行操作
-
-### v4.0.0 (2026-06-19) — 项目技能推荐引擎
-
-- 🎯 项目角色画像驱动 · 四维评分 · 5块永不塌缩报告
-- 📁 项目扫描 + 15+ 项目类型模式
-- 🌐 网络搜索备选技能
+- v4.3.0: Community回填、Value重构、undo机制、增量缓存
+- v4.2.0: 触发词优化、output_language三态、自检锚点
+- v4.0.0: 项目角色画像驱动 · 五维评分 · 15+项目类型
 
 ---
 
