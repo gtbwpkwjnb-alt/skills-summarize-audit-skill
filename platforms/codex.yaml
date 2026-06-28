@@ -1,9 +1,9 @@
-platform: zcode
-# scan_paths 定义已迁移到 config.yaml（唯一配置源），此文件仅存平台特征。
+platform: codex
+# OpenAI Codex CLI 平台特征配置（v5.7.0 新增）
+# scan_paths 定义在 config.yaml（唯一配置源），此文件仅存平台特征。
 # ⚠️ 触发词同步：此文件中的 trigger_words 需与 SKILL.md（权威来源）保持同步。
 # 修改触发词时：SKILL.md → 同步所有 platforms/*.yaml
-archive_dir: "~/.zcode/skills-archived/"
-# v5.7.0 独立词触发 · 中英双语 · 同义字词扩展
+archive_dir: "~/.codex/skills-archived/"
 trigger_words:
   # 技能审计模式（中文）
   - "技能审查"
@@ -32,3 +32,9 @@ trigger_words:
   - "project-profile"
   - "env-audit"
 project_scan_default_depth: 10
+# Codex 特有配置
+codex:
+  skills_dir: "~/.codex/skills/"
+  config_file: "~/.codex/config.toml"
+  # Codex 当前技能生态较新，外部信号可能不丰富，建议降低 Community 阈值
+  community_min_stars: 5  # 默认100→降低到5（生态新）

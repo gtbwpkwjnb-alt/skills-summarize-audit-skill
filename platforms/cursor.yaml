@@ -1,9 +1,9 @@
-platform: zcode
-# scan_paths 定义已迁移到 config.yaml（唯一配置源），此文件仅存平台特征。
+platform: cursor
+# Cursor IDE 平台特征配置（v5.7.0 新增）
+# scan_paths 定义在 config.yaml（唯一配置源），此文件仅存平台特征。
 # ⚠️ 触发词同步：此文件中的 trigger_words 需与 SKILL.md（权威来源）保持同步。
 # 修改触发词时：SKILL.md → 同步所有 platforms/*.yaml
-archive_dir: "~/.zcode/skills-archived/"
-# v5.7.0 独立词触发 · 中英双语 · 同义字词扩展
+archive_dir: "~/.cursor/skills-archived/"
 trigger_words:
   # 技能审计模式（中文）
   - "技能审查"
@@ -32,3 +32,10 @@ trigger_words:
   - "project-profile"
   - "env-audit"
 project_scan_default_depth: 10
+# Cursor 特有配置
+cursor:
+  skills_dir: "~/.cursor/skills/"
+  # Cursor 基于 VS Code 扩展生态，技能目录路径可能与 .cursorrules 相关
+  rules_file: ".cursorrules"
+  # Cursor 无独立 MCP 配置文件，技能审计跳过 MCP 扫描
+  mcp_supported: false

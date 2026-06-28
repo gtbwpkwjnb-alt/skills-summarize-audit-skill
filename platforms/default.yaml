@@ -1,4 +1,6 @@
 platform: generic
+# ⚠️ 触发词同步：此文件中的 trigger_words 需与 SKILL.md（权威来源）保持同步。
+# 修改触发词时：SKILL.md → 同步所有 platforms/*.yaml
 scan_paths:
   user: "~/.agent-skills/*/"
   plugin: ""

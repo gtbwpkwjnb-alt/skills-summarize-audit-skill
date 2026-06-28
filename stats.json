@@ -1,12 +1,12 @@
 {
-  "totalRuns": 5,
-  "firstRun": "2026-06-17T08:00:00Z",
-  "lastRun": "2026-06-19T10:00:00Z",
-  "runs": [
-    {"runN": 1, "date": "2026-06-17", "projectHash": "c187fb76", "skillCount": 7, "activeSkills": 7, "avgScore": 65, "actions": ["scored"]},
-    {"runN": 2, "date": "2026-06-17", "projectHash": "c187fb76", "skillCount": 4, "activeSkills": 4, "avgScore": 78, "actions": ["scored", "archived:3", "fixed_description:1"]},
-    {"runN": 3, "date": "2026-06-18", "projectHash": "c187fb76", "skillCount": 4, "activeSkills": 4, "avgScore": 80, "actions": ["scored", "fixed_description:1"]},
-    {"runN": 4, "date": "2026-06-18", "projectHash": "c187fb76", "skillCount": 7, "activeSkills": 4, "avgScore": 59, "actions": ["scored", "archived:3", "symlink_cleanup:3", "versioned:2.3.0"]},
-    {"runN": 5, "date": "2026-06-19", "projectHash": "c187fb76", "skillCount": 4, "activeSkills": 4, "avgScore": 80, "actions": ["scored", "fixed_description:2", "bilingual_added:2", "enhanced:auto_lang_detection"]}
-  ]
+    "avgScore": 68,
+    "totalAudits": 11,
+    "flaggedOverlaps": 0,
+    "flaggedT3": 0,
+    "activeSkills": 24,
+    "archivedSkills": 107,
+    "lastAudit": "2026-06-28T09:43:28Z",
+    "snapshots": [],
+    "user_feedback": [],
+    "score_deviation": {}
 }

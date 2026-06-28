@@ -7,16 +7,19 @@
 #   2. 分类标记 → 推荐时按类别分组
 #   3. 来源追溯 → 用户可查安装来源
 #
-# 更新方式：手动维护 + web 搜索辅助验证 + 审计时与各技能 SKILL.md/README/VERSION 交叉比对
+# 更新方式：手动维护 + ④-bis 版本自动回写（v5.7.0）+ web 搜索辅助验证
+# 版本自动回写规则：
+#   - ④-bis 从各技能 SKILL.md frontmatter 提取 version 字段
+#   - 对比 registry 中记录：一致跳过 / 不一致更新 / 无记录追加
 
 skills:
   # ---- User Skills (用户技能, .agents/skills/) ----
 
   - name: "skills-audit"
-    version: "5.2.0"
+    version: "5.8.0"
     category: management
-    tags: ["audit", "project-scan", "profile", "recommendation", "confidence"]
-    description: "技能审查 → 画像驱动·五维评分·置信分析·逐技能优化 | Audit → profile·5dim·conf·optimize"
+    tags: ["audit", "project-scan", "profile", "recommendation", "confidence", "capacity-analysis", "ci-cd", "7dim-scoring"]
+    description: "技能审查·项目审计 → 画像驱动·七维评分·逐技能优化 | Skill Audit·Project Audit → profile·7dim·deep opt"
     source: "local"
     homepage: "https://github.com/gtbwpkwjnb-alt/skills-audit-skill"
 

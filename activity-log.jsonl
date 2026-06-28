@@ -9,3 +9,36 @@
 {"ts":"2026-06-19T10:00:00Z","event":"action","type":"fix_description","skill":"last30days","change":"bilingual_added:description_zh+description_en"}
 {"ts":"2026-06-19T10:00:00Z","event":"action","type":"fix_description","skill":"skills-audit","change":"self_fix:multiline_to_single+bilingual_added"}
 {"ts":"2026-06-19T10:00:00Z","event":"action","type":"enhance","skill":"skills-audit","change":"auto_lang_detection:step_①-A+quality_bilingual_check"}
+ts:2026-06-22T00:00:00Z event:run runN:6 projectHash:c187fb76 skillsFound:27 skillsScored:27 actions:[scored search_done:7_tools_found] avgScore:67
+{"ts":"2026-06-22T03:39:00Z","event":"run","runN":7,"projectHash":"dsmt001","skillsFound":14,"skillsScored":14,"actions":["scored","archived:9","fixed_description:1","search_degraded"],"avgScore":43}
+{"ts":"2026-06-22T03:39:00Z","event":"action","type":"archive","skill":"godogen-assets"}
+{"ts":"2026-06-22T03:39:00Z","event":"action","type":"archive","skill":"fable-governor"}
+{"ts":"2026-06-22T03:39:00Z","event":"action","type":"archive","skill":"chatgpt-apps"}
+{"ts":"2026-06-22T03:39:00Z","event":"action","type":"archive","skill":"aspnet-core"}
+{"ts":"2026-06-22T03:39:00Z","event":"action","type":"archive","skill":"hatch-pet"}
+{"ts":"2026-06-22T03:39:00Z","event":"action","type":"archive","skill":"make-game"}
+{"ts":"2026-06-22T03:39:00Z","event":"action","type":"archive","skill":"ai-research-llm"}
+{"ts":"2026-06-22T03:39:00Z","event":"action","type":"archive","skill":"tiktok-extract"}
+{"ts":"2026-06-22T03:39:00Z","event":"action","type":"archive","skill":"bibi"}
+{"ts":"2026-06-22T03:39:00Z","event":"action","type":"fix_description","skill":"caveman","change":"long_sentence_to_trigger_format"}
+{"ts":"2026-06-26T10:00:00Z","event":"run","runN":8,"projectHash":"c187fb76","skillsFound":7,"skillsScored":4,"actions":["scored","fixed_description:3","installed:3","removed:1"],"avgScore":60}
+
+{"ts":"2026-06-26T10:00:00Z","event":"action","type":"fix_description","skill":"summarize","change":"103char_multiline_to_single_bilingual"}
+{"ts":"2026-06-26T10:00:00Z","event":"action","type":"fix_description","skill":"learn","change":"multiline_to_single_bilingual"}
+{"ts":"2026-06-26T10:00:00Z","event":"action","type":"fix_description","skill":"agent-reach","change":"multiline_to_single_bilingual+version_added"}
+{"ts":"2026-06-26T10:00:00Z","event":"action","type":"install","skill":"scrapling"}
+{"ts":"2026-06-26T10:00:00Z","event":"action","type":"install","skill":"last30days"}
+{"ts":"2026-06-26T10:00:00Z","event":"action","type":"install","skill":"caveman"}
+{"ts":"2026-06-26T10:00:00Z","event":"action","type":"remove","skill":"tiktok-extract"}
+{"ts":"2026-06-24T17:50:49Z","event":"run","runN":9,"projectHash":"c187fb76","skillsFound":7,"skillsScored":7,"actions":["scored","report8blocks"],"avgScore":61}
+{"ts":"2026-06-25T11:30:00Z","event":"run","runN":10,"projectHash":"c187fb76","skillsFound":135,"skillsScored":31,"activeUserSkills":11,"pluginSkills":20,"actions":["archived:103","deleted_claude_dupes:3","fixed_description:7","mcp_builder_merged:1"],"avgScore":72,"changeNote":"135 to 31 skills. Bulk cleanup: archived 103 T3 zero-relevance skills, removed 3 claude dupes, fixed 7 descriptions, merged mcp-builder into mcp-tool-developer"}
+{"timestamp":"2026-06-25T13:01:35Z","scores":{"summarize":40,"caveman":38,"learn":36,"agent-reach":42,"skills-audit":42},"mode":"skill","action":"update-skills-audit-to-v5.2.0"}
+{"ts":"2026-06-26T12:00:00Z","event":"run","runN":11,"projectHash":"c187fb76","skillsFound":31,"skillsScored":31,"activeUserSkills":11,"pluginSkills":20,"actions":["scored_v5.2.0","verified","persisted"],"avgScore":68,"changeNote":"Post-cleanup baseline audit. All 31 skills bilingual. 0 T3 to archive. Healthy state."}
+
+{"actions":["scored_v5.3.0","report_generated"],"avgScore":56,"ts":"2026-06-28T09:16:06Z","activeUserSkills":11,"changeNote":"Full skills audit. 11 user + 17 plugin. Healthy state, minor description gaps.","pluginSkills":17,"event":"run","runN":12,"skillsFound":28,"projectHash":"c187fb76"}
+
+{"actions":["verified_v5.4.0_changes","resolved_SA01_SA02_SA03","profile_persist_test"],"avgScore":56,"ts":"2026-06-28T09:39:57Z","activeUserSkills":11,"changeNote":"v5.4.0 verification run. 3/3 new features confirmed working. Self-audit: 3 resolved.","pluginSkills":15,"event":"run","runN":9,"skillsFound":26,"projectHash":"c187fb76"}
+
+{"event":"run","ts":"2026-06-28T09:41:46Z","actions":["v5.5.0_scoring_tier","fixed_SA04_SA05_SA06","dir_check_added","sig_log_added","tier_scoring_added"],"changeNote":"v5.4.0→5.5.0: 3 defects resolved. Scoring: continuous→SABCD+tier+rationale. Step0: dir check. Step5a: mandatory log.","skillsFound":26,"projectHash":"c187fb76","runN":10}
+
+{"event":"run","ts":"2026-06-28T09:43:28Z","actions":["full_v5.5.0_self_test","tier_scoring_verified","mandatory_log_verified","dir_check_verified","rationale_check_verified"],"changeNote":"v5.5.0 full self-test: ALL 5 changes (SA-01~06) verified working in production flow.","skillsFound":26,"projectHash":"c187fb76","runN":11}

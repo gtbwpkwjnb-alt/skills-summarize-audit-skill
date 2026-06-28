@@ -1,31 +1,37 @@
-# Skills Audit v5.2.0 — 置信量化 · 五维评分 · 并行编排 · 条件报告
+# Skills Audit v5.8.0 — 独立词触发 · 中英双语 · 容量分析 · 7维评分 · CI/CD
 
-> **Project Skill Audit** — 扫描项目文件夹，分析技术栈和项目类型，生成全面的技能/插件/工具推荐报告。画像驱动·五维评分·置信分析。新增不推荐清单、ROI成本效益分析、并行化执行流程。
+> **Project Skill Audit** — 扫描项目文件夹，分析技术栈和项目类型，生成全面的技能/插件/工具推荐报告。画像驱动·七维评分·置信分析·自进化·容量分析引擎·CI/CD无交互模式。独立词触发机制（参考 summarize）、中英双语触发词同义扩展、触发词翻译精炼核心能力。
 >
-> **跨平台**: ZCode · Claude Code · Codex · Cursor · Windsurf
+> **跨平台**: ZCode · Claude Code · Cursor · Codex · Windsurf · WorkBuddy
 
-[![Version](https://img.shields.io/badge/version-5.2.0-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-5.8.0-blue)](VERSION)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-ZCode%20%7C%20Claude%20Code%20%7C%20Codex-lightgrey)]()
+[![Platform](https://img.shields.io/badge/platform-ZCode%20%7C%20Claude%20Code%20%7C%20Codex%20%7C%20WorkBuddy-lightgrey)]()
 
 ---
 
 ## Overview
 
-**EN**: Scans your active project folder, profiles the tech stack, then scores installed skills on 5 dimensions (Fit/Value/Fresh/Community/ROI), recommends with confidence scores and cost-benefit analysis. Includes negative recommendations and conditional report output.
+**EN**: Scans your active project folder, profiles the tech stack, then scores installed skills on 5 dimensions (Fit/Value/Fresh/Community/ROI), recommends with confidence scores and cost-benefit analysis. **Core feature**: auto-translates skill descriptions into Chinese trigger words + summaries (and vice versa), making skills instantly discoverable for cross-language users.
 
-**CN**: 扫描开发中项目，构建项目角色画像，五维评分已安装技能，检查描述规范，搜索网络备选。每项建议附带三段解释：**原因**、**效果**、**场景**。
+**CN**: 扫描开发中项目，构建项目角色画像，五维评分已安装技能，检查描述规范，搜索网络备选。**核心能力**：自动将技能 description 翻译为中文触发词+简介（或反向翻译），方便中文区用户快速了解技能触发机制和主要功能。
 
 ---
 
 ## Trigger / 触发
 
-| Platform | Trigger | Example |
-|----------|---------|---------|
-| **ZCode** | `技能审查`（主）/ `技能审计` `项目审查` `项目审计` / `skills-audit` | `> 技能审查 ./my-project` |
-| **Claude Code** | `/skills-audit` | `> /skills-audit ./my-project` |
-| **Codex** | `技能审查` / `skills-audit` | `> skills-audit ./my-project` |
-| **Cursor** | `@skills-audit` | `> @skills-audit ./my-project` |
+> **独立词触发**：触发词必须独立发送（可带子命令），句中不触发。参考 `summarize` 技能机制。
+
+| Platform | Trigger (中文) | Trigger (English) | Example |
+|:----------|:---------|:---------|:---------|
+| **ZCode** | `技能审查` `技能审计` `技能检查` `能力审查` `能力审计` `工具审查` | `skills-audit` `skill-audit` `skill-check` `capability-audit` `tool-audit` | 独立发送 `技能审查` |
+| **ZCode (项目模式)** | `项目审查` `项目审计` `项目诊断` `项目画像` `环境审查` `环境审计` | `project-audit` `project-check` `project-diagnosis` `project-profile` `env-audit` | 独立发送 `项目审计` |
+| **Claude Code** | `/skills-audit` | `/skills-audit` | `> /skills-audit` |
+| **Codex/Cursor** | 直接发送独立触发词 | 直接发送独立触发词 | `技能审查` |
+
+**子命令**: `深度`/`deep` · `推荐`/`recommend` · `画像`/`profile` · `健康`/`health`
+
+**语言自适应**: 用户主语言为英文时，触发词匹配优先英文词条，报告输出语言自动切换为 `en`。
 
 **Parameter**: Optional project path. Defaults to current working directory.
 
@@ -34,11 +40,14 @@
 ## How It Works / 工作流程
 
 ```
-⓪ Load config → ① Scan project → ② List installed skills
-③ Load reference maps → ④ 3-tier + 3-dim scoring + desc check
-⑤ Web search + external signals → ⑥ Fill Community + final report
-⑦ User confirms → Execute actions → ⑧ Persist data
+⓪ Load config+memory+mode(含CI检测) → (① Project profile + ③ Reference data)
+→ ② Installed skills list(含容量采集) → ②-bis Capacity analysis
+→ ⑤a External signals → ④ 3-tier + 7-dim scoring + health
+→ (④-bis Deep read + ⑤b Recommend) → ⑥ Report(含capacity_analysis)
+→ ⑥-bis Verify → ⑥-c Output check → ⑦ Execute → ⑧ Persist
 ```
+
+> v5.8.0 新增：②-bis 容量分析引擎、7维评分（+Novelty+Contamination）、CI模式无交互、SkillSpector安全扫描。
 
 ---
 
@@ -77,6 +86,52 @@ iwr https://raw.githubusercontent.com/gtbwpkwjnb-alt/skills-audit-skill/main/ins
 ---
 
 ## Changelog
+
+### v5.8.0 (2026-06-28) — 容量分析引擎·CI/CD·7维评分·安全扫描
+
+- 📦 **容量分析引擎**：计算灵活承载上限，输出"还能装几个"
+- 🤖 **CI/CD 无交互模式**：`--ci` 触发，JSON 输出，门禁逻辑，GitHub Actions 模板
+- 📊 **7维评分**：新增 Novelty（新颖性 10%）+ Contamination（跨语言污染 5%）
+- 🛡️ **安全扫描**：SkillSpector 集成，结果融入 Value 维度
+- 🔗 **Skills Manager 对接**：actions.json 输出格式
+- 🏪 **WorkBuddy 上架准备**：frontmatter 补全 category + platforms 字段
+- ⚙️ **config.yaml 扩展**：ci 块 + security_scan 块
+
+### v5.7.0 (2026-06-28) — 自进化·并行修正·ROI精化·分级策略
+
+- 🔧 **并行依赖修复**：②→⑤a 从并行改为串行（⑤a 依赖②输出的技能名列表）
+- 🌐 **Community 离线策略**：网络不可用且无缓存时标注「⏸ 信号待获取」，跳过 Community 维度（4维重算权重），禁止伪造默认值
+- 📊 **Value 维度重建**：从"项目价值"改为"预期价值（基于画像推断）"，5档基于命中核心活动数+场景频率
+- 📈 **ROI 5档精化**：从3档→5档连续制（S:>+3000t, A:+1000~3000, B:0~1000, C:-500~0, D:<-500）
+- 🔄 **版本自动回写**：④-bis 深度阅读时自动从 SKILL.md 提取 version，回写 skill-registry.yaml
+- 🎯 **④-bis 分级策略**：S/A全量深读、B轻量检查、C/D跳过，token消耗降低 40-60%
+- 🏗️ **复合项目类型识别**：检测多个独立类型时生成复合类型+合并推荐列表
+- 🔗 **推荐去重合并**：A/B/C三层推荐后按技能名去重，优先保留A层（内置映射更可靠）
+- 👤 **user-profile 深度映射**：8条显式映射规则（高频技能→Value+1档、工作模式→推荐权重等）
+- 📋 **30秒摘要块**：报告最前面增加摘要块（健康度/关键操作/预估收益）
+- 📊 **趋势对比行**：最近3次审计数据趋势行（均分/活跃/冗余变化）
+- 🧹 **缓存GC**：步骤⑧持久化时清理不在当前技能列表中的缓存条目
+- 🤖 **评分自进化基础**：⑥-bis 增加评分-决策一致性追踪，累积 ≥5 次偏差后触发权重微调建议
+- 💬 **审计反馈收集**：⑦执行后增加1-4分反馈问卷，写入 stats.json 用于长期优化
+- 📦 **project-types.yaml 扩展**：新增 DevOps-多服务、CI/CD、游戏-Unity/Unreal、区块链-Hardhat/Solana、AI/深度学习/LLM部署 共8种项目类型
+- 🏪 **多平台配置**：新增 platforms/claude.yaml、codex.yaml、cursor.yaml
+- ⚙️ **custom_rules 轻量实现**：支持 add_skill/remove_skill/suggest 三种动作
+
+### v5.6.0 (2026-06-28) — 独立词触发 · 中英双语 · 触发词翻译精炼
+
+- 🎯 **独立词触发**：参考 `summarize` 技能机制，触发词必须独立发送（可带子命令），句中不触发，避免误触发
+- 🌐 **中英双语触发词**：中文 6 词 + 英文 5 词（技能审计模式），中文 6 词 + 英文 5 词（项目审计模式），同义字词自动映射
+- 🔄 **同义字词扩展**：审查=审计=检查=诊断、能力=技能=工具、环境=项目，自动归入对应模式
+- 📝 **触发词翻译精炼**：升级为核心能力——自动翻译+精炼技能触发词和简介，中英双向互译
+- 🌍 **语言自适应**：根据用户会话主语言（中/英/混合）自动切换翻译方向和报告语言
+- 📖 **同义字词映射表**：10 个英文关键词→中文主词+2-4 个同义扩展，提升中文用户可发现性
+- 🏗️ **子命令支持**：`深度`/`推荐`/`画像`/`健康` 四个子命令，按需执行特定步骤
+
+### v5.5.0 (2026-06-27) — 五档评分 · 强制理由 · 前置目录检查
+
+- 📊 **S/A/B/C/D 五档评分**：从连续 0-100 分改为五档定性制，减少 agent 间评分不一致
+- 📝 **强制评分理由**：每个技能必须附带 1 句理由，无理由 = 未评分
+- 🔍 **前置目录检查**：步骤⓪新增项目根检测，防止非项目目录运行
 
 ### v5.2.0 (2026-06-26) — 置信量化 · 五维评分 · 并行编排 · 条件报告
 

@@ -1,0 +1,102 @@
+# Skills Audit CI — GitHub Actions Workflow
+# v5.8.0
+#
+# 使用方式:
+#   1. 将此文件放到 .github/workflows/skills-audit.yml
+#   2. 确保项目已安装 skills-audit 技能
+#   3. 每周一早9点自动运行 + PR 触发（skill 文件变更时）
+
+name: Skills Audit CI
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # 每周一早9点（UTC）
+  pull_request:
+    paths:
+      - '.codebuddy/skills/**'
+      - '.claude/skills/**'
+      - '.agents/skills/**'
+      - '.cursor/rules/**'
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Skills Audit (CI Mode)
+        id: audit
+        run: |
+          # Claude Code headless 模式
+          claude -p "运行 skills-audit --ci --output-format json" \
+            --output-format json \
+            --max-turns 15 \
+            --allowedTools "Read,Grep,WebSearch,WebFetch" \
+            > audit-result.json
+
+          # 备选：CodeBuddy 模式
+          # codebuddy -p "技能审查 --ci" --output-format json > audit-result.json
+
+      - name: Check Health Gate
+        run: |
+          HEALTH=$(jq -r '.summary.health' audit-result.json)
+          ACTIONS=$(jq -r '.summary.actions_required' audit-result.json)
+          T3_RATIO=$(jq -r '.summary.t3_ratio' audit-result.json)
+
+          if [ "$HEALTH" = "🔴" ]; then
+            echo "::error::技能库健康度红色预警"
+            exit 1
+          fi
+
+          if [ "$ACTIONS" -gt 5 ]; then
+            echo "::warning::需要 $ACTIONS 项操作，请审查"
+          fi
+
+          if [ "$(echo "$T3_RATIO > 0.35" | bc)" -eq 1 ]; then
+            echo "::error::T3占比 ${T3_RATIO} 超过 35% 阈值"
+            exit 1
+          fi
+
+      - name: Post Summary Comment (PR only)
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const result = JSON.parse(fs.readFileSync('audit-result.json', 'utf8'));
+            const cap = result.capacity_analysis;
+
+            const summary = `## 🤖 Skills Audit Report
+
+            ### 📊 健康度: ${result.summary.health}
+            | 指标 | 值 |
+            |---|---|
+            | 技能总数 | ${result.summary.total_skills} |
+            | 均分 | ${result.summary.avg_score} |
+            | 活跃 | ${result.summary.active_count} |
+            | T3占比 | ${(result.summary.t3_ratio * 100).toFixed(0)}% |
+            | 需操作 | ${result.summary.actions_required} |
+
+            ### 📦 容量分析
+            | 指标 | 值 |
+            |---|---|
+            | 可用空间 | ${cap.available_for_skills}t |
+            | 已用 | ${cap.capacity_verdict.current_usage_pct}% |
+            | 判定 | ${cap.capacity_verdict.risk_level} |
+            | 剩余 | ${cap.capacity_verdict.remaining_capacity} |
+
+            ${result.alerts.length > 0 ? '### ⚠️ 告警\n' + result.alerts.map(a => `- ${a.message}`).join('\n') : ''}
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: skills-audit-result
+          path: audit-result.json

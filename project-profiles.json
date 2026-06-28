@@ -1,18 +1,14 @@
 {
-  "currentHash": "c187fb76",
-  "profiles": {
-    "c187fb76": {
-      "path": "C:\\Users\\Administrator\\ZCodeProject",
-      "type": "通用技能开发与维护",
-      "software": "ZCode",
-      "fileTypes": [".md", ".mjs"],
-      "techStack": ["ZCode CLI", "Markdown", "YAML"],
-      "firstSeen": "2026-06-17",
-      "lastSeen": "2026-06-19",
-      "runCount": 5,
-      "skillCounts": {"user": 4, "plugin": 59},
-      "archivedCount": 6,
-      "note": "项目类型修正为通用技能开发与维护，添加 software 字段"
-    }
-  }
+    "ZCodeProject":  {
+                         "mode":  "skill",
+                         "totalPluginSkills":  20,
+                         "skillCount":  11,
+                         "totalUserSkills":  11,
+                         "avgScore":  37.5,
+                         "archivedCount":  9,
+                         "activeT3":  1,
+                         "activeT2":  7,
+                         "activeT1":  3,
+                         "lastAudit":  "2026-06-25T13:01:35Z"
+                     }
 }

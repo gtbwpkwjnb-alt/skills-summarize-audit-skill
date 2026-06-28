@@ -1,7 +1,11 @@
-﻿# skills-audit v5.2.0 配置
+﻿# skills-audit v5.8.0 配置
 # Project Skill Audit — 项目技能审计
 # 唯一配置源。scan_paths 以此文件为准。
-# platforms/zcode.yaml 仅存平台特征（触发词、归档路径等），不定义扫描路径。
+# platforms/zcode.yaml 仅存平台特征（归档路径等），不定义扫描路径。
+#
+# ⚠️ 触发词权威来源：SKILL.md 第24-27行（触发词矩阵）。
+# platforms/*.yaml 中的 trigger_words 为平台适配副本，修改时需同步更新。
+# 同步规则：修改触发词 → 更新 SKILL.md → 同步所有 platforms/*.yaml。
 
 data_dir: "$SKILL_DIR"
 archive_dir: "$SKILL_DIR/../archived"
@@ -54,14 +58,33 @@ version_check:
   registry_url: ""
   search_template: "{skill_name} AI agent skill latest version"
 
-# 用户自定义搭配规则（可选覆盖）
+# 用户自定义搭配规则（v5.7.0 轻量实现）
+# 规则在 ⑤b 推荐引擎 B层之后、C层之前执行。
+# 每条规则含：condition（画像字段匹配）/ action（add_skill | remove_skill | suggest）
 custom_rules:
-  # 示例：自定义规则，优先级高于 project-types.yaml
-  # - condition: "项目使用 React 且无状态管理库"
-  #   suggest: "添加 zustand 或 jotai"
-  #   reason: "React 项目需要状态管理"
-  #   effect: "减少 prop drilling 和组件耦合"
-  #   use_case: "跨组件共享状态时使用"
+  enabled: false           # 设为 true 启用自定义规则
+  rules:
+    # 示例1: 添加特定技术栈推荐
+    # - condition:
+    #     field: "tech_stack"
+    #     contains: "React"
+    #   action: add_skill
+    #   skill: "skill-tester"
+    #   priority: recommended
+    #   reason: "React 项目需要组件测试"
+    # 示例2: 移除不适合的默认推荐
+    # - condition:
+    #     field: "type"
+    #     equals: "游戏-Unity"
+    #   action: remove_skill
+    #   skill: "test-driven-development"
+    #   reason: "Unity 使用 PlayMode 测试，传统 TDD 不适用"
+    # 示例3: 条件建议
+    # - condition:
+    #     field: "activity_count"
+    #     less_than: 3
+    #   action: suggest
+    #   message: "当前项目核心活动较少，建议在 MEMORY.md 中补充项目用途说明以提升推荐精准度"
 
 # 输出语言
 output_language: "auto"  # auto / zh / en
@@ -111,4 +134,28 @@ health_thresholds:
   max_total_skills: 30     # 超过此数输出 🚨 预警
   max_t3_ratio: 0.3        # T3 占比超过 30% 预警
   overlap_threshold: 0.6   # description 关键词重叠 >60% 标 ⚠️
-  low_usage_warn: 0        # 调用次数 = 0 标 🟡
+  zero_match_warn: 0        # 与画像零匹配技能 > 0 标 🟡
+
+# CI/CD 无交互模式（v5.8.0 新增）
+ci:
+  enabled: true
+  max_tokens: 8000          # CodeBuddy 专业版上限约束，Claude Code 可调高
+  skip_steps:
+    - "④-bis"               # 跳过逐技能深度阅读（最大节省项）
+  output:
+    format: "json"
+    fields: ["summary", "alerts", "capacity_analysis", "exit_code"]
+  gates:
+    health_min: "🟡"        # 🟡 以下 → exit_code=1
+    t3_ratio_max: 0.35       # 超过 → exit_code=3
+    actions_max: 5           # 超过 → exit_code=2
+
+# 安全扫描（v5.8.0 新增）
+security_scan:
+  enabled: false             # 设为 true 启用
+  tool: "builtin"            # "skillspector" 或 "builtin"（内置轻量规则）
+  skillspector_path: ""      # 留空自动查找
+  rules: ["all"]             # 或 ["injection", "malware", "secret"]
+  fail_on: "critical"        # critical / high / medium / none
+  output_format: "json"
+  ci_integration: true       # CI 模式自动执行
