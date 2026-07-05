@@ -184,9 +184,10 @@ security_scan:
 # 活性检测（v5.9.1 新增 check_agent_access）
 liveness_check:
   enabled: true
-  # 6 项检测开关
+  # 7 项检测开关（v6.2.1 新增 check_mcp_startup）
   check_agent_access: true    # v5.9.1 新增：Agent 对扫描路径的可达性
-  check_mcp: true
+  check_mcp: true             # MCP 配置存在性
+  check_mcp_startup: true     # v6.2.1 新增：MCP 命令实际可启动
   check_commands: true
   check_trigger: true
   check_data_dir: true
