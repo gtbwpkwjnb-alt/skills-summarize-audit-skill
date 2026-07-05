@@ -1,10 +1,10 @@
 ﻿#!/bin/bash
-# skills-audit installer — curl -sL https://raw.githubusercontent.com/gtbwpkwjnb-alt/skills-audit-skill/main/install.sh | bash
+# skills-summarize-audit installer — 手动安装，见 README.md
 
 set -e
 
-REPO_SSH="git@github.com:gtbwpkwjnb-alt/skills-audit-skill.git"
-REPO_HTTPS="https://github.com/gtbwpkwjnb-alt/skills-audit-skill.git"
+REPO_SSH="git@github.com:gtbwpkwjnb-alt/skills-summarize-audit-skill.git"
+REPO_HTTPS="https://github.com/gtbwpkwjnb-alt/skills-summarize-audit-skill.git"
 
 detect_platform() {
     if [ -d "$HOME/.zcode/skills" ] || [ -n "$ZCODE_CLI_VERSION" ]; then

@@ -1,9 +1,10 @@
 ---
-name: skills-audit
-version: "5.9.2"
+name: skills-summarize-audit
+version: "5.9.3"
 description: >
   审计技能库健康度：项目画像→七维评分→容量预警→趋势对比→快照回滚。
-  支持技能/项目双模式 + CI/CD。Capabilities: skill audit, project profiling,
+  支持技能/项目双模式 + CI/CD。与 summarize 联动，定期检查技能库健康度。
+  Capabilities: skill audit, project profiling,
   7-dim scoring, capacity analysis, liveness check, snapshot rollback, CI mode.
 requires:
   tools:
@@ -13,7 +14,7 @@ requires:
     - config.yaml
 ---
 
-# Skills Audit — 技能库与项目画像驱动审计
+# Skills-Summarize-Audit — 技能库与项目画像驱动审计（联动 summarize）
 
 > 对技能库或当前项目做多维画像、七维评分、容量分析与优化推荐，最终输出可执行的审计报告。
 >
@@ -29,9 +30,9 @@ requires:
 
 ## 触发词 / Trigger Words
 
-本技能采用**独立词触发**：触发词必须独立发送（可带子命令），句中不触发。参考 `summarize` 技能。
+本技能采用**独立词触发**：触发词必须独立发送（可带子命令），句中不触发。与 `summarize` 技能联动设计，`技能总结` 可直接触发审计。
 
-- **技能审计**：`技能审查`、`技能审计`、`技能检查`、`能力审查`、`能力审计`、`工具审查`、`skills-audit`、`skill-audit`、`skill-check`、`capability-audit`、`tool-audit`
+- **技能审计**：`技能审查`、`技能审计`、`技能检查`、`能力审查`、`能力审计`、`工具审查`、`技能总结`、`skills-audit`、`skill-audit`、`skill-check`、`capability-audit`、`tool-audit`、`skills-summarize-audit`
 - **项目审计**：`项目审查`、`项目审计`、`项目诊断`、`项目画像`、`环境审查`、`环境审计`、`project-audit`、`project-check`、`project-diagnosis`、`project-profile`、`env-audit`
 - **回滚操作**：`回滚`、`撤销`、`恢复`、`undo-snapshot`、`rollback`、`revert`
 - **子命令**：`深度`/`deep`、`推荐`/`recommend`、`画像`/`profile`、`健康`/`health`、`轻量`/`quick`、`ci`/`--ci`、`回滚`/`undo`/`--undo`
@@ -40,7 +41,7 @@ requires:
 
 | 模式 | 中文触发词 | 英文触发词 |
 |:----|:----|:----|
-| **技能审计** | `技能审查`, `技能审计`, `技能检查`, `能力审查`, `能力审计`, `工具审查` | `skills-audit`, `skill-audit`, `skill-check`, `capability-audit`, `tool-audit` |
+| **技能审计** | `技能审查`, `技能审计`, `技能检查`, `能力审查`, `能力审计`, `工具审查`, `技能总结` | `skills-audit`, `skill-audit`, `skill-check`, `capability-audit`, `tool-audit`, `skills-summarize-audit` |
 | **项目审计** | `项目审查`, `项目审计`, `项目诊断`, `项目画像`, `环境审查`, `环境审计` | `project-audit`, `project-check`, `project-diagnosis`, `project-profile`, `env-audit` |
 | **回滚操作** | `回滚`, `撤销`, `恢复` | `undo-snapshot`, `rollback`, `revert` |
 
@@ -52,6 +53,7 @@ requires:
 |:---|:---|
 | `技能审查`（独立发送） | `帮我做一次技能审查`（句中） |
 | `skills-audit`（独立发送） | `run skills-audit on this`（句中） |
+| `技能总结`（独立发送，联动 summarize 品牌） | `总结一下技能`（句中不触发） |
 | `技能审计 深度`（独立词+子命令） | `这个项目需要能力审查吗`（句中） |
 
 **语言自适应**：用户主语言为英文时（会话中英文>70%），触发词匹配优先英文，报告输出语言切换为 `en`。
@@ -60,7 +62,7 @@ requires:
 
 ## When to Use / 何时使用
 
-- **技能审计模式**：定期维护技能库健康度（建议每2-4周一次），或技能库较大变更后
+- **技能审计模式**：定期维护技能库健康度（建议每2-4周一次），或技能库较大变更后。可与 `总结` 联动：run summarize → 发现技能堆积 → 建议 `技能总结`
 - **项目审计模式**：接手新项目时快速了解技术栈和工具链，或项目重构前评估环境健康度
 - **触发词翻译精炼**：自动将技能 description 翻译为中文触发词+简介（或反向），方便跨语言用户快速了解技能功能
 

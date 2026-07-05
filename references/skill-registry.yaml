@@ -15,13 +15,13 @@
 skills:
   # ---- User Skills (用户技能, .agents/skills/) ----
 
-  - name: "skills-audit"
-    version: "5.9.2"
+  - name: "skills-summarize-audit"
+    version: "5.9.3"
     category: management
-    tags: ["audit", "project-scan", "profile", "recommendation", "confidence", "capacity-analysis", "ci-cd", "7dim-scoring"]
-    description: "技能审查·项目审计 → 画像驱动·七维评分·逐技能优化 | Skill Audit·Project Audit → profile·7dim·deep opt"
+    tags: ["audit", "project-scan", "profile", "recommendation", "confidence", "capacity-analysis", "ci-cd", "7dim-scoring", "summarize"]
+    description: "技能审查·技能总结 → 画像驱动·七维评分·逐技能优化 | Skills-Summarize-Audit → profile·7dim·deep opt"
     source: "local"
-    homepage: "https://github.com/gtbwpkwjnb-alt/skills-audit-skill"
+    homepage: "https://github.com/gtbwpkwjnb-alt/skills-summarize-audit-skill"
 
   - name: "summarize"
     version: "6.8.0"

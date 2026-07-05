@@ -5,12 +5,12 @@ platform: workbuddy
 # ⚠️ 触发词权威来源：SKILL.md 触发词矩阵。此文件不重复定义。
 
 # 技能元数据（市场展示用）
-display_name: "Skills Audit / 技能审查"
+display_name: "Skills-Summarize-Audit / 技能审查"
 category: "开发工具"  # 市场分类
 tags: ["审计", "项目管理", "技能管理", "画像", "audit", "project-management", "skill-management"]
 
 # 技能安装路径
-install_path: "~/.workbuddy/skills/skills-audit/"
+install_path: "~/.workbuddy/skills/skills-summarize-audit/"
 
 # ⚠️ 触发词来源: SKILL.md（WorkBuddy 兼容格式不再重复定义）
 trigger_mode: standalone

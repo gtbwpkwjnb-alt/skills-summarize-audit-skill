@@ -1,10 +1,10 @@
-﻿# Skills Audit v5.9.2 — 独立词触发 · 中英双语 · 容量分析 · 7维评分 · CI/CD · 回滚 · 活性检测
+﻿# Skills-Summarize-Audit v5.9.3 — 技能库审计 · summarize 联动 · 独立词触发 · 中英双语 · 容量分析 · 7维评分 · CI/CD · 回滚
 
-> **Project Skill Audit** — 扫描项目文件夹，分析技术栈和项目类型，生成全面的技能/插件/工具推荐报告。画像驱动·七维评分·置信分析·自进化·容量分析引擎·CI/CD无交互模式。独立词触发机制（参考 summarize）、中英双语触发词同义扩展、触发词翻译精炼核心能力。
+> **Skills-Summarize-Audit** — 扫描项目文件夹，分析技术栈和项目类型，生成全面的技能/插件/工具推荐报告。画像驱动·七维评分·置信分析·自进化·容量分析引擎·CI/CD无交互模式。与 summarize 联动，`技能总结` 一键触发审计。
 >
 > **跨平台**: ZCode · Claude Code · Cursor · Codex · Windsurf · WorkBuddy
 
-[![Version](https://img.shields.io/badge/version-5.9.2-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-5.9.3-blue)](VERSION)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-ZCode%20%7C%20Claude%20Code%20%7C%20Codex%20%7C%20WorkBuddy-lightgrey)]()
 

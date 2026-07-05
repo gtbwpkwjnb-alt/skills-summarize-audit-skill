@@ -4,6 +4,22 @@ All notable changes to the skills-audit skill.
 
 ---
 
+## [5.9.3] - 2026-07-05
+
+### Changed
+- **技能改名**：`skills-audit` → `skills-summarize-audit`（全平台同步）
+- **新增触发词**：`技能总结`（联动 summarize 品牌，触发技能审计模式）
+- **SKILL.md 联动说明**：触发词章节标注与 summarize 的联动关系
+- **When to Use**：增加「run summarize → 发现技能堆积 → 建议 `技能总结`」场景
+
+### 文件变更
+- 所有文件中的 `skills-audit` 名称引用更新为 `skills-summarize-audit`
+- install.sh/install.ps1 仓库 URL 更新为新仓库
+- skill-registry.yaml tag 增加 summarize
+- VERSION 5.9.2 → 5.9.3
+
+---
+
 ## [5.9.2] - 2026-07-05
 
 ### 改进

@@ -1,13 +1,13 @@
-﻿# skills-audit installer — iwr https://raw.githubusercontent.com/gtbwpkwjnb-alt/skills-audit-skill/main/install.ps1 | iex
+﻿# skills-summarize-audit installer — 手动安装，见 README.md
 
 $ErrorActionPreference = "Stop"
 
-$RepoSSH   = "git@github.com:gtbwpkwjnb-alt/skills-audit-skill.git"
-$RepoHTTPS = "https://github.com/gtbwpkwjnb-alt/skills-audit-skill.git"
+$RepoSSH   = "git@github.com:gtbwpkwjnb-alt/skills-summarize-audit-skill.git"
+$RepoHTTPS = "https://github.com/gtbwpkwjnb-alt/skills-summarize-audit-skill.git"
 
 function Get-InstallDir {
     if (Test-Path "$env:USERPROFILE\.zcode\skills") {
-        return "$env:USERPROFILE\.zcode\skills\skills-audit"
+        return "$env:USERPROFILE\.zcode\skills\skills-summarize-audit"
     }
     if (Test-Path "$env:USERPROFILE\.claude\skills") {
         return "$env:USERPROFILE\.claude\skills\skills-audit"
