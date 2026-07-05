@@ -8,27 +8,27 @@ REPO_HTTPS="https://github.com/gtbwpkwjnb-alt/skills-summarize-audit-skill.git"
 
 detect_platform() {
     if [ -d "$HOME/.zcode/skills" ] || [ -n "$ZCODE_CLI_VERSION" ]; then
-        echo "$HOME/.zcode/skills/skills-audit"
+        echo "$HOME/.zcode/skills/skills-summarize-audit"
         return
     fi
     if [ -d "$HOME/.claude/skills" ]; then
-        echo "$HOME/.claude/skills/skills-audit"
+        echo "$HOME/.claude/skills/skills-summarize-audit"
         return
     fi
     if [ -d "$HOME/.codex/skills" ]; then
-        echo "$HOME/.codex/skills/skills-audit"
+        echo "$HOME/.codex/skills/skills-summarize-audit"
         return
     fi
     if [ -d "$HOME/.cursor/agent-skills" ]; then
-        echo "$HOME/.cursor/agent-skills/skills-audit"
+        echo "$HOME/.cursor/agent-skills/skills-summarize-audit"
         return
     fi
-    echo "$HOME/.agent-skills/skills-audit"
+    echo "$HOME/.agent-skills/skills-summarize-audit"
 }
 
 INSTALL_DIR=$(detect_platform)
 
-echo "📦 skills-audit installer"
+echo "📦 skills-summarize-audit installer"
 echo "   Target: $INSTALL_DIR"
 
 if [ -d "$INSTALL_DIR" ]; then
@@ -42,6 +42,6 @@ else
 fi
 
 echo ""
-echo "✅ skills-audit installed!  v$(cat "$INSTALL_DIR/VERSION")"
-echo "   Trigger: skills-audit / 技能审查"
-echo "   Issues:  https://github.com/gtbwpkwjnb-alt/skills-audit-skill/issues"
+echo "✅ skills-summarize-audit installed!  v$(cat "$INSTALL_DIR/VERSION")"
+echo "   Trigger: skills-summarize-audit / 技能审查 / 技能总结"
+echo "   Issues:  https://github.com/gtbwpkwjnb-alt/skills-summarize-audit-skill/issues"

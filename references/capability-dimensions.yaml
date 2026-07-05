@@ -1,0 +1,258 @@
+# ============================================================================
+# Capability Dimensions v1.0 — 能力维度定义与工具映射
+# ============================================================================
+# 用途：
+#   1. 定义统一的能力分类体系（~12 维度）
+#   2. 映射已知工具到各维度的能力评分（0-10）
+#   3. T0（核心工具）手动精标，T1（已知工具）从 tags/description 自动推断
+#   4. T2（新发现工具）由 Phase 3 社区 Feed 自动推断
+#
+# 更新方式：手动维护 base + ④-bis 自动回写 + Phase 3 自动扩展
+# ============================================================================
+
+# ──────────────────────────────────────────────
+# 能力维度定义
+# ──────────────────────────────────────────────
+dimensions:
+  - id: web-search
+    name: "Web 搜索"
+    description: "搜索引擎/网页搜索/信息检索"
+    keywords: ["search", "web-search", "搜索引擎", "信息检索"]
+
+  - id: multi-platform-search
+    name: "多平台搜索"
+    description: "跨多个社交媒体/内容平台的聚合搜索"
+    keywords: ["multi-platform", "cross-platform", "social-search", "聚合搜索"]
+
+  - id: web-scrape
+    name: "网页抓取"
+    description: "从网页提取结构化数据/内容抓取"
+    keywords: ["scrape", "crawler", "extract", "抓取"]
+
+  - id: deep-crawl
+    name: "深度爬取"
+    description: "递归爬取网站链接/批量页面处理"
+    keywords: ["crawl", "recursive", "batch", "爬取"]
+
+  - id: code-analysis
+    name: "代码分析"
+    description: "代码结构分析/符号查询/依赖分析/重构"
+    keywords: ["code-analysis", "symbol", "dependency", "refactor", "代码分析"]
+
+  - id: browser-auto
+    name: "浏览器自动化"
+    description: "浏览器操控/截图/表单填写/UI 测试"
+    keywords: ["browser", "automation", "screenshot", "form", "浏览器"]
+
+  - id: session-management
+    name: "会话管理"
+    description: "会话总结/上下文压缩/token 管理/进度追踪"
+    keywords: ["session", "summary", "context", "token", "compress", "会话"]
+
+  - id: error-harvest
+    name: "错误收割"
+    description: "错误分类/频率追踪/预防规则/自进化"
+    keywords: ["error", "harvest", "classification", "prevention", "错误"]
+
+  - id: skill-audit
+    name: "技能审计"
+    description: "技能库扫描/评分/推荐/健康度检查"
+    keywords: ["audit", "skill-check", "scoring", "health", "审计"]
+
+  - id: memory-write
+    name: "记忆写入"
+    description: "分层持久化/全局/项目级记忆管理"
+    keywords: ["memory", "persist", "write", "分层", "记忆"]
+
+  - id: research
+    name: "调研分析"
+    description: "多源信息收集/对比分析/趋势研判"
+    keywords: ["research", "investigation", "analysis", "trend", "调研"]
+
+  - id: file-ops
+    name: "文件操作"
+    description: "文件读写/搜索/编辑/管理"
+    keywords: ["file", "read", "write", "edit", "search", "文件"]
+
+  - id: reasoning
+    name: "推理思考"
+    description: "链式推理/问题分解/假设验证"
+    keywords: ["reasoning", "thinking", "problem-solving", "chain-of-thought", "推理"]
+
+  - id: integration
+    name: "集成连接"
+    description: "API 集成/工具编排/工作流自动化"
+    keywords: ["integration", "workflow", "orchestration", "api", "mcp", "集成"]
+
+# ──────────────────────────────────────────────
+# T0 核心工具 — 能力映射（手动精标）
+# ──────────────────────────────────────────────
+# level: 0-10 能力评分
+# source: 评分依据
+tools:
+  # ---- 搜索调研类 ----
+  - name: agent-reach
+    type: skill
+    capabilities:
+      multi-platform-search:
+        level: 9
+        source: "13 渠道核心能力，手动精标"
+      social-search:
+        level: 9
+        source: "小红书/B站/知乎等多平台社交搜索"
+      web-search:
+        level: 5
+        source: "通过 WebFetch 后端，成功率约 60%"
+      content-aggregation:
+        level: 7
+        source: "多源汇总与对比分析"
+
+  - name: firecrawl
+    type: mcp-server
+    capabilities:
+      web-search:
+        level: 9
+        source: "原生 web search，144k⭐"
+      web-scrape:
+        level: 9
+        source: "JS 渲染+反反爬，144k⭐"
+      deep-crawl:
+        level: 8
+        source: "递归爬取"
+      extract:
+        level: 8
+        source: "结构化数据提取"
+      agent-research:
+        level: 7
+        source: "自主调研 Agent"
+
+  # ---- 浏览器自动化类 ----
+  - name: playwright
+    type: mcp-server
+    capabilities:
+      browser-auto:
+        level: 9
+        source: "官方 Playwright MCP"
+      screenshot:
+        level: 9
+        source: "页面截图"
+      form-fill:
+        level: 8
+        source: "表单填写与交互"
+
+  # ---- 代码分析类 ----
+  - name: codegraph
+    type: mcp-server
+    capabilities:
+      code-analysis:
+        level: 9
+        source: "代码结构查询/符号定位/调用链分析"
+      dependency-graph:
+        level: 8
+        source: "依赖关系图"
+
+  # ---- 会话管理类 ----
+  - name: summarize
+    type: skill
+    capabilities:
+      session-management:
+        level: 9
+        source: "核心能力：会话精炼+进度追踪"
+      error-harvest:
+        level: 9
+        source: "核心能力：5维分类+频率追踪"
+      memory-write:
+        level: 8
+        source: "分层写入：项目/全局/技能/待确认"
+      compress:
+        level: 8
+        source: "可逆压缩+degrade 降级链"
+
+  # ---- 审计类 ----
+  - name: skills-summarize-audit
+    type: skill
+    capabilities:
+      skill-audit:
+        level: 9
+        source: "核心能力：全量扫描+七维评分"
+      project-profiling:
+        level: 8
+        source: "项目技术栈画像+类型识别"
+      scoring:
+        level: 8
+        source: "七维 S/A/B/C/D 评分"
+      capacity-analysis:
+        level: 7
+        source: "多因子有效容量计算"
+
+  # ---- 推理类 ----
+  - name: sequential-thinking
+    type: mcp-server
+    capabilities:
+      reasoning:
+        level: 9
+        source: "链式推理+问题分解"
+
+  # ---- 集成连接类 ----
+  - name: github
+    type: mcp-server
+    capabilities:
+      repo-read:
+        level: 9
+        source: "GitHub API 仓库读取"
+      pr-manage:
+        level: 8
+        source: "PR 创建/审查/合并"
+      code-search:
+        level: 8
+        source: "GitHub code search"
+
+  - name: windows-mcp
+    type: mcp-server
+    capabilities:
+      file-ops:
+        level: 8
+        source: "Windows 文件系统操作"
+      ui-auto:
+        level: 8
+        source: "UI 自动化：点击/输入/截图"
+      process-manage:
+        level: 7
+        source: "进程管理"
+      registry:
+        level: 7
+        source: "注册表读写"
+
+  # ---- 学习类 ----
+  - name: learn
+    type: skill
+    capabilities:
+      video-transcript:
+        level: 8
+        source: "视频转文字"
+      knowledge-import:
+        level: 7
+        source: "AI 总结+知识入库"
+
+# ──────────────────────────────────────────────
+# T1 已知工具 — 自动推断规则
+# ──────────────────────────────────────────────
+# 从 skill-registry.yaml 的 tags + description 自动映射到能力维度。
+# 映射规则：
+#
+#   tag/keyword → 能力维度
+#   "search"    → web-search
+#   "research"  → research
+#   "audit"     → skill-audit
+#   "browser"   → browser-auto
+#   "scrape"    → web-scrape
+#   "crawl"     → deep-crawl
+#   "memory"    → memory-write
+#   "compress"  → session-management
+#   "code"      → code-analysis
+#   "file"      → file-ops
+#   "reason"    → reasoning
+#   "integrat"  → integration
+#
+# 置信度: tag 直接命中 → 7/10, description 含关键词 → 6/10
+# 自动推断的结果写入 .data/auto-capabilities.json 供下次审计参考

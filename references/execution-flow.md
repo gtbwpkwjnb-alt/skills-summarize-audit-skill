@@ -5,7 +5,7 @@
 
 ## 流程图
 
-⓪ → (①+③) → ② → ②-bis → **②-ter** → ⑤a → ④ → (④-a + ④-bis + ⑤b) → ⑥ → ⑥-bis → ⑥-c → ⑦-a→⑦-b→⑦-c → ⑧
+⓪ → (①+③) → ②(含能力映射) → ②-bis → **②-ter** → ⑤a → ④(含质量信号) → ⑤-aa → (④-a + ④-bis + ⑤b) → ⑥(含生态雷达) → ⑥-bis → ⑥-c → ⑦-a→⑦-b→⑦-c → ⑧
 
 ## 阶段文件
 
@@ -21,6 +21,7 @@
 | ④-a | flow/04-a-t3-validation.md | T3 活性验证 |
 | ④-bis | flow/04-bis-deepread.md | 逐技能深度阅读 |
 | ⑤a | flow/05-signals.md | 外部信号获取 |
+| ⑤-aa | flow/05-aa-community-feed.md | **社区 Feed — 能力缺口搜索（v6.0.0）** |
 | ⑤b | flow/05-rec-engine.md | 三层推荐引擎 |
 | ⑥ | flow/06-report.md | 报告生成(含趋势对比) |
 | ⑥-bis | flow/06-bis-verify.md | 审计验证+self-audit |
@@ -42,4 +43,5 @@
 - ci-github-actions.yml — CI 工作流模板
 - actions-schema.md — Skills Manager 对接格式
 - recommendation-examples.md — 推荐示例
+- capability-dimensions.yaml — **能力维度定义与工具映射（v6.0.0）**
 

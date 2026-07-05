@@ -1,10 +1,31 @@
 # Changelog
 
-All notable changes to the skills-audit skill.
+All notable changes to the skills-summarize-audit skill.
 
 ---
 
-## [5.9.3] - 2026-07-05
+## [6.0.0] - 2026-07-05
+
+### Added
+- **能力维度矩阵**：新增 `references/capability-dimensions.yaml`，定义 12 个能力维度，T0 核心工具手动精标，T1 工具从 tags 自动推断
+- **质量信号**：审计时读取 summarize 的 `error-ledger.md`，提取 `TOOL:` 工具级错误记录，低于阈值(6/10)标记为 P1 缺口
+- **社区 Feed**：新增步骤⑤-aa `references/flow/05-aa-community-feed.md`，从质量缺口和项目核心活动反推搜索词，用 GitHub MCP 搜索替代工具
+- **能力互补性推荐**：重写推荐引擎(⑤b)，从"选 stars 多的"改为"能力矩阵对比"，输出替代/互补/补充/无关四类关系
+- **生态雷达**：报告(⑥)新增条件区块，仅在发现质量缺口+社区替代品时输出，附带能力对比证据
+
+### Changed
+- **名称统一扫尾**：完成全量文件中的 `skills-audit` → `skills-summarize-audit` 替换（install.sh/install.ps1/SKILL.md/README.md/user-profile.md/06-report.md）
+- **02-inventory.md**：新增能力映射步骤，扫描时加载 capability-dimensions.yaml
+- **04-scoring.md**：新增质量信号读取规则，评分前先读错误账本
+- **config.yaml**：新增 `quality_signals` 和 `community_feed` 配置块
+- **execution-flow.md**：流程图新增 ⑤-aa 社区 Feed 步骤
+
+### 文件变更
+- 新建: references/capability-dimensions.yaml, flow/05-aa-community-feed.md
+- 重写: flow/05-rec-engine.md (能力矩阵推荐)
+- 修改: flow/02-inventory.md, flow/04-scoring.md, flow/06-report.md, config.yaml, SKILL.md, VERSION, execution-flow.md
+- 名称修复: install.sh, install.ps1, README.md, user-profile.md (旧名→新名)
+- VERSION 5.9.3 → 6.0.0
 
 ### Changed
 - **技能改名**：`skills-audit` → `skills-summarize-audit`（全平台同步）

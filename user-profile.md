@@ -1,7 +1,7 @@
 # 用户画像（Skills Audit 自动维护）
 
 > 关联: L0=~/.agents/AGENTS.md（全局底线）｜L2=各项目 memories/MEMORY.md（事实库）｜项目画像=各项目 .agents/project-profile.md
-> 本文件为跨项目全局人物画像，skills-audit 维护，agent 据此识别 4 层金字塔读取链路。
+> 本文件为跨项目全局人物画像，skills-summarize-audit 维护，agent 据此识别 4 层金字塔读取链路。
 
 <!-- ═══════════════════════════════════════════ -->
 <!-- 以下为可编辑的用户画像字段               -->

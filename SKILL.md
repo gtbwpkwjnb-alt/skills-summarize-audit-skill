@@ -1,11 +1,12 @@
 ---
 name: skills-summarize-audit
-version: "5.9.3"
+version: "6.0.0"
 description: >
-  审计技能库健康度：项目画像→七维评分→容量预警→趋势对比→快照回滚。
-  支持技能/项目双模式 + CI/CD。与 summarize 联动，定期检查技能库健康度。
-  Capabilities: skill audit, project profiling,
-  7-dim scoring, capacity analysis, liveness check, snapshot rollback, CI mode.
+  v6.0.0 能力矩阵升级：审计技能库+工具链健康度，联动 summarize 错误账本
+  自动发现质量缺口→社区Feed搜索替代品→能力互补分析→生态雷达推荐。
+  基于12维能力矩阵做互补性分析（非简单比星数），与 summarize 共享错误信号。
+  Capabilities: capability matrix, quality signals from summarize,
+  community feed, ecosystem radar, complementarity analysis, 7-dim scoring.
 requires:
   tools:
     - codegraph
@@ -52,7 +53,7 @@ requires:
 | 会触发 ✅ | 不会触发 ❌ |
 |:---|:---|
 | `技能审查`（独立发送） | `帮我做一次技能审查`（句中） |
-| `skills-audit`（独立发送） | `run skills-audit on this`（句中） |
+| `skills-audit` `skills-summarize-audit`（独立发送） | `run skills-audit on this`（句中） |
 | `技能总结`（独立发送，联动 summarize 品牌） | `总结一下技能`（句中不触发） |
 | `技能审计 深度`（独立词+子命令） | `这个项目需要能力审查吗`（句中） |
 
@@ -78,14 +79,19 @@ requires:
 
 ## 能力清单 / Capabilities
 
-skills-audit 提供以下核心能力：
+skills-summarize-audit 提供以下核心能力（v6.0.0 新增能力矩阵+质量信号+社区Feed+生态雷达）：
 
 - 项目技术栈画像与项目类型识别
 - 技能库全量扫描与增量清单
+- **能力维度矩阵构建（~12 能力维度，v6.0.0）**
+- **质量信号读取（联动 summarize 错误账本，v6.0.0）**
 - 多因子有效容量分析与容量预警
 - 6 项技能活性检测
 - 七维 S/A/B/C/D 评分与强制理由
 - T3 活性验证与误归档风险控制
+- **社区 Feed 搜索（能力缺口驱动的 GitHub 搜索，v6.0.0）**
+- **基于能力互补性的工具推荐（替代/互补/补充/无关，v6.0.0）**
+- **生态雷达区块（条件输出，有问题才显示，v6.0.0）**
 - 逐技能深度阅读与外部来源验证
 - 外部信号缓存与三层推荐引擎
 - 30 秒摘要报告与趋势对比
@@ -99,15 +105,16 @@ skills-audit 提供以下核心能力：
 |:----|:----|:-----|
 | ⓪ 配置 | 多平台自适应 | Codex/Claude/Cursor/Coze 平台自动检测 |
 | ① 画像 | 项目技术栈扫描 | 自动识别 15+ 项目类型（Web/Rust/Python/Go/Java...） |
-| ② 清单 | 技能库全量扫描 | 扫描 4 个路径下的所有已安装技能 |
+| ② 清单 | 技能库全量扫描 + 能力映射 | 扫描 4 个路径 + capability-dimensions.yaml 映射（v6.0.0） |
 | ②-bis | 容量分析 | 多因子有效容量计算（token + 冲突因子 + 认知容量） |
 | ②-ter | 活性检测 | 6 项检查验证技能是否可用（Agent可达性/MCP/命令/触发/数据/使用证据） |
-| ④ 评分 | 七维评分 | Fit·Value·Fresh·Community·ROI·Novelty·Contamination，每项附强制理由 |
+| ④ 评分 | 七维评分 + 质量信号 | 7维评分 + 读取 summarize 错误账本（v6.0.0） |
 | ④-a | T3 活性验证 | 归档前核实使用证据/修改时间/触发记录，降低误归档率 |
 | ④-bis | 深度阅读 | S/A 全量深读、B(画像相关)全量、B(非相关)精简 |
 | ⑤a | 外部信号 | GitHub⭐/npm📥 缓存采集 |
-| ⑤b | 推荐引擎 | 三层推荐：内置映射 + 差距分析 + 网络搜索 |
-| ⑥ | 报告生成 | 30 秒摘要 + 容量块 + 评分表 + 趋势列 |
+| **⑤-aa** | **社区 Feed** | **能力缺口驱动的 GitHub 搜索（v6.0.0）** |
+| ⑤b | **能力矩阵推荐引擎** | **基于能力互补性的推荐（替代/互补/补充/无关，v6.0.0）** |
+| ⑥ | 报告生成 + **生态雷达** | 30 秒摘要 + 容量块 + 评分表 + **条件生态雷达区块（v6.0.0）** |
 | ⑦-a | 快照备份 | 执行前自动备份所有 editable 技能 |
 | ⑦-d | 操作回滚 | `--undo` 撤销任意执行操作，保留 7 天快照 |
 | CI | 无交互审计 | JSON 输出 + health/t3/actions 三门禁，集成 GitHub Actions |
@@ -193,7 +200,7 @@ skills-audit 提供以下核心能力：
 
 支持平台：`platforms/zcode.yaml` · `platforms/workbuddy.yaml` · `platforms/claude.yaml` · `platforms/codex.yaml` · `platforms/cursor.yaml` · `platforms/default.yaml`。
 
-**CI 模式**（`技能审查 --ci` 或 `skills-audit --ci`）：无交互、JSON 输出、跳过深度阅读，受 `config.yaml` 中 `ci.max_tokens` 预算限制。门禁逻辑：health=🔴 → exit_code=1 · actions_required>5 → exit_code=2 · t3_ratio>0.35 → exit_code=3。GitHub Actions 模板见 `references/ci-github-actions.yml`。
+**CI 模式**（`技能审查 --ci` 或 `skills-summarize-audit --ci` 或 `skills-audit --ci`）：无交互、JSON 输出、跳过深度阅读，受 `config.yaml` 中 `ci.max_tokens` 预算限制。门禁逻辑：health=🔴 → exit_code=1 · actions_required>5 → exit_code=2 · t3_ratio>0.35 → exit_code=3。GitHub Actions 模板见 `references/ci-github-actions.yml`。
 
 **SkillSpector 安全扫描**（可选）：`config.yaml` → `security_scan` 启用后，扫描结果融入 Value 维度（Critical→D, High→C, 通过→+0.5档）。SkillSpector 为外部进程，不消耗 Agent Token。
 
@@ -202,7 +209,7 @@ skills-audit 提供以下核心能力：
 ## 文件结构
 
 ```
-skills-audit/
+	skills-summarize-audit/
 ├── SKILL.md                    # 技能主文件
 ├── VERSION                     # 版本号
 ├── LICENSE                     # MIT
@@ -232,13 +239,13 @@ skills-audit/
 
 一键安装与手动安装详见 `references/installation.md`（如不存在则参考 README.md）。
 
-安装后输入 `技能审查` 或 `skills-audit` 即可触发。
+安装后输入 `技能审查` 或 `技能总结` 或 `skills-summarize-audit` 即可触发（`skills-audit` 仍受支持）。
 
 ---
 
 ## 反馈
 
-🐛 [GitHub Issues](https://github.com/gtbwpkwjnb-alt/skills-audit-skill/issues/new)
+🐛 [GitHub Issues](https://github.com/gtbwpkwjnb-alt/skills-summarize-audit-skill/issues/new)
 
 ---
 

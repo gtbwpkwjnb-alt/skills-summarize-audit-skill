@@ -10,20 +10,20 @@ function Get-InstallDir {
         return "$env:USERPROFILE\.zcode\skills\skills-summarize-audit"
     }
     if (Test-Path "$env:USERPROFILE\.claude\skills") {
-        return "$env:USERPROFILE\.claude\skills\skills-audit"
+        return "$env:USERPROFILE\.claude\skills\skills-summarize-audit"
     }
     if (Test-Path "$env:USERPROFILE\.codex\skills") {
-        return "$env:USERPROFILE\.codex\skills\skills-audit"
+        return "$env:USERPROFILE\.codex\skills\skills-summarize-audit"
     }
     if (Test-Path "$env:USERPROFILE\.cursor\agent-skills") {
-        return "$env:USERPROFILE\.cursor\agent-skills\skills-audit"
+        return "$env:USERPROFILE\.cursor\agent-skills\skills-summarize-audit"
     }
-    return "$env:USERPROFILE\.agent-skills\skills-audit"
+    return "$env:USERPROFILE\.agent-skills\skills-summarize-audit"
 }
 
 $InstallDir = Get-InstallDir
 
-Write-Host "📦 skills-audit installer"
+Write-Host "📦 skills-summarize-audit installer"
 Write-Host "   Target: $InstallDir"
 
 if (Test-Path $InstallDir) {
@@ -44,6 +44,6 @@ if (Test-Path $InstallDir) {
 
 $ver = Get-Content "$InstallDir\VERSION" -Raw
 Write-Host ""
-Write-Host "✅ skills-audit installed!  v$ver"
-Write-Host "   Trigger: skills-audit / 技能审查"
-Write-Host "   Issues:  https://github.com/gtbwpkwjnb-alt/skills-audit-skill/issues"
+Write-Host "✅ skills-summarize-audit installed!  v$ver"
+Write-Host "   Trigger: skills-summarize-audit / 技能审查 / 技能总结"
+Write-Host "   Issues:  https://github.com/gtbwpkwjnb-alt/skills-summarize-audit-skill/issues"

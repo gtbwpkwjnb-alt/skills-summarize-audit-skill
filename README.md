@@ -24,9 +24,9 @@
 
 | Platform | Trigger (中文) | Trigger (English) | Example |
 |:----------|:---------|:---------|:---------|
-| **ZCode** | `技能审查` `技能审计` `技能检查` `能力审查` `能力审计` `工具审查` | `skills-audit` `skill-audit` `skill-check` `capability-audit` `tool-audit` | 独立发送 `技能审查` |
+| **ZCode** | `技能审查` `技能审计` `技能检查` `能力审查` `能力审计` `工具审查` `技能总结` | `skills-summarize-audit` `skills-audit` `skill-audit` `skill-check` `capability-audit` `tool-audit` | 独立发送 `技能审查` |
 | **ZCode (项目模式)** | `项目审查` `项目审计` `项目诊断` `项目画像` `环境审查` `环境审计` | `project-audit` `project-check` `project-diagnosis` `project-profile` `env-audit` | 独立发送 `项目审计` |
-| **Claude Code** | `/skills-audit` | `/skills-audit` | `> /skills-audit` |
+| **Claude Code** | `/skills-summarize-audit` | `/skills-summarize-audit` | `> /skills-summarize-audit` |
 | **Codex/Cursor** | 直接发送独立触发词 | 直接发送独立触发词 | `技能审查` |
 
 **子命令**: `深度`/`deep` · `推荐`/`recommend` · `画像`/`profile` · `健康`/`health` · `轻量`/`quick` · `ci`/`--ci` · `回滚`/`undo`/`--undo`
@@ -65,12 +65,12 @@ See [SKILL.md](SKILL.md) for full reference.
 ## Installation / 安装
 
 ```bash
-curl -sL https://raw.githubusercontent.com/gtbwpkwjnb-alt/skills-audit-skill/main/install.sh | bash
+curl -sL https://raw.githubusercontent.com/gtbwpkwjnb-alt/skills-summarize-audit-skill/main/install.sh | bash
 ```
 
 Windows PowerShell:
 ```powershell
-iwr https://raw.githubusercontent.com/gtbwpkwjnb-alt/skills-audit-skill/main/install.ps1 | iex
+iwr https://raw.githubusercontent.com/gtbwpkwjnb-alt/skills-summarize-audit-skill/main/install.ps1 | iex
 ```
 
 ---
@@ -188,7 +188,7 @@ iwr https://raw.githubusercontent.com/gtbwpkwjnb-alt/skills-audit-skill/main/ins
 
 ## Feedback
 
-🐛 [GitHub Issues](https://github.com/gtbwpkwjnb-alt/skills-audit-skill/issues/new)
+🐛 [GitHub Issues](https://github.com/gtbwpkwjnb-alt/skills-summarize-audit-skill/issues/new)
 
 ## License
 
