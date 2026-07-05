@@ -1,12 +1,11 @@
 ---
 name: skills-summarize-audit
-version: "6.0.0"
+version: "6.1.1"
 description: >
-  v6.0.0 能力矩阵升级：审计技能库+工具链健康度，联动 summarize 错误账本
-  自动发现质量缺口→社区Feed搜索替代品→能力互补分析→生态雷达推荐。
-  基于12维能力矩阵做互补性分析（非简单比星数），与 summarize 共享错误信号。
-  Capabilities: capability matrix, quality signals from summarize,
-  community feed, ecosystem radar, complementarity analysis, 7-dim scoring.
+  扫描技能库目录，对每个技能做7维度评分，输出审计报告和优化推荐。
+  技术栈画像、容量分析、活性检测、CI/CD无交互模式、快照回滚。
+  Tool that scans skill directories, scores on 7 dimensions,
+  outputs audit reports with optimization recommendations.
 requires:
   tools:
     - codegraph

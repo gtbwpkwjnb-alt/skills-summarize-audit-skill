@@ -15,6 +15,42 @@
 ```
 自检失败不阻塞主流程，但输出警告。
 
+**🧩 安全合规自检（v6.1.0）**：
+```text
+🧩 安全合规
+  ✅ SEC-001 外部信号默认关闭
+  ✅ SEC-002 搜索策略默认关闭
+  ✅ SEC-003 外部域名白名单合规
+  ✅ SEC-004 curl|bash 有校验和
+  ✅ SEC-005 iwr|iex 有校验和
+  ✅ SEC-006 无 sudo/提权操作
+  ✅ SEC-007 无硬编码凭证
+  ✅ SEC-008 description 简洁清晰
+  — 状态：通过
+```
+每项检查规则见 `references/security-rules.yaml`。
+失败项输出 ⚠️ 警告 + 修复指引（引用 rules[].fix），不阻塞主流程。
+
+**安全合规检查逻辑（伪代码）**：
+```
+for each rule in security-rules.yaml:
+    scope_files = glob(rule.scope.files)
+    for file in scope_files:
+        content = read(file)
+        for pattern in rule.scope.patterns:
+            if pattern has 'regex':
+                matches = regex_search(content, pattern.regex)
+                if pattern has 'exclude_if_adjacent_lines':
+                    matches = exclude_if_surrounded_by(matches, pattern.exclude_if_adjacent_lines)
+                score = len(matches) > 0 ? FAIL : PASS
+            elif pattern has 'key':
+                value = yaml_get(content, pattern.key)
+                if pattern.check exists:
+                    score = evaluate_checks(value, pattern.check)
+                else:
+                    score = (value == pattern.value) ? FAIL : PASS
+```
+
 ---
 ## 下一步
 

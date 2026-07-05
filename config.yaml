@@ -72,22 +72,27 @@ snapshot:
 output_language: "auto"  # auto / zh / en
 
 # 外部信号缓存（增量获取，避免每次全量 WebFetch）
+# ⚠️ 安全说明（v6.0.1）：外部信号获取涉及向 GitHub/npm 等第三方发出网络请求。
+# 默认关闭（enabled: false），用户知情并同意后才应启用。
+# 如需启用：external_signals_cache.enabled = true
 external_signals_cache:
-  enabled: true
-  github_ttl_days: 7      # GitHub ⭐/更新时间 缓存 7 天
-  npm_ttl_days: 30         # npm 下载量 缓存 30 天
+  enabled: false            # 默认关闭，用户知情同意后手动开启
+  github_ttl_days: 7        # GitHub ⭐/更新时间 缓存 7 天
+  npm_ttl_days: 30          # npm 下载量 缓存 30 天
   # 中文社区信号源（v5.9.1，默认关闭）
   china_sources:
-    enabled: false          # 设为 true 启用知乎/掘金/CSDN 采集
+    enabled: false          # 设为 true 启用知乎/掘金/CSDN 采集（需用户额外知情同意）
     zhihu_ttl_days: 14
     juejin_ttl_days: 14
     csdn_ttl_days: 14
   cache_file: ".data/external-signals-cache.json"
 
 # 开发搜索策略（先搜索后开发）
+# ⚠️ 安全说明（v6.0.1）：启用后 agent 会搜索 GitHub/PyPI/npm/crates.io 等外部站点。
+# 默认关闭，用户知情并同意后才应启用。
 dev_search_policy:
-  enabled: true
-  min_sources: 2           # 至少引用 2 个独立来源
+  enabled: false            # 默认关闭，用户知情同意后手动开启
+  min_sources: 2            # 至少引用 2 个独立来源
   required_domains:
   - "github.com"
   - "pypi.org"
@@ -166,9 +171,9 @@ ci:
     t3_ratio_max: 0.35       # 超过 → exit_code=3
     actions_max: 5           # 超过 → exit_code=2
 
-# 安全扫描（v5.8.0 新增）
+# 安全扫描（v5.8.0 新增，v6.1.0 默认启用内置规则）
 security_scan:
-  enabled: false             # 设为 true 启用
+  enabled: true             # v6.1.0 默认启用：审计时自检 README/config/脚本安全风险
   tool: "builtin"            # "skillspector" 或 "builtin"（内置轻量规则）
   skillspector_path: ""      # 留空自动查找
   rules: ["all"]             # 或 ["injection", "malware", "secret"]

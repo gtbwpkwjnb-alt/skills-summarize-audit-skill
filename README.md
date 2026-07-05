@@ -64,11 +64,40 @@ See [SKILL.md](SKILL.md) for full reference.
 
 ## Installation / 安装
 
+> ⚠️ **安全提醒**：以下命令通过管道直接执行远程脚本（`curl | bash` / `iwr | iex`）。
+> 建议先下载脚本审查内容后再执行。安装前请验证 SHA256 校验和：
+
+| 脚本 | SHA256 |
+|:-----|:-------|
+| `install.sh` | `6FD0BF8F287F97BB1C8839FB962BF97B0C198D42AE3373E21A4B2D23740B9561` |
+| `install.ps1` | `D303F7298237A823337A80DBFCA4138C4C68BE83A41AA4940057B66178ACE7AC` |
+
+**快速安装（先下载审查）：**
+```bash
+# 1. 下载脚本
+curl -sLO https://raw.githubusercontent.com/gtbwpkwjnb-alt/skills-summarize-audit-skill/main/install.sh
+# 2. 验证校验和
+sha256sum install.sh
+# 3. 确认校验和匹配后执行
+bash install.sh
+```
+
+**一行安装（仅信任后使用）：**
 ```bash
 curl -sL https://raw.githubusercontent.com/gtbwpkwjnb-alt/skills-summarize-audit-skill/main/install.sh | bash
 ```
 
-Windows PowerShell:
+**Windows PowerShell（先下载审查）：**
+```powershell
+# 1. 下载脚本
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/gtbwpkwjnb-alt/skills-summarize-audit-skill/main/install.ps1 -OutFile install.ps1
+# 2. 验证校验和
+Get-FileHash install.ps1 -Algorithm SHA256
+# 3. 确认校验和匹配后执行
+.\install.ps1
+```
+
+**Windows PowerShell（仅信任后使用）：**
 ```powershell
 iwr https://raw.githubusercontent.com/gtbwpkwjnb-alt/skills-summarize-audit-skill/main/install.ps1 | iex
 ```

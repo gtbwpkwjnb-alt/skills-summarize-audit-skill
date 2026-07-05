@@ -4,6 +4,38 @@ All notable changes to the skills-summarize-audit skill.
 
 ---
 
+## [6.1.0] - 2026-07-05
+
+### Added
+- **安全合规自检体系**：审计自检(⑥-bis)新增「🧩 安全合规」第7项，按 `references/security-rules.yaml` 8条规则检测
+- **发布前门禁**：`publish_xiaping.py --safety-check` 上传前自动扫描技能目录，HIGH 风险阻止上传
+- **安全规则文件**：`references/security-rules.yaml` — 8条规则覆盖数据外泄/供应链/提权/凭证/意图声明
+
+### Changed
+- **description 精简**：SKILL.md frontmatter description 从 7 行精简为 4 行 120 字，中英分开不混排，帮助 Xiaping LLM 正常解析意图
+- **security_scan 默认启用**：config.yaml `security_scan.enabled: true`，审计时自动执行内置安全规则
+- **发布脚本升级**：`publish_xiaping.py` 新增 `--safety-check` / `--no-safety-check` / `--safety-fail-on` 参数
+
+### Security
+- **analysis_error 修复**：精简 SKILL.md description 避免 Xiaping LLM 解析失败（`实际行为: LLM 分析失败` → 应可正常识别）
+
+### 文件变更
+- 新建: references/security-rules.yaml
+- 修改: references/flow/06-bis-verify.md, config.yaml, SKILL.md, VERSION, CHANGELOG.md
+- 修改: scripts/publish_xiaping.py（新增安全门禁）
+- VERSION 6.0.1 → 6.1.0
+
+---
+
+## [6.0.1] - 2026-07-05
+
+### Security
+- **数据外泄修复 (HIGH)**：`config.yaml` external_signals_cache 默认关闭（`enabled: false`），需用户知情同意后手动启用；china_sources 补充额外知情同意注释
+- **数据外泄修复 (MEDIUM)**：`config.yaml` dev_search_policy 默认关闭（`enabled: false`），需用户知情同意后手动启用
+- **供应链风险修复 (HIGH)**：`README.md` 安装章节新增 SHA256 校验和（install.sh / install.ps1）、下载审查流程、安全提醒
+
+---
+
 ## [6.0.0] - 2026-07-05
 
 ### Added
