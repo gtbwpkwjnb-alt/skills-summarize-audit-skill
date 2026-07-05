@@ -1,4 +1,4 @@
-# skills-audit installer — iwr https://raw.githubusercontent.com/gtbwpkwjnb-alt/skills-audit-skill/main/install.ps1 | iex
+﻿# skills-audit installer — iwr https://raw.githubusercontent.com/gtbwpkwjnb-alt/skills-audit-skill/main/install.ps1 | iex
 
 $ErrorActionPreference = "Stop"
 
@@ -45,5 +45,5 @@ if (Test-Path $InstallDir) {
 $ver = Get-Content "$InstallDir\VERSION" -Raw
 Write-Host ""
 Write-Host "✅ skills-audit installed!  v$ver"
-Write-Host "   Trigger: skills-audit / 技能审查 / 审查技能"
+Write-Host "   Trigger: skills-audit / 技能审查"
 Write-Host "   Issues:  https://github.com/gtbwpkwjnb-alt/skills-audit-skill/issues"

@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 # skills-audit installer — curl -sL https://raw.githubusercontent.com/gtbwpkwjnb-alt/skills-audit-skill/main/install.sh | bash
 
 set -e
@@ -43,5 +43,5 @@ fi
 
 echo ""
 echo "✅ skills-audit installed!  v$(cat "$INSTALL_DIR/VERSION")"
-echo "   Trigger: skills-audit / 技能审查 / 审查技能"
+echo "   Trigger: skills-audit / 技能审查"
 echo "   Issues:  https://github.com/gtbwpkwjnb-alt/skills-audit-skill/issues"

@@ -1,4 +1,4 @@
-# Recommendation Examples — Skills Audit v5.2.0
+# Recommendation Examples — Skills Audit v5.9.1
 
 > 三层推荐 + 不推荐清单的完整输出示例。参见 SKILL.md 步骤⑤b。
 
@@ -12,7 +12,7 @@
       📌 命中: 技能编写(SKILL.md) → 活动覆盖 6/8 项
       📊 交叉验证: project-types.yaml + skill-registry.yaml + 已安装确认
       💡 预期效果: 提供从草稿→测试→迭代的标准化流程
-      ⚠️ 注意: 已安装(T1/89分)，未在 usage-*.json 高频调用 → 评估真实使用频率
+      ⚠️ 注意: 已安装(T1/A)，未在 usage-*.json 高频调用 → 评估真实使用频率
 
     agent-reach      信心:8.8/10  ROI:+1,800/run
       📌 命中: Agent编排+工具链开发 → 活动覆盖 5/8 项
@@ -36,9 +36,9 @@
 
 ```
 📊 覆盖分析
-  话题热度调研       agent-reach ✅      已安装(T1/89分)
-  技能编写           skill-creator ✅   已安装(T1/89分)
-  视频学习           learn ✅            已安装(T2/65分) · 低频调用🟡
+  话题热度调研       agent-reach ✅      已安装(T1/A)
+  技能编写           skill-creator ✅   已安装(T1/A)
+  视频学习           learn ✅            已安装(T2/C) · 低频调用🟡
   游戏制作           🔴 未覆盖（make-game 已归档 · 6月未更新）
 
 🔴 未覆盖活动: 游戏制作
@@ -78,7 +78,7 @@
 
 ```
 ❌ 不推荐（基于数据判定）
-  android-dev  T3/36分  ❓零交集·0次/30d
+  android-dev  T3/D  ❓零交集·0次/30d
     ⚠️ 专为 Android 类型设计，当前项目"AI Agent 技能开发"零交集
     📊 自归档以来 0 次调用（60 天），安装成本约 1,200 tokens/次
 

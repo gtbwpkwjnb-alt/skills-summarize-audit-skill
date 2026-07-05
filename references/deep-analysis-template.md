@@ -1,4 +1,4 @@
-# Deep Analysis Template — Skills Audit v5.2.0
+# Deep Analysis Template — Skills Audit v5.9.1
 
 > 逐技能六维分析 + 维护清单 + 参考验证的完整输出格式。参见 SKILL.md 步骤④-bis。
 

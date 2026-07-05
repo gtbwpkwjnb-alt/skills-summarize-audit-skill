@@ -1,36 +1,7 @@
-platform: cursor
-# Cursor IDE 平台特征配置（v5.7.0 新增）
+﻿platform: cursor
+# Cursor IDE 平台特征配置（v5.9.1 平台适配）
 # scan_paths 定义在 config.yaml（唯一配置源），此文件仅存平台特征。
-# ⚠️ 触发词同步：此文件中的 trigger_words 需与 SKILL.md（权威来源）保持同步。
-# 修改触发词时：SKILL.md → 同步所有 platforms/*.yaml
-archive_dir: "~/.cursor/skills-archived/"
-trigger_words:
-  # 技能审计模式（中文）
-  - "技能审查"
-  - "技能审计"
-  - "技能检查"
-  - "能力审查"
-  - "能力审计"
-  - "工具审查"
-  # 技能审计模式（英文）
-  - "skills-audit"
-  - "skill-audit"
-  - "skill-check"
-  - "capability-audit"
-  - "tool-audit"
-  # 项目审计模式（中文）
-  - "项目审查"
-  - "项目审计"
-  - "项目诊断"
-  - "项目画像"
-  - "环境审查"
-  - "环境审计"
-  # 项目审计模式（英文）
-  - "project-audit"
-  - "project-check"
-  - "project-diagnosis"
-  - "project-profile"
-  - "env-audit"
+# ⚠️ 触发词权威来源：SKILL.md 触发词矩阵。此文件不重复定义。
 project_scan_default_depth: 10
 # Cursor 特有配置
 cursor:
@@ -39,3 +10,4 @@ cursor:
   rules_file: ".cursorrules"
   # Cursor 无独立 MCP 配置文件，技能审计跳过 MCP 扫描
   mcp_supported: false
+

@@ -1,4 +1,4 @@
-# Actions JSON Schema — Skills Audit v5.8.0
+# Actions JSON Schema — Skills Audit v5.9.1
 
 > 对接 Skills Manager（xingkongliang 桌面应用）的桥梁格式。
 > 步骤⑦执行时输出，Skills Manager 读取并执行操作。
@@ -7,7 +7,7 @@
 
 ```json
 {
-  "source": "skills-audit v5.8.0",
+  "source": "skills-audit v5.9.1",
   "timestamp": "2026-06-28T23:59:00Z",
   "project": "ZCodeProject",
   "actions": [

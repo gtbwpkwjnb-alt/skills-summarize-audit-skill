@@ -328,16 +328,16 @@
 
 - pattern:
     files: ["requirements.txt"]
-    type: "Python"
-    description: "Python 项目"
-    aliases: ["Python", "Py", "Python 项目"]
-    skills:
-      - name: "systematic-debugging"
-        priority: essential
-        category: debug
-        why: "Python requirements.txt 项目通常无类型约束，运行时错误靠调试"
-        effect: "结构化调试减少排查时间"
-        use_case: "运行时错误排查"
+  type: "Python"
+  description: "Python 项目"
+  aliases: ["Python", "Py", "Python 项目"]
+  skills:
+    - name: "systematic-debugging"
+      priority: essential
+      category: debug
+      why: "Python requirements.txt 项目通常无类型约束，运行时错误靠调试"
+      effect: "结构化调试减少排查时间"
+      use_case: "运行时错误排查"
 
 # ============================================================================
 # Go

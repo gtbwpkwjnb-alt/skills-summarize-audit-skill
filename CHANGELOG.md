@@ -4,6 +4,48 @@ All notable changes to the skills-audit skill.
 
 ---
 
+## [5.9.2] - 2026-07-05
+
+### 改进
+- **前置条件重构**：去平台约束、去 skillfather/skill-creator 多余依赖，硬/软分离，工具标注安装引导，user-profile.md 改为缺失时自动创建
+- **frontmatter 精简**：`requires.configs` 移除 user-profile.md（非硬性依赖，改为自动创建）
+- **冗余文件清理**：
+  - 删除旧备份 `.SKILL.md.v5.1.bak`、`.VERSION.v5.1.bak`（git 已存历史）
+  - 删除意外文件 `nul`（Windows 保留名）
+  - 删除历史重定向 `references/workflow-details.md`
+  - 删除零引用笔记 `references/learned/skills-audit.md`
+  - 删除 `.github/ISSUE_TEMPLATE/`（3 文件）+ 空 `.github/` 目录
+- **缓存迁移**：`external-signals-cache.json` 从根目录移至 `.data/`，对齐 config.yaml 路径配置
+- **文件结构图更新**：移除 workflow-details.md 行，.data/ 注释补全外部信号缓存
+
+---
+
+## [5.9.1] - 2026-07-05
+
+### P0 - 版本同步与修复
+- **版本号统一**：VERSION / SKILL.md / README.md / skill-registry.yaml 同步至 5.9.1
+- **7维权重修正**：Novelty 10% → 7%、Contamination 5% → 3%、Fresh 17% → 15%、Community 18% → 15%，权重和恢复 100%
+- **平台 YAML 修复**：移除 `platforms/zcode.yaml`、`claude.yaml`、`codex.yaml`、`cursor.yaml` 中未闭合的 `"`
+- **config.yaml 缩进修复**：插件技能路径恢复为 `scan_paths` 同级项
+- **project-types.yaml 缩进修复**：`requirements.txt` 模式条目结构正确
+
+### P1 - 文档对齐
+- **七维评分替换**：移除 `workbuddy.yaml`、`description-quality.md`、`report-template.md`、`recommendation-examples.md` 中残留的"五维"与数值分示例
+- **flow/*.md 转义修复**：修正反斜杠丢失、单引号代码块、换行符污染
+- **仓库名统一**：`SKILL.md` 与 `install.sh` / `install.ps1` 统一使用 `skills-audit-skill`
+- **自检清单更新**：`self-audit-issues.json` 记录本轮修复
+
+### P2 - 运行时治理与测试工程化
+- **运行时数据目录 `.data/`**：迁移 `stats.json`、`project-profiles.json`、`activity-log.jsonl` 至 `.data/`，避免与源码混排
+- **config.yaml 路径更新**：`data_dir` 指向 `.data/`，所有缓存/统计/日志文件路径统一
+- **无用文件清理**：删除 `nul`、`.skill-order.json`
+- **旧数据格式重置**：`stats.json` / `project-profiles.json` 从数值分制重置为 S/A/B/C/D 格式
+- **自动化验证脚本**：新增 `tests/validate.py`，覆盖 YAML 解析、版本同步、权重和、平台合规、flow 格式、数据目录检查
+- **扩展测试用例**：新增 `test-weight-sum.md`、`test-yaml-parse.md`、`test-version-sync.md`、`test-platform-yaml.md`
+- **SKILL.md 文件结构**：补全 `tests/`、`references/flow/`、`.data/` 说明
+
+---
+
 ## [5.8.0] - 2026-06-28
 
 ### P0 - 容量分析引擎

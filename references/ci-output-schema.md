@@ -1,4 +1,4 @@
-# CI Output Schema — Skills Audit v5.8.0
+# CI Output Schema — Skills Audit v5.9.1
 
 > CI 模式 JSON 输出格式定义。`$CI_MODE=true` 时使用此 schema。
 
@@ -6,7 +6,7 @@
 
 ```json
 {
-  "version": "5.8.0",
+  "version": "5.9.1",
   "timestamp": "2026-06-28T23:59:00Z",
   "mode": "ci",
   "summary": { ... },

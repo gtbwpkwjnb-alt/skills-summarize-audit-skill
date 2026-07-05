@@ -1,9 +1,5 @@
 platform: generic
-# ⚠️ 触发词同步：此文件中的 trigger_words 需与 SKILL.md（权威来源）保持同步。
-# 修改触发词时：SKILL.md → 同步所有 platforms/*.yaml
-scan_paths:
-  user: "~/.agent-skills/*/"
-  plugin: ""
+# ⚠️ 触发词权威来源：SKILL.md 触发词矩阵。此文件不重复定义。
+# scan_paths 唯一来源为 config.yaml，此文件仅存平台特征。
 archive_dir: "~/.agent-skills-archived/"
-trigger_words: ["skills-audit", "project-audit", "技能审查", "技能审计"]
 project_scan_default_depth: 8

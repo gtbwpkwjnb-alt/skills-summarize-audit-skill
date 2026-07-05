@@ -2,8 +2,7 @@ platform: workbuddy
 # WorkBuddy 技能市场平台配置
 # 安装路径: ~/.workbuddy/skills/skills-audit/
 #
-# ⚠️ 触发词同步：此文件中的 trigger_words 需与 SKILL.md（权威来源）保持同步。
-# 修改触发词时：SKILL.md → 同步所有 platforms/*.yaml
+# ⚠️ 触发词权威来源：SKILL.md 触发词矩阵。此文件不重复定义。
 
 # 技能元数据（市场展示用）
 display_name: "Skills Audit / 技能审查"
@@ -13,35 +12,8 @@ tags: ["审计", "项目管理", "技能管理", "画像", "audit", "project-man
 # 技能安装路径
 install_path: "~/.workbuddy/skills/skills-audit/"
 
-# 触发词（WorkBuddy 兼容格式）
-trigger_words:
-  # 技能审计模式
-  - "技能审查"
-  - "技能审计"
-  - "技能检查"
-  - "能力审查"
-  - "能力审计"
-  - "工具审查"
-  - "skills-audit"
-  - "skill-audit"
-  - "skill-check"
-  - "capability-audit"
-  - "tool-audit"
-  # 项目审计模式
-  - "项目审查"
-  - "项目审计"
-  - "项目诊断"
-  - "项目画像"
-  - "环境审查"
-  - "环境审计"
-  - "project-audit"
-  - "project-check"
-  - "project-diagnosis"
-  - "project-profile"
-  - "env-audit"
-
-# 触发方式：独立词（必须单独发送，句中不触发）
-trigger_mode: "standalone"
+# ⚠️ 触发词来源: SKILL.md（WorkBuddy 兼容格式不再重复定义）
+trigger_mode: standalone
 
 # 归档路径
 archive_dir: "~/.workbuddy/skills-archived/"
@@ -52,16 +24,16 @@ project_scan_default_depth: 10
 # 市场展示信息
 marketplace:
   # 中英双语简介（各≤40字符）
-  description_zh: "技能审查·项目审计 → 画像驱动·五维评分·逐技能优化"
-  description_en: "Skill Audit·Project Audit → profile·5dim·deep opt"
+  description_zh: "技能审查·项目审计 → 画像驱动·七维评分·逐技能优化"
+  description_en: "Skill Audit·Project Audit → profile·7dim·deep opt"
   # 长简介（市场详情页）
   long_description_zh: |
-    扫描项目文件夹，构建项目画像，对已安装技能/工具/MCP进行五维评分（匹配度/价值/时效/社区/ROI），
+    扫描项目文件夹，构建项目画像，对已安装技能/工具/MCP进行七维评分（匹配度/价值/时效/社区/ROI/新颖性/污染度），
     推荐匹配技能并附带信心指数和成本分析。核心特色：自动将技能描述翻译为中文触发词+简介，
     方便中文区用户快速了解技能功能。
   long_description_en: |
     Scans project folders, builds project profiles, scores installed skills/tools/MCP
-    on 5 dimensions (Fit/Value/Fresh/Community/ROI), recommends matching skills with
+    on 7 dimensions (Fit/Value/Fresh/Community/ROI/Novelty/Contamination), recommends matching skills with
     confidence scores and cost analysis. Core feature: auto-translates skill descriptions
     into Chinese trigger words + summaries for cross-language discoverability.
   # 使用示例
