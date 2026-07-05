@@ -204,6 +204,20 @@ quality_signals:
   # 质量在覆盖度计算中的权重（0-1）
   quality_weight: 0.25
 
+# 描述格式检查（v6.2.0 新增 — Forma 维度配置）
+forma_check:
+  enabled: true
+  # 格式检查项权重（与 04-scoring.md 同步）
+  weights:
+    format_style: 0.40      # 箭头格式规范
+    language_consistency: 0.30  # 语言一致性（无中英混搭）
+    length_limit: 0.20       # ≤40 字符
+    info_density: 0.10       # 无杂质信息
+  # 扣分阈值
+  threshold: 6.0             # Forma < 6.0 → 在报告中标记为"需优化"
+  # 插件技能只标记不修改
+  plugin_readonly: true      # editable=false 技能只出建议不出修改
+
 # 社区 Feed（v6.0.0 新增 — 能力缺口驱动的 GitHub 搜索）
 community_feed:
   enabled: true
