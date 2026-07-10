@@ -39,22 +39,49 @@ def version_consistency():
         ROOT / "VERSION",
         ROOT / "SKILL.md",
         ROOT / "README.md",
-        ROOT / "references" / "skill-registry.yaml",
     ]:
         if f.exists():
             c = f.read_text(encoding="utf-8")
-            m = re.search(r"(?:version|VERSION).{0,10}(5\.\d+\.\d+)", c, re.IGNORECASE)
+            m = re.search(r"(?:version|VERSION).{0,10}(\d+\.\d+\.\d+)", c, re.IGNORECASE)
             if m:
                 versions[str(f.relative_to(ROOT))] = m.group(1)
     c = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
-    m = re.search(r"^## \[(5\.\d+\.\d+)\]", c, re.MULTILINE)
+    m = re.search(r"^## \[(\d+\.\d+\.\d+)\]", c, re.MULTILINE)
     if m:
         versions["CHANGELOG.md"] = m.group(1)
     return versions
 
 
+def registry_self_version():
+    """skill-registry.yaml 中自身条目版本与 VERSION 一致"""
+    registry_path = ROOT / "references" / "skill-registry.yaml"
+    if not registry_path.exists():
+        return {"error": "skill-registry.yaml 不存在"}
+    c = registry_path.read_text(encoding="utf-8")
+    # 匹配 skills-summarize-audit 条目下的 version
+    m = re.search(
+        r'name:\s*"skills-summarize-audit"\s*\n\s*version:\s*"(\d+\.\d+\.\d+)"',
+        c,
+    )
+    if not m:
+        return {"error": "未找到自身版本条目"}
+    registry_ver = m.group(1)
+
+    version_file = ROOT / "VERSION"
+    if version_file.exists():
+        actual_ver = version_file.read_text(encoding="utf-8").strip()
+    else:
+        return {"error": "VERSION 文件不存在"}
+
+    return {
+        "registry": registry_ver,
+        "VERSION": actual_ver,
+        "match": registry_ver == actual_ver,
+    }
+
+
 def weight_sum():
-    """7维权重和 = 100%"""
+    """8维权重和 = 100%"""
     c = (ROOT / "references" / "flow" / "04-scoring.md").read_text(encoding="utf-8")
     m = re.search(r"综合\s*=\s*(.+?)(?:\n|$)", c)
     if not m:
@@ -62,6 +89,34 @@ def weight_sum():
     expr = m.group(1)
     decimals = re.findall(r"[×\*]\s*0\.(\d+)", expr)
     return sum(int(d) / 1000 if len(d) == 3 else int(d) / 100 for d in decimals)
+
+
+def forma_weight_sum():
+    """Forma 四维权重和 = 100%"""
+    c = (ROOT / "config.yaml").read_text(encoding="utf-8")
+    # 提取 forma_check.weights 下的四个权重值
+    weights = re.findall(r"(\w+):\s*0\.(\d+)", c)
+    forma_weights = [v for k, v in weights if k in {"format_style", "language_consistency", "length_limit", "info_density"}]
+    if not forma_weights:
+        return 0.0
+    return sum(int(d) / 100 if len(d) == 2 else int(d) / 1000 for d in forma_weights)
+
+
+def health_thresholds():
+    """健康阈值合理性检查"""
+    c = (ROOT / "config.yaml").read_text(encoding="utf-8")
+    issues = []
+    # max_total_skills 应为正数
+    m = re.search(r"max_total_skills:\s*(\d+)", c)
+    if m and int(m.group(1)) <= 0:
+        issues.append("max_total_skills 应为正数")
+    # t3_ratio 应在 0-1 之间
+    m = re.search(r"max_t3_ratio:\s*([\d.]+)", c)
+    if m:
+        val = float(m.group(1))
+        if val <= 0 or val >= 1:
+            issues.append(f"max_t3_ratio={val} 应在 0-1 之间")
+    return issues
 
 
 def stale_strings():
@@ -134,11 +189,32 @@ def main():
     failed |= not ok
     results.append(("版本一致性", ok, [f"{k}: {v}" for k, v in versions.items()]))
 
+    # 2b. Registry 自身版本
+    reg_ver = registry_self_version()
+    ok = reg_ver.get("match", False)
+    failed |= not ok
+    details = [f"registry: {reg_ver.get('registry', 'N/A')}", f"VERSION: {reg_ver.get('VERSION', 'N/A')}"]
+    if "error" in reg_ver:
+        details = [reg_ver["error"]]
+    results.append(("Registry自身版本", ok, details))
+
     # 3. Weight sum
     total = weight_sum()
     ok = abs(total - 1.0) < 0.001
     failed |= not ok
-    results.append(("7维权重和", ok, [f"sum = {total:.3f}"]))
+    results.append(("8维权重和", ok, [f"sum = {total:.3f}"]))
+
+    # 3b. Forma weight sum
+    forma_total = forma_weight_sum()
+    ok = abs(forma_total - 1.0) < 0.001 or forma_total == 0.0
+    failed |= not ok and forma_total > 0
+    results.append(("Forma四维权重和", ok, [f"sum = {forma_total:.3f}" if forma_total > 0 else "未检测到"]))
+
+    # 3c. 健康阈值合理性
+    thresh_issues = health_thresholds()
+    ok = not thresh_issues
+    failed |= not ok
+    results.append(("健康阈值合理性", ok, thresh_issues or ["OK"]))
 
     # 4. Stale strings
     stale = stale_strings()

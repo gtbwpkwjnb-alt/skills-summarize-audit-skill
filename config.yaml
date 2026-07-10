@@ -196,10 +196,16 @@ liveness_check:
   cache_file: ".data/stats.json"
 
 # 质量信号（v6.0.0 新增 — 与 summarize 联动，读取错误账本）
+# 降级策略：error_ledger 文件不存在或 summarize 未安装时，自动跳过质量信号读取
+#   - Quality 维度取默认值 8/10
+#   - 不触发 P1 缺口搜索
+#   - 报告中标注「⏸ 质量信号待获取（未检测到 summarize）」
 quality_signals:
   enabled: true
   # 错误账本路径（skills-summarize-audit 与 summarize 同体系，直接读取）
   error_ledger: "~/.agents/skills/summarize/harvests/error-ledger.md"
+  # 不存在时的降级默认值（0-10）
+  fallback_score: 8.0
   # 质量阈值（0-10），低于此值触发 P1 缺口
   quality_threshold: 6.0
   # 质量在覆盖度计算中的权重（0-1）
