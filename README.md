@@ -1,10 +1,10 @@
-﻿# Skills-Summarize-Audit v5.9.3 — 技能库审计 · summarize 联动 · 独立词触发 · 中英双语 · 容量分析 · 7维评分 · CI/CD · 回滚
+﻿# Skills-Summarize-Audit v6.4.0 — 技能库审计 · 证据化输出 · 默认只读 · CI/CD · 回滚
 
-> **Skills-Summarize-Audit** — 扫描项目文件夹，分析技术栈和项目类型，生成全面的技能/插件/工具推荐报告。画像驱动·七维评分·置信分析·自进化·容量分析引擎·CI/CD无交互模式。与 summarize 联动，`技能总结` 一键触发审计。
+> **Skills-Summarize-Audit** — 扫描项目文件夹，分析技术栈和项目类型，生成全面的技能/插件/MCP 推荐报告。画像驱动·八维评分·GitHub 同类对比·项目/全局作用域推荐·容量分析·CI/CD无交互模式。与 summarize 联动，`技能总结` 一键触发审计。
 >
 > **跨平台**: ZCode · Claude Code · Cursor · Codex · Windsurf · WorkBuddy
 
-[![Version](https://img.shields.io/badge/version-5.9.3-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-6.4.0-blue)](VERSION)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-ZCode%20%7C%20Claude%20Code%20%7C%20Codex%20%7C%20WorkBuddy-lightgrey)]()
 
@@ -12,9 +12,9 @@
 
 ## Overview
 
-**EN**: Scans your active project folder, profiles the tech stack, then scores installed skills on 7 dimensions (Fit/Value/Fresh/Community/ROI/Novelty/Contamination), recommends with confidence scores and cost-benefit analysis. **Core feature**: auto-translates skill descriptions into Chinese trigger words + summaries (and vice versa), making skills instantly discoverable for cross-language users.
+**EN**: Scans your active project folder, profiles the tech stack, then scores installed skills on 8 dimensions (Fit/Value/Fresh/Community/ROI/Novelty/Contamination/Forma). GitHub candidates are compared by evidence, maintenance, license, compatibility, security, and install scope before recommendation.
 
-**CN**: 扫描开发中项目，构建项目角色画像，七维评分已安装技能（适配度/价值/时效/社区/ROI/新颖性/污染度），检查描述规范，搜索网络备选。**核心能力**：自动将技能 description 翻译为中文触发词+简介（或反向翻译），方便中文区用户快速了解技能触发机制和主要功能。
+**CN**: 扫描开发中项目，构建项目角色画像，八维评分已安装技能（适配度/价值/时效/社区/ROI/新颖性/污染度/Forma），检查描述规范。联网搜索默认关闭；经明确同意后才比较 GitHub 同类项目，并给出项目级或全局级安装建议。
 
 ---
 
@@ -42,15 +42,16 @@
 ```
 ⓪ Load config+memory+mode(含CI检测) → (① Project profile + ③ Reference data)
 → ② Installed skills list(含容量采集) → ②-bis Capacity analysis(多因子有效容量)
-→ **②-ter Liveness check**(6项,含Agent可达性) → ④ 3-tier + 7-dim scoring + health
-→ (④-a T3活性验证 + ④-bis Deep read动态分级 + ⑤b Recommend)
+→ **②-ter Liveness check**(7项,含 MCP 启动验证) → ④ 3-tier + 8-dim scoring + health
+→ ⑤-aa Community Feed(联网同意后) → ⑤-ab GitHub comparison → ⑤b Recommend → ⑤c Scope decision
+→ (④-a T3活性验证 + ④-bis Deep read动态分级)
 → ⑤a External signals(cached) → ⑥ Report(含趋势对比+capacity_analysis)
 → ⑥-bis Verify(含self-audit) → ⑥-c Output check
 → **⑦-a Snapshot backup** → **⑦-b Confirm** → **⑦-c Execute(editable only)**
 → ⑧ Persist + GC
 ```
 
-> v5.9.1 新增：②-ter 6项活性检测（含Agent可达性）、④-a T3活性验证（降低误归档）、⑦-a 快照备份+⑦-d `--undo` 回滚、⑥报告趋势对比列、⑥-bis-b self-audit 自检、health_thresholds 多平台化、容量分析多因子有效容量模型。
+> v6.4.0：默认只读、证据化输出、未知数据不回填、确认后快照与执行。
 
 ---
 
@@ -64,13 +65,12 @@ See [SKILL.md](SKILL.md) for full reference.
 
 ## Installation / 安装
 
-> ⚠️ **安全提醒**：以下命令通过管道直接执行远程脚本（`curl | bash` / `iwr | iex`）。
-> 建议先下载脚本审查内容后再执行。安装前请验证 SHA256 校验和：
+> ⚠️ **安全提醒**：仅提供“下载、校验、审查后执行”流程；不提供远程脚本管道执行命令。安装前请验证 SHA256 校验和：
 
 | 脚本 | SHA256 |
 |:-----|:-------|
-| `install.sh` | `6FD0BF8F287F97BB1C8839FB962BF97B0C198D42AE3373E21A4B2D23740B9561` |
-| `install.ps1` | `D303F7298237A823337A80DBFCA4138C4C68BE83A41AA4940057B66178ACE7AC` |
+| `install.sh` | `34967504C5F6111D82A865E92AE841AC74D1FA83E531D664EE492ABBFD03EA37` |
+| `install.ps1` | `489C8C015E05828458CDA1D800271C7DBC3E721E152FB5DFE459430F09D3514F` |
 
 **快速安装（先下载审查）：**
 ```bash
@@ -80,11 +80,6 @@ curl -sLO https://raw.githubusercontent.com/gtbwpkwjnb-alt/skills-summarize-audi
 sha256sum install.sh
 # 3. 确认校验和匹配后执行
 bash install.sh
-```
-
-**一行安装（仅信任后使用）：**
-```bash
-curl -sL https://raw.githubusercontent.com/gtbwpkwjnb-alt/skills-summarize-audit-skill/main/install.sh | bash
 ```
 
 **Windows PowerShell（先下载审查）：**
@@ -97,23 +92,25 @@ Get-FileHash install.ps1 -Algorithm SHA256
 .\install.ps1
 ```
 
-**Windows PowerShell（仅信任后使用）：**
-```powershell
-iwr https://raw.githubusercontent.com/gtbwpkwjnb-alt/skills-summarize-audit-skill/main/install.ps1 | iex
+**安装器预演：**
+```bash
+bash install.sh --dry-run
 ```
+
+```powershell
+.\install.ps1 -DryRun
+```
+
+安装器不会在更新失败时删除既有目录；检测到本地修改或非快进历史会中止并保留现场。
 
 ---
 
-## Before vs After（技能库健康度对比）
+## Report Guarantees / 报告保证
 
-| 指标 | 审计前 | 审计后 |
-|------|--------|--------|
-| 技能总数 | 23（10 个 0 次调用） | 13（全部活跃） |
-| 每次启动 token 消耗 | ~8,000 tokens | ~4,500 tokens（-44%） |
-| T3/不相关技能 | 8 个（34%） | 0 个（已归档） |
-| 描述合格率 | 8/23 不合格（35%） | 23/23 合格（100%） |
-| 功能重叠 | 3 对⚠️ | 0 对 |
-| 推荐依据 | agent 猜测 | 信心指数+ROI+证据链 |
+- 报告把每项结论标记为 `observed`、`inferred`、`estimated` 或 `unavailable`，并提供证据或限制。
+- 外部搜索、质量账本、趋势历史缺失时只报告缺口，不以默认分数或样例数据替代。
+- 审计首轮只读；画像、缓存、日志、快照、归档、安装和更新均需逐项确认。
+- 容量与 ROI 是估算值，必须附公式和输入；无法计算时输出 `unavailable`。
 
 ---
 
@@ -211,9 +208,9 @@ iwr https://raw.githubusercontent.com/gtbwpkwjnb-alt/skills-summarize-audit-skil
 2. **匹配测试**：已知项目类型→检查推荐列表是否合理
 3. **分层测试**：添加不匹配技能，确认归入 T3 且标注建议归档
 4. **活性测试**：修改 scan_paths 中一个路径为无效值，确认 Agent 可达性检测触发 ❌
-5. **快照测试**：执行 `--undo --list`，确认回滚机制正常工作
-6. **趋势测试**：连续运行 2 次审计，确认第 2 次出现趋势列（↑/↓/→）
-7. **持久化测试**：确认 `.data/activity-log.jsonl` 可写且格式正确
+5. **快照测试**：先确认快照操作，再执行 `--undo --list`，确认回滚机制正常工作
+6. **趋势测试**：确认保存历史后连续运行 2 次审计，确认第 2 次出现趋势列（↑/↓/→）
+7. **持久化测试**：先确认保存日志，再确认 `.data/activity-log.jsonl` 可写且格式正确
 
 ## Feedback
 

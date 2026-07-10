@@ -1,6 +1,6 @@
 ﻿# ⑦-a 快照备份（v5.9.1）
 
-执行前自动备份所有 editable=true 技能：
+仅在⑦-b获得用户明确确认后，执行前备份所有 editable=true 技能：
 
 1. 读取 config.yaml snapshot.dir（默认 ~/.agents/skills/.audit-snapshots/）
 2. 创建 {dir}/{timestamp}/（YYYYMMDDTHHMMSS）
@@ -13,4 +13,4 @@
 ---
 ## 下一步
 
-→ [⑦-b 用户确认](07-b-confirm.md)
+→ [⑦-c 执行](07-c-execute.md)

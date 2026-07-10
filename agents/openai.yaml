@@ -1,0 +1,4 @@
+interface:
+  display_name: "Skills Audit Manager"
+  short_description: "Audit agent skills, plugins, MCPs, and recommendations"
+  default_prompt: "Use $skills-summarize-audit to audit this project's skills, plugins, and MCP tools."

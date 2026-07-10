@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """skills-audit 自动化验证脚本
 
-每次修改后运行，检查 YAML 可解析性、版本一致性、7维权重和、
+每次修改后运行，检查 YAML 可解析性、版本一致性、8维权重和、
 平台配置合规性、flow 文件格式等。
 """
+import hashlib
 import json
 import re
 import sys
@@ -18,10 +19,11 @@ except ImportError:
 ROOT = Path(__file__).resolve().parent.parent
 
 
-def parse_yaml_files():
+def parse_yaml_files(strict=False):
     """所有 .yaml 文件可解析"""
     if not HAS_YAML:
-        return ["PyYAML 未安装，跳过 YAML 解析检查（pip install pyyaml 可启用）"]
+        message = "PyYAML 未安装，无法执行 YAML 解析检查（pip install pyyaml）"
+        return [message] if strict else [message + "；非严格模式跳过"]
     errors = []
     for f in ROOT.rglob("*.yaml"):
         try:
@@ -33,22 +35,23 @@ def parse_yaml_files():
 
 
 def version_consistency():
-    """VERSION / SKILL.md / README.md / CHANGELOG / skill-registry.yaml 一致"""
+    """所有对外版本源必须与 VERSION 一致。"""
+    checks = {
+        "VERSION": (ROOT / "VERSION", r"^\s*(\d+\.\d+\.\d+)\s*$"),
+        "SKILL.md": (ROOT / "SKILL.md", r"^> Version:\s*(\d+\.\d+\.\d+)"),
+        "README.md": (ROOT / "README.md", r"^# .*?v(\d+\.\d+\.\d+)"),
+        "CHANGELOG.md": (ROOT / "CHANGELOG.md", r"^## \[(\d+\.\d+\.\d+)\]"),
+        "config.yaml": (ROOT / "config.yaml", r"^# skills-summarize-audit v(\d+\.\d+\.\d+)"),
+        "actions-schema.md": (ROOT / "references" / "actions-schema.md", r"^# .*?v(\d+\.\d+\.\d+)"),
+        "ci-output-schema.md": (ROOT / "references" / "ci-output-schema.md", r'"version":\s*"(\d+\.\d+\.\d+)"'),
+    }
     versions = {}
-    for f in [
-        ROOT / "VERSION",
-        ROOT / "SKILL.md",
-        ROOT / "README.md",
-    ]:
-        if f.exists():
-            c = f.read_text(encoding="utf-8")
-            m = re.search(r"(?:version|VERSION).{0,10}(\d+\.\d+\.\d+)", c, re.IGNORECASE)
-            if m:
-                versions[str(f.relative_to(ROOT))] = m.group(1)
-    c = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
-    m = re.search(r"^## \[(\d+\.\d+\.\d+)\]", c, re.MULTILINE)
-    if m:
-        versions["CHANGELOG.md"] = m.group(1)
+    for name, (path, pattern) in checks.items():
+        if not path.exists():
+            versions[name] = "MISSING"
+            continue
+        match = re.search(pattern, path.read_text(encoding="utf-8-sig"), re.MULTILINE)
+        versions[name] = match.group(1) if match else "MISSING"
     return versions
 
 
@@ -173,13 +176,119 @@ def data_directory():
     return errors
 
 
+def release_contract():
+    """发布门禁：安全安装、外部访问、范围协议和证据输出必须齐备。"""
+    errors = []
+    config = (ROOT / "config.yaml").read_text(encoding="utf-8-sig")
+    if not re.search(
+        r"community_feed:\s*\n\s+enabled:\s*false\b[\s\S]*?require_explicit_consent:\s*true\b",
+        config,
+    ):
+        errors.append("community_feed 必须默认关闭且要求明确同意")
+    if "scope_targets:" not in config or "recommendation_scope:" not in config:
+        errors.append("缺少项目/全局作用域配置")
+
+    required = [
+        ROOT / "references" / "flow" / "05-ab-github-comparison.md",
+        ROOT / "references" / "flow" / "05-c-scope-decision.md",
+        ROOT / "references" / "release-checklist.md",
+        ROOT / "references" / "output-contract.md",
+    ]
+    for path in required:
+        if not path.exists():
+            errors.append(f"缺少发布协议文件: {path.relative_to(ROOT)}")
+
+    actions = (ROOT / "references" / "actions-schema.md").read_text(encoding="utf-8")
+    for field in ["install_scope", "target_path", "scope_reason", "evidence_urls", "confirmation_required"]:
+        if field not in actions:
+            errors.append(f"actions schema 缺少 {field}")
+
+    sh = (ROOT / "install.sh").read_text(encoding="utf-8")
+    ps1 = (ROOT / "install.ps1").read_text(encoding="utf-8")
+    if "--dry-run" not in sh or "git pull --ff-only" not in sh or "rm -rf" in sh:
+        errors.append("install.sh 不满足安全更新契约")
+    if "[switch]$DryRun" not in ps1 or "git pull --ff-only" not in ps1 or "Remove-Item -Recurse" in ps1:
+        errors.append("install.ps1 不满足安全更新契约")
+
+    readme = (ROOT / "README.md").read_text(encoding="utf-8-sig")
+    if re.search(r"curl\s+.*\|\s*bash", readme, re.IGNORECASE) or re.search(r"iwr\s+.*\|\s*iex", readme, re.IGNORECASE):
+        errors.append("README 仍含远程脚本管道执行示例")
+    for name in ["install.sh", "install.ps1"]:
+        expected = re.search(rf"\| `{re.escape(name)}` \| `([A-F0-9]{{64}})`", readme)
+        if not expected:
+            errors.append(f"README 缺少 {name} SHA256")
+            continue
+        actual = hashlib.sha256((ROOT / name).read_bytes()).hexdigest().upper()
+        if expected.group(1) != actual:
+            errors.append(f"README 中 {name} SHA256 不匹配")
+
+    ci = (ROOT / "references" / "ci-github-actions.yml").read_text(encoding="utf-8")
+    if "python tests/validate.py --strict" not in ci:
+        errors.append("CI 未强制执行严格发布验证")
+    return errors
+
+
+def behavior_and_output_contract():
+    """审计默认只读，且所有用户可见结论必须保留事实状态。"""
+    errors = []
+    config = (ROOT / "config.yaml").read_text(encoding="utf-8-sig")
+    expected_config = {
+        "write_policy.default_mode": r"write_policy:\s*\n\s+default_mode:\s*\"read_only\"",
+        "write_policy.confirmation": r"require_explicit_confirmation:\s*true",
+        "memory_config.auto_sync": r"memory_config:[\s\S]*?auto_sync:\s*false",
+        "project_profiles.auto_persist": r"project_profiles:[\s\S]*?auto_persist:\s*false",
+        "trend_tracking.enabled": r"trend_tracking:[\s\S]*?enabled:\s*false",
+        "logging.enabled": r"logging:\s*\n\s+enabled:\s*false",
+        "quality_signals.fallback": r"fallback_score:\s*null",
+    }
+    for name, pattern in expected_config.items():
+        if not re.search(pattern, config):
+            errors.append(f"缺少只读/事实配置: {name}")
+
+    contract = (ROOT / "references" / "output-contract.md").read_text(encoding="utf-8")
+    for state in ["observed", "inferred", "estimated", "unavailable", "[需确认]"]:
+        if state not in contract:
+            errors.append(f"输出契约缺少状态: {state}")
+
+    report = (ROOT / "references" / "report-template.md").read_text(encoding="utf-8")
+    for forbidden in ["健康度: 良好", "~3,200 tokens", "归档 3 项", "installed skills token 成本"]:
+        if forbidden in report:
+            errors.append(f"报告模板含无证据示例结论: {forbidden}")
+
+    output_check = (ROOT / "references" / "flow" / "06-c-output-check.md").read_text(encoding="utf-8")
+    if "[需确认]" not in output_check or "事实状态" not in output_check:
+        errors.append("输出检查未强制事实状态或确认门禁")
+
+    preflight = (ROOT / "references" / "flow" / "00-config.md").read_text(encoding="utf-8")
+    if "codegraph --help" not in preflight or "命令存在但探针失败" not in preflight:
+        errors.append("关键工具未要求可执行探针与降级")
+
+    verify = (ROOT / "references" / "flow" / "06-bis-verify.md").read_text(encoding="utf-8")
+    if "execution_blocked=true" not in verify:
+        errors.append("自检或安全失败未阻止执行")
+
+    signals = (ROOT / "references" / "flow" / "05-signals.md").read_text(encoding="utf-8")
+    deepread = (ROOT / "references" / "flow" / "04-bis-deepread.md").read_text(encoding="utf-8")
+    execute = (ROOT / "references" / "flow" / "07-c-execute.md").read_text(encoding="utf-8")
+    if "用户明确同意本次联网查询" not in signals or "用户明确同意本次联网查询" not in deepread:
+        errors.append("外部信号或深读外部验证缺少联网同意门禁")
+    if "execution_blocked=true" not in execute:
+        errors.append("执行阶段未检查 execution_blocked")
+
+    flow = (ROOT / "references" / "execution-flow.md").read_text(encoding="utf-8")
+    if "⑦-b确认→⑦-a快照→⑦-c执行" not in flow:
+        errors.append("执行流程未保持确认优先于快照")
+    return errors
+
+
 def main():
     results = []
     failed = False
+    strict = "--strict" in sys.argv
 
     # 1. YAML parse
-    errs = parse_yaml_files()
-    ok = not errs or (len(errs) == 1 and "PyYAML 未安装" in errs[0])
+    errs = parse_yaml_files(strict=strict)
+    ok = not errs or (not strict and len(errs) == 1 and "非严格模式跳过" in errs[0])
     failed |= not ok
     results.append(("YAML 解析", ok, errs))
 
@@ -240,6 +349,18 @@ def main():
     ok = not errs
     failed |= not ok
     results.append(("数据目录", ok, errs or ["OK"]))
+
+    # 8. Release contract
+    errs = release_contract()
+    ok = not errs
+    failed |= not ok
+    results.append(("发布契约", ok, errs or ["OK"]))
+
+    # 9. Behavior and output contract
+    errs = behavior_and_output_contract()
+    ok = not errs
+    failed |= not ok
+    results.append(("行为与输出契约", ok, errs or ["OK"]))
 
     print("=" * 60)
     print("skills-audit 自动化验证")

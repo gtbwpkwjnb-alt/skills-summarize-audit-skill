@@ -1,6 +1,6 @@
 ﻿# ⑤b 推荐引擎 — 能力矩阵驱动（v6.0.0）
 
-**输入**：Phase ② 能力映射 + Phase ④ 质量信号 + Phase ⑤-aa 社区 Feed
+**输入**：Phase ② 能力映射 + Phase ④ 质量信号 + Phase ⑤-aa 社区 Feed + Phase ⑤-ab 横向对比
 
 **输出**：每项推荐附带能力对比证据链 + 互补性分析 + 信心指数(0-10)+ROI
 
@@ -63,6 +63,14 @@ firecrawl vs agent-reach:
   - 能力提升 ≥4 档且社区 ≥1000⭐ → 强烈推荐(≥8/10)
   - 能力提升 ≥2 档且社区 ≥500⭐ → 建议评估(5-7/10)
   - 能力提升 <2 档 → 不推荐(<5/10)
+
+### 步骤 5：作用域与执行门槛
+
+对通过比较门槛的候选，读取 `flow/05-c-scope-decision.md`，补充 `install_scope`、`target_path`、`scope_reason`、兼容性证据和 `confirmation_required=true`。
+
+- 缺少许可证、兼容性、来源 URL 或作用域理由时，降为“评估中”。
+- `project` 与 `global` 推荐必须分组输出；`plugin` 只给官方更新渠道，`defer` 不生成安装命令。
+- 推荐不执行安装。执行阶段仍必须走快照和用户确认。
 
 ---
 

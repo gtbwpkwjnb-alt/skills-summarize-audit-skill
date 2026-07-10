@@ -1,4 +1,4 @@
-# CI Output Schema — Skills Audit v5.9.1
+# CI Output Schema — Skills-Summarize-Audit v6.4.0
 
 > CI 模式 JSON 输出格式定义。`$CI_MODE=true` 时使用此 schema。
 
@@ -6,9 +6,11 @@
 
 ```json
 {
-  "version": "5.9.1",
+  "version": "6.4.0",
   "timestamp": "2026-06-28T23:59:00Z",
   "mode": "ci",
+  "report_status": "partial",
+  "evidence_coverage": {"observed": 0, "inferred": 0, "estimated": 0, "unavailable": 0},
   "summary": { ... },
   "skills": [ ... ],
   "recommendations": [ ... ],
@@ -32,6 +34,8 @@
   "t3_count": 3,
   "t3_ratio": 0.25,
   "actions_required": 3,
+  "fact_status": "observed",
+  "evidence": ["config.yaml:health_thresholds"],
   "trend": {
     "score": "+0.3",
     "active": "+1",
@@ -44,7 +48,7 @@
 
 ```json
 {
-  "name": "skills-audit",
+  "name": "skills-summarize-audit",
   "score": "A",
   "composite": 4.1,
   "tier": "T1",
@@ -55,9 +59,12 @@
     "community": "B",
     "roi": "A",
     "novelty": "B",
-    "contamination": "A"
+    "contamination": "A",
+    "forma": "A"
   },
   "reason": "核心技能，项目画像完美匹配",
+  "fact_status": "inferred",
+  "evidence": ["project-profile.md", "capability-dimensions.yaml"],
   "action": "keep"
 }
 ```
@@ -70,7 +77,13 @@
   "layer": "B",
   "confidence": 8,
   "roi_estimate": "+1500t/run",
-  "reason": "安全扫描缺失，建议安装"
+  "fact_status": "estimated",
+  "evidence": ["capacity formula inputs"],
+  "reason": "安全扫描缺失，建议安装",
+  "install_scope": "project",
+  "target_path": ".agents/skills/skill-spector",
+  "evidence_urls": ["https://github.com/example/skill-spector"],
+  "confirmation_required": true
 }
 ```
 
@@ -100,7 +113,7 @@
   "available_for_skills": 9700,
   "installed_skills": [
     {
-      "name": "skills-audit",
+      "name": "skills-summarize-audit",
       "size_kb": 11.74,
       "estimated_tokens": 3000,
       "type": "on_demand"

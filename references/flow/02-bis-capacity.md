@@ -10,6 +10,8 @@ token预算容量 = (上下文可用空间 - 固定消耗) / 单 skill 平均注
 认知容量 = max(3, min(15, activity_count × 2))
 ```
 
+所有容量结果均为 `estimated`：文件字节/4、平台 listing 预算和认知容量不是实际注入 token。缺少上下文上限、固定消耗或加载策略时输出 `unavailable`，不输出“还能安装几个”的确定结论。
+
 **各 Agent 模型**：
 
 | Agent | 上限约束 | 有效容量适用 |

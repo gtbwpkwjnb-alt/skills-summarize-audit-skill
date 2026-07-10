@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 # skills-summarize-audit installer — 手动安装，见 README.md
 
 set -e
@@ -28,13 +28,30 @@ detect_platform() {
 
 INSTALL_DIR=$(detect_platform)
 
-echo "📦 skills-summarize-audit installer"
+echo "skills-summarize-audit installer"
 echo "   Target: $INSTALL_DIR"
+
+if [ "${1:-}" = "--dry-run" ]; then
+    echo "   Dry run: no filesystem or network changes will be made."
+    if [ -d "$INSTALL_DIR" ]; then
+        echo "   Would verify a clean Git worktree, then run: git pull --ff-only"
+    else
+        echo "   Would clone from SSH, then HTTPS fallback if SSH is unavailable."
+    fi
+    exit 0
+fi
 
 if [ -d "$INSTALL_DIR" ]; then
     echo "   Already installed. Updating..."
     cd "$INSTALL_DIR"
-    git pull --rebase 2>/dev/null || { cd "$HOME" && rm -rf "$INSTALL_DIR" && git clone "$REPO_SSH" "$INSTALL_DIR" 2>/dev/null || git clone "$REPO_HTTPS" "$INSTALL_DIR"; }
+    if [ -n "$(git status --porcelain)" ]; then
+        echo "Local changes detected. Commit, stash, or back up the directory before updating." >&2
+        exit 1
+    fi
+    if ! git pull --ff-only; then
+        echo "Update failed. The existing installation was preserved; resolve the Git history manually." >&2
+        exit 1
+    fi
 else
     echo "   Cloning..."
     mkdir -p "$(dirname "$INSTALL_DIR")"
@@ -42,6 +59,6 @@ else
 fi
 
 echo ""
-echo "✅ skills-summarize-audit installed!  v$(cat "$INSTALL_DIR/VERSION")"
+echo "skills-summarize-audit installed!  v$(cat "$INSTALL_DIR/VERSION")"
 echo "   Trigger: skills-summarize-audit / 技能审查 / 技能总结"
 echo "   Issues:  https://github.com/gtbwpkwjnb-alt/skills-summarize-audit-skill/issues"

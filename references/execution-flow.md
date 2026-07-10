@@ -5,7 +5,7 @@
 
 ## 流程图
 
-⓪ → (①+③) → ②(含能力映射) → ②-bis → **②-ter** → ⑤a → ④(含质量信号) → ⑤-aa → (④-a + ④-bis + ⑤b) → ⑥(含生态雷达) → ⑥-bis → ⑥-c → ⑦-a→⑦-b→⑦-c → ⑧
+⓪ → (①+③) → ②(含能力映射) → ②-bis → **②-ter** → ⑤a → ④(含质量信号) → ⑤-aa → ⑤-ab GitHub横向对比 → (④-a + ④-bis + ⑤b) → ⑤c作用域决策 → ⑥(含生态雷达) → ⑥-bis → ⑥-c → ⑦-b确认→⑦-a快照→⑦-c执行 → ⑧
 
 ## 阶段文件
 
@@ -15,14 +15,16 @@
 | ① | flow/01-profiling.md | 项目画像 |
 | ② | flow/02-inventory.md | 技能清单+容量采集 |
 | ②-bis | flow/02-bis-capacity.md | 多因子有效容量分析 |
-| ②-ter | flow/02-ter-liveness.md | 6项活性检测 |
+| ②-ter | flow/02-ter-liveness.md | 7项活性检测（含 MCP 启动验证） |
 | ③ | flow/03-reference.md | 参考数据加载 |
-| ④ | flow/04-scoring.md | 三级分层+七维评分 |
+| ④ | flow/04-scoring.md | 三级分层+八维评分 |
 | ④-a | flow/04-a-t3-validation.md | T3 活性验证 |
 | ④-bis | flow/04-bis-deepread.md | 逐技能深度阅读 |
 | ⑤a | flow/05-signals.md | 外部信号获取 |
 | ⑤-aa | flow/05-aa-community-feed.md | **社区 Feed — 能力缺口搜索（v6.0.0）** |
+| ⑤-ab | flow/05-ab-github-comparison.md | GitHub 同类候选横向比较与证据门槛 |
 | ⑤b | flow/05-rec-engine.md | 三层推荐引擎 |
+| ⑤c | flow/05-c-scope-decision.md | 项目级/全局级/插件级作用域决策 |
 | ⑥ | flow/06-report.md | 报告生成(含趋势对比) |
 | ⑥-bis | flow/06-bis-verify.md | 审计验证+self-audit |
 | ⑥-c | flow/06-c-output-check.md | 报告输出检查 |
@@ -44,4 +46,4 @@
 - actions-schema.md — Skills Manager 对接格式
 - recommendation-examples.md — 推荐示例
 - capability-dimensions.yaml — **能力维度定义与工具映射（v6.0.0）**
-
+- release-checklist.md — 发布前静态门禁与人工确认项

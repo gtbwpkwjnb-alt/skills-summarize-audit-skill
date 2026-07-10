@@ -1,6 +1,6 @@
 platform: workbuddy
 # WorkBuddy 技能市场平台配置
-# 安装路径: ~/.workbuddy/skills/skills-audit/
+# 安装路径: ~/.workbuddy/skills/skills-summarize-audit/
 #
 # ⚠️ 触发词权威来源：SKILL.md 触发词矩阵。此文件不重复定义。
 
@@ -24,18 +24,16 @@ project_scan_default_depth: 10
 # 市场展示信息
 marketplace:
   # 中英双语简介（各≤40字符）
-  description_zh: "技能审查·项目审计 → 画像驱动·七维评分·逐技能优化"
-  description_en: "Skill Audit·Project Audit → profile·7dim·deep opt"
+  description_zh: "技能审查·项目审计 → 八维评分·作用域推荐"
+  description_en: "Skill Audit·Project Audit → 8dim·scoped recommendations"
   # 长简介（市场详情页）
   long_description_zh: |
-    扫描项目文件夹，构建项目画像，对已安装技能/工具/MCP进行七维评分（匹配度/价值/时效/社区/ROI/新颖性/污染度），
-    推荐匹配技能并附带信心指数和成本分析。核心特色：自动将技能描述翻译为中文触发词+简介，
-    方便中文区用户快速了解技能功能。
+    扫描项目文件夹，构建项目画像，对已安装技能/工具/MCP进行八维评分（匹配度/价值/时效/社区/ROI/新颖性/污染度/Forma）。
+    经用户同意后比较 GitHub 同类项目，并给出项目级或全局级推荐、信心指数和成本分析。
   long_description_en: |
     Scans project folders, builds project profiles, scores installed skills/tools/MCP
-    on 7 dimensions (Fit/Value/Fresh/Community/ROI/Novelty/Contamination), recommends matching skills with
-    confidence scores and cost analysis. Core feature: auto-translates skill descriptions
-    into Chinese trigger words + summaries for cross-language discoverability.
+    on 8 dimensions (Fit/Value/Fresh/Community/ROI/Novelty/Contamination/Forma), then compares candidates
+    by evidence, license, activity, compatibility, security, cost, and install scope.
   # 使用示例
   examples:
     - input: "技能审查"

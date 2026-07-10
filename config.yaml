@@ -1,4 +1,4 @@
-﻿# skills-summarize-audit v5.9.3 配置
+﻿# skills-summarize-audit v6.4.0 配置
 # Project Skill Audit — 项目技能审计
 # 唯一配置源。scan_paths 以此文件为准。
 # platforms/zcode.yaml 仅存平台特征（归档路径等），不定义扫描路径。
@@ -33,6 +33,34 @@ scan_paths:
     type: system
     editable: false
 
+# 项目私有技能与全局用户技能必须分开清点，避免推荐全局安装污染仓库。
+scope_targets:
+  project:
+    description: "仅服务当前仓库，随代码评审、CI 或团队规范交付"
+    paths:
+      - ".agents/skills/*/"
+      - ".github/skills/*/"
+      - ".claude/skills/*/"
+      - ".cursor/skills/*/"
+  global:
+    description: "跨项目复用的个人能力，仅写入用户目录"
+    paths:
+      - "~/.agents/skills/*/"
+      - "~/.zcode/skills/*/"
+      - "~/.claude/skills/*/"
+      - "~/.codex/skills/*/"
+
+recommendation_scope:
+  enabled: true
+  default: "project"
+  rules:
+    - when: "技能依赖仓库代码、团队规范、项目密钥或仅命中当前项目活动"
+      scope: "project"
+    - when: "技能不读取项目私有数据、在两个以上项目复用且目标 Agent 支持全局目录"
+      scope: "global"
+    - when: "证据不足或目标平台路径未知"
+      scope: "defer"
+
 # 项目扫描配置
 project_scan:
   max_depth: 10
@@ -66,7 +94,13 @@ snapshot:
   enabled: true
   dir: "~/.agents/skills/.audit-snapshots/"
   retention_days: 7           # 快照保留天数
-  auto_before_exec: true      # ⑦执行前自动创建快照
+  auto_before_exec: true      # 仅在用户确认执行后创建快照
+
+# 审计默认只读。任何持久化都必须在报告展示操作清单后获得明确确认。
+write_policy:
+  default_mode: "read_only"
+  require_explicit_confirmation: true
+  operations: ["profile", "memory", "cache", "log", "snapshot", "archive", "install", "update", "description"]
 
 # 输出语言
 output_language: "auto"  # auto / zh / en
@@ -102,7 +136,7 @@ dev_search_policy:
 # 项目记忆配置
 memory_config:
   project_memory_file: "memories/MEMORY.md"
-  auto_sync: true          # 审计后自动回写 MEMORY.md
+  auto_sync: false         # 仅在用户确认后回写 MEMORY.md
   sections:
   - "environment"
   - "tech_stack"
@@ -117,6 +151,7 @@ memory_config:
 project_profiles:
   auto_refresh_days: 3      # 超过 3 天未更新时自动触发重新画像
   stale_warn: true          # 审计时检测是否过期并输出告警
+  auto_persist: false       # 默认只输出画像，不写入项目目录
   cache_file: ".data/project-profiles.json"
 
 # MCP 服务器配置路径（v5.3.0 新增 — 跨层能力扫描）
@@ -147,7 +182,7 @@ health_thresholds:
 
 # 趋势追踪（v5.9.1 新增）— 历史快照对比
 trend_tracking:
-  enabled: true
+  enabled: false            # 仅在用户确认保存历史后启用
   max_snapshots: 52           # 保留近 52 次审计（约一年，按周审计）
   snapshot_file: ".data/stats.json" # 与 liveness_check 共用
 
@@ -197,15 +232,15 @@ liveness_check:
 
 # 质量信号（v6.0.0 新增 — 与 summarize 联动，读取错误账本）
 # 降级策略：error_ledger 文件不存在或 summarize 未安装时，自动跳过质量信号读取
-#   - Quality 维度取默认值 8/10
+#   - Quality 状态标记为 unavailable，不参与扣分或推荐排序
 #   - 不触发 P1 缺口搜索
 #   - 报告中标注「⏸ 质量信号待获取（未检测到 summarize）」
 quality_signals:
   enabled: true
   # 错误账本路径（skills-summarize-audit 与 summarize 同体系，直接读取）
   error_ledger: "~/.agents/skills/summarize/harvests/error-ledger.md"
-  # 不存在时的降级默认值（0-10）
-  fallback_score: 8.0
+  # 不存在时不回填分数，避免把未知误写成高质量
+  fallback_score: null
   # 质量阈值（0-10），低于此值触发 P1 缺口
   quality_threshold: 6.0
   # 质量在覆盖度计算中的权重（0-1）
@@ -227,7 +262,8 @@ forma_check:
 
 # 社区 Feed（v6.0.0 新增 — 能力缺口驱动的 GitHub 搜索）
 community_feed:
-  enabled: true
+  enabled: false             # 需用户明确同意本次 GitHub/网页查询后才开启
+  require_explicit_consent: true
   # 搜索上限
   max_searches: 3
   max_candidates: 15
@@ -239,5 +275,6 @@ community_feed:
 
 # 审计日志（v5.9.2 治理）
 logging:
+  enabled: false             # 仅在用户确认保存审计历史后启用
   activity_log: ".data/activity-log.jsonl"  # 每次审计/操作的 JSON Lines 日志
 

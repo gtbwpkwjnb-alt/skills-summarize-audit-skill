@@ -174,13 +174,13 @@ tools:
     capabilities:
       skill-audit:
         level: 9
-        source: "核心能力：全量扫描+七维评分"
+        source: "核心能力：全量扫描+八维评分"
       project-profiling:
         level: 8
         source: "项目技术栈画像+类型识别"
       scoring:
         level: 8
-        source: "七维 S/A/B/C/D 评分"
+        source: "八维 S/A/B/C/D 评分"
       capacity-analysis:
         level: 7
         source: "多因子有效容量计算"

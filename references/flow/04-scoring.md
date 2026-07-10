@@ -15,14 +15,14 @@
      - 错误次数 ≥1 且 days_clean=0 → 5/10 (需关注)
      - 错误次数 ≥1 且 days_clean≥1 → 6/10 (有历史问题)
      - 无错误记录 → 9/10 (正常)
-     - 不在账本中 → 8/10 (默认)
+     - 不在账本中 → unavailable（没有质量观察）
   4. 质量评分 < quality_threshold(默认6.0) → 标记为 P1 缺口
 ```
 
 **降级策略**（v6.2.2 新增 — summarize 未安装时自动降级）：
-- 若 error_ledger 文件不存在或路径不可达 → 所有工具取 `fallback_score`（默认 8.0）
+- 若 error_ledger 文件不存在或路径不可达 → 质量信号为 `unavailable`，不使用回填分数
 - 不触发 P1 缺口搜索，社区 Feed 步骤跳过质量缺口分支
-- 报告中标注「⏸ 质量信号待获取」，不影响其他维度评分
+- 报告中标注「⏸ 质量信号待获取」，不影响其他维度评分或推荐排序
 - 降级不扣 Forma 分，仅影响 Fit 维度的质量联动扣档逻辑
 
 质量评分影响：
@@ -35,12 +35,14 @@
 |:---|:---:|:---|
 | Fit 项目匹配 | 30% | 命中≥2核心活动=S |
 | Value 预期价值 | 20% | 命中核心活动+高频=S |
-| Fresh 版本时效 | 15% | 版本≥registry=S |
-| Community 外部信号 | 15% | ⭐≥100/近1月更新=S |
-| ROI 成本效益 | 8% | >+3000t/run=S |
+| Fresh 版本时效 | 15% | 外部 release/更新时间为 observed 时评分；仅本地 registry 时仅输出 registry 对齐 |
+| Community 外部信号 | 15% | 外部信号为 observed 时才评分；搜索关闭或无缓存时 unavailable |
+| ROI 成本效益 | 8% | 只按已列公式和输入估算；输入缺失时 unavailable |
 | Novelty 新颖性 | 6% | 独特无替代=S |
 | Contamination 污染 | 1% | 纯目标语言=S |
 | **Forma 格式分** | **5%** | **描述格式规范·语言一致性·长度合规·信息密度** |
+
+每个维度同时输出 `observed`、`inferred`、`estimated` 或 `unavailable` 状态。`unavailable` 维度不参与综合分；报告必须列出有效权重和，禁止用默认分替代。
 
 综合 = Fit×0.30 + Value×0.20 + Fresh×0.15 + Community×0.15 + ROI×0.08 + Novelty×0.06 + Contamination×0.01 + Forma×0.05
 ≥4.0→S · ≥3.0→A · ≥2.0→B · ≥1.5→C · <1.5→D
@@ -63,7 +65,7 @@ Forma 评分 = 格式规范×0.40 + 语言一致性×0.30 + 长度合规×0.20 +
 > - Forma 新占 5%，权重来源合理
 > - 旧审计快照保留原七维分数，不做回溯转换
 
-**安全子项**（融入 Value）：SkillSpector 扫描通过 +0.5档，Critical→D，High→C。
+**安全子项**（融入 Value）：只有实际扫描结果为 `observed` 时才调整档位；未运行时状态为 `unavailable`，不得加分。
 
 ---
 ## 下一步

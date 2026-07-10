@@ -6,6 +6,10 @@
 #   - 生产环境可在 README.md 中获取官方 SHA256 校验和进行比对
 #   - 脚本不会修改系统目录，仅写入用户目录下的 skills 文件夹
 
+param(
+    [switch]$DryRun
+)
+
 $ErrorActionPreference = "Stop"
 
 $RepoSSH   = "git@github.com:gtbwpkwjnb-alt/skills-summarize-audit-skill.git"
@@ -32,16 +36,31 @@ $InstallDir = Get-InstallDir
 Write-Host "📦 skills-summarize-audit installer"
 Write-Host "   Target: $InstallDir"
 
+if ($DryRun) {
+    Write-Host "   Dry run: no filesystem or network changes will be made."
+    if (Test-Path $InstallDir) {
+        Write-Host "   Would verify a clean Git worktree, then run: git pull --ff-only"
+    } else {
+        Write-Host "   Would clone from SSH, then HTTPS fallback if SSH is unavailable."
+    }
+    return
+}
+
 if (Test-Path $InstallDir) {
     Write-Host "   Already installed. Updating..."
     Push-Location $InstallDir
-    try { git pull --rebase 2>$null }
-    catch {
+    try {
+        $changes = git status --porcelain
+        if ($changes) {
+            throw "Local changes detected. Commit, stash, or back up the directory before updating."
+        }
+        git pull --ff-only
+        if ($LASTEXITCODE -ne 0) {
+            throw "Update failed. The existing installation was preserved; resolve the Git history manually."
+        }
+    } finally {
         Pop-Location
-        Remove-Item -Recurse -Force $InstallDir -ErrorAction SilentlyContinue
-        try { git clone $RepoSSH $InstallDir } catch { git clone $RepoHTTPS $InstallDir }
     }
-    Pop-Location
 } else {
     Write-Host "   Cloning..."
     New-Item -ItemType Directory -Force -Path (Split-Path $InstallDir) | Out-Null

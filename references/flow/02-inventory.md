@@ -10,7 +10,7 @@
 1. **T0 匹配**：如果工具在 capability-dimensions.yaml 的 tools 列表中，直接读取其能力评分
 2. **T1 推断**：如果不在，从工具 tags + description 按关键词规则自动推断能力维度
    - 规则见 capability-dimensions.yaml 底部 mapping 表
-   - 推断结果写入 `.data/auto-capabilities.json` 供下次参考
+   - 推断结果仅保留在本次报告；用户确认保存审计历史后才写入 `.data/auto-capabilities.json`
 3. **结果格式**：
    ```yaml
    agent-reach:
@@ -27,7 +27,7 @@
 
 | 采集项 | 采集方式 | 用途 |
 |:---|:---|:---|
-| SKILL.md 文件大小 | Read → 字节数 / 4 ≈ token 估算 | 计算注入成本 |
+| SKILL.md 文件大小 | Read → 字节数 / 4 ≈ token 估算 | 估算注入成本，标记 estimated |
 | MCP 工具数量 | 解析 mcp_config 配置 | 计算工具池 token 成本 |
 | MCP 工具描述长度 | 读取每个工具的 description | 计算 tool listing 成本 |
 | Agent 类型 | 从平台特征判定 | 选择计算模型 |

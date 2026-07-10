@@ -3,6 +3,10 @@
 > v6.0.0 新增。位于 ⑤a 外部信号之后、⑤b 推荐引擎之前。
 > 搜索 GitHub 社区，寻找能填补当前能力缺口的工具。
 
+文中的工具名、stars、分数和安装命令仅为流程示意，不是本次审计事实；实际报告只能输出本次取得的证据。
+
+执行前检查 `config.yaml community_feed.enabled=true` 且 `require_explicit_consent=true` 时已获得用户对本次联网查询的明确同意；任一条件不满足则跳过并在报告中标注“⏸ 社区搜索未获同意”。
+
 ---
 
 ## 搜索词构建（双源）
@@ -68,6 +72,8 @@
    - 无关键词但 category 相关 → 5/10
 4. 低于 5/10 的跳过
 ```
+
+候选进入推荐引擎前，必须继续执行 `flow/05-ab-github-comparison.md`；本阶段的 stars、topics 和 description 不能单独作为安装结论。
 
 结果输出格式：
 

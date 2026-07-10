@@ -1,9 +1,9 @@
-# Skills Audit CI — GitHub Actions Workflow
-# v5.8.0
+# Skills-Summarize-Audit CI — GitHub Actions Workflow
+# v6.4.0
 #
 # 使用方式:
-#   1. 将此文件放到 .github/workflows/skills-audit.yml
-#   2. 确保项目已安装 skills-audit 技能
+#   1. 将此文件放到 .github/workflows/skills-summarize-audit.yml
+#   2. 确保项目已安装 skills-summarize-audit 技能
 #   3. 每周一早9点自动运行 + PR 触发（skill 文件变更时）
 
 name: Skills Audit CI
@@ -19,7 +19,20 @@ on:
       - '.cursor/rules/**'
 
 jobs:
+  validate-skill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate release contract
+        run: |
+          python -m pip install --disable-pip-version-check pyyaml
+          python tests/validate.py --strict
+
   audit:
+    needs: validate-skill
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -28,7 +41,7 @@ jobs:
         id: audit
         run: |
           # Claude Code headless 模式
-          claude -p "运行 skills-audit --ci --output-format json" \
+          claude -p "运行 skills-summarize-audit --ci --output-format json" \
             --output-format json \
             --max-turns 15 \
             --allowedTools "Read,Grep,WebSearch,WebFetch" \
@@ -98,5 +111,5 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: skills-audit-result
+          name: skills-summarize-audit-result
           path: audit-result.json

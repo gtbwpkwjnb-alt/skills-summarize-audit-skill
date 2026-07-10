@@ -118,3 +118,27 @@ rules:
             max_chars: 300          # 超过 300 字可能超出 LLM 摘要能力
             require_lang: "any"     # 中英双语均可，但不要混排导致解析困难
     fix: "精简 SKILL.md description 至 4-6 行、200 字以内，中英分开不要交错"
+
+  - id: "SEC-009"
+    type: "data_integrity"
+    severity: "CRITICAL"
+    description: "安装器不得在更新失败后递归删除既有技能目录"
+    scope:
+      files: ["install.sh", "install.ps1"]
+      patterns:
+        - regex: 'rm\s+-rf\s+.*INSTALL_DIR'
+        - regex: 'Remove-Item\s+-Recurse\s+-Force\s+\$InstallDir'
+    fix: "保留现有目录并中止，提示用户处理 Git 冲突或本地修改"
+
+  - id: "SEC-010"
+    type: "data_leak"
+    severity: "HIGH"
+    description: "社区 GitHub 搜索必须默认关闭并要求本次明确同意"
+    scope:
+      files: ["config.yaml"]
+      patterns:
+        - key: "community_feed.enabled"
+          value: "true"
+        - key: "community_feed.require_explicit_consent"
+          value: "false"
+    fix: "将 community_feed.enabled 设为 false，并将 require_explicit_consent 设为 true"
