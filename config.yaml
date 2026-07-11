@@ -1,4 +1,4 @@
-﻿# skills-summarize-audit v6.4.0 配置
+﻿# skills-summarize-audit v7.0.0 配置
 # Project Skill Audit — 项目技能审计
 # 唯一配置源。scan_paths 以此文件为准。
 # platforms/zcode.yaml 仅存平台特征（归档路径等），不定义扫描路径。
@@ -27,6 +27,27 @@ scan_paths:
     path: "~/.claude/skills/*/"
     type: user
     editable: true
+  - name: "Codex 用户技能"
+    path: "~/.codex/skills/*/"
+    type: user
+    editable: true
+  - name: "Codex 全局技能"
+    path: "$CODEX_HOME/skills/*/"
+    type: user
+    editable: true
+    exclude: [".archived", ".system"]
+  - name: "Codex runtime 插件技能"
+    path: "~/.cache/codex-runtimes/*/plugins/*/plugins/*/skills/*/"
+    type: system
+    editable: false
+  - name: "Codex 插件缓存技能"
+    path: "$CODEX_HOME/plugins/cache/*/*/skills/*/"
+    type: system
+    editable: false
+  - name: "Codex remote catalog 展示元数据"
+    path: "$CODEX_HOME/cache/remote_plugin_catalog/*.json"
+    type: display_metadata
+    editable: false
   # 插件/系统技能（按实际环境修改路径）
   - name: "插件技能"
     path: "~/.zcode/cli/plugins/cache/*/*/skills/*/"
@@ -49,6 +70,7 @@ scope_targets:
       - "~/.zcode/skills/*/"
       - "~/.claude/skills/*/"
       - "~/.codex/skills/*/"
+      - "$CODEX_HOME/skills/*/"
 
 recommendation_scope:
   enabled: true
@@ -101,6 +123,16 @@ write_policy:
   default_mode: "read_only"
   require_explicit_confirmation: true
   operations: ["profile", "memory", "cache", "log", "snapshot", "archive", "install", "update", "description"]
+
+translation_refinement:
+  glossary: "$SKILL_DIR/references/codex-ui-zh-glossary.json"
+  target_language: "zh-Hans"
+  require_quality_status: true
+  offline_engine:
+    enabled: false
+    name: "argos-translate"
+    require_explicit_confirmation: true
+    reason: "模型下载和运行时依赖不随 Audit 捆绑"
 
 # 输出语言
 output_language: "auto"  # auto / zh / en

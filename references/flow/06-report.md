@@ -2,14 +2,16 @@
 
 报告生成阶段默认只读。读取 `references/output-contract.md`，输出后不写入 `.data/stats.json`；用户确认保存审计历史后才在⑧持久化。
 
-**30秒摘要块**（始终最先输出，v5.9.1 趋势行）：
+**首屏决策块**（始终最先输出）：
 ```text
 审计状态: partial
 证据覆盖: observed <N> / inferred <N> / estimated <N> / unavailable <N>
-健康度: <状态> · 证据: <路径或命令> · 限制: <缺失数据>
-操作建议: [需确认] <N> 项；本轮未写入文件
-未获取数据: <外部信号/质量账本/趋势历史等>
+当前用户收益: <当前活动> → <已覆盖能力> · <事实状态/证据>
+一眼决策: 保留 <N> · 归档候选 <N> · 建议安装 <N> · 建议更新 <N> · 翻译精炼 <N>
+待确认: <操作数> 项；本轮未写入文件
 ```
+
+常规报告严格按 `report-template.md` 的“当前用户作用 → 一眼决策 → 保留 → 归档候选 → 建议安装 → 建议更新 → 中文翻译清单 → 建议执行 → 深度分析入口”顺序输出。没有事实证据的分类显示“无项目”或 `unavailable`，不得用示例填充。八维评分、活性检查和容量明细仅在用户请求 `深度` 或存在明确阻断风险时展开，避免常规报告冗余。报告完成前读取 `flow/06-e-action-plan.md`，不得把未处理发现留给用户自行推断。
 
 **容量报告块**：agent 类型、固定消耗、token 成本表、容量判定。
 
@@ -17,7 +19,7 @@
 
 **CI 模式**：JSON 输出，含 summary/skills/recommendations/alerts/capacity_analysis/exit_code/token_usage。
 
-**描述质量检查**：语言自适应→格式检查→精炼→翻译→双语拼接。默认输出候选修改，不直接写入任何 description。
+**描述质量检查**：先读 `references/codex-ui-zh-glossary.json`，保护 API、CLI、MCP、Codex 等技术术语；精确短语命中可标为 `ready`，未完整命中的英文项必须由 Agent 按原文语义精炼并标为 `needs_agent_refinement`，不得把词典残片称为完成翻译。`技能审查 精炼` 强制输出中文翻译清单。默认不直接写入任何 description。
 
 **生态雷达区块**（v6.0.0 — 条件输出，仅在发现能力缺口+社区替代品时显示）：
 

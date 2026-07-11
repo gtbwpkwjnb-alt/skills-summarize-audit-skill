@@ -84,7 +84,7 @@
 | `多平台互联网调研工具，支持13个渠道的信息获取` | `Web Research → 13 channels·multi-platform \| 互联网调研 → 13渠道·多平台` |
 
 > 系统/插件技能（editable=false）只标注问题，不自动修改。
-> 审计完成后必须回头检查 skills-audit 自身的 description 是否符合以上规范，不符合则自动修正（解决自指盲区）。
+> 审计完成后必须回头检查 skills-summarize-audit 自身的 description 是否符合以上规范；不合格时输出修正候选，获得明确确认后才修改（解决自指盲区）。
 
 ---
 
@@ -123,4 +123,4 @@
 1. 读取 `SKILL.md` 的 `description:` 字段
 2. 用 Forma 4 项规则评分
 3. 不合格时在报告中输出"⚠️ 自检：审计技能自身描述不合格 → 建议修正" 
-4. 自动生成修正建议
+4. 自动生成修正候选，不得绕过 description 写入确认门禁

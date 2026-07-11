@@ -4,6 +4,104 @@ All notable changes to the skills-summarize-audit skill.
 
 ---
 
+## [7.0.0] - 2026-07-11
+
+### Changed
+- **职责收缩**：主技能只保留技能库翻译精炼、项目画像和技能/插件推荐。
+- **建议转介**：安装、发布、配置、桌面迁移、历史清理、回滚等仅作为报告中的后续建议，要求用户直接调用对应 Agent。
+- **主流程瘦身**：移除容量、评分、活性、CI 与执行编排等主流程依赖，常规使用不再加载这些上下文。
+
+---
+
+## [6.4.8] - 2026-07-11
+
+### Fixed
+- **范围输出一致性**：`collect_codex_display_candidates.py --scope installed` 的 Markdown 输出现在只渲染已安装去重项，不再混入 remote catalog。
+- **缓存候选去重**：同名条目优先选择非 `plugin-install-*` 临时目录中的较高版本；fixture 覆盖旧版本 cache。
+- **自身展示中文化**：Audit 的 `agents/openai.yaml` 改为简体中文命令栏和侧边栏文案。
+
+### Changed
+- **输出规范收敛**：移除过时的“30 秒摘要 + 大评分表”示例，常规审计改为引用当前分类决策报告；评分明细仅在 `技能审查 深度` 展开。
+- **安装入口修正**：删除不存在的 `references/installation.md` 引用，统一指向 `README.md`。
+
+### Added
+- **回归门禁**：严格验证检查 Audit 自身中文 UI 元数据、当前输出结构，以及旧输出/无效引用不再出现。
+
+---
+
+## [6.4.7] - 2026-07-11
+
+### Added
+- **展示来源地图**：新增 Codex、ZCode、Claude 与通用 `.agents` 的命令/侧边栏元数据定位表，明确已验证文件层与未验证 UI 层边界。
+- **插件卡片解析**：采集器读取安装插件 `.codex-plugin/plugin.json` 的 `interface`，生成独立的 `codex_plugin_manifest` 中文候选。
+
+### Fixed
+- **UI 取证边界**：remote catalog 仅作为市场发现元数据；没有客户端 UI 验收时不再声称文件修改必然改变命令栏或侧边栏。
+
+---
+
+## [6.4.6] - 2026-07-11
+
+### Fixed
+- **安装边界纠正**：采集器区分已安装项与 remote catalog 市场项；健康度、容量和 P1 翻译积压只计算 `--scope installed` 的去重结果。
+- **翻译质量分层**：命令栏名与侧边栏短描述达标即标记 `ready`；长描述单独标记，避免阻塞可见 UI 的中文化。
+
+### Added
+- **P1 首批精炼**：为 25 个真实已安装项添加稳定的按 id 中文覆盖，已安装短描述积压从 75 降至 51。
+
+---
+
+## [6.4.5] - 2026-07-11
+
+### Added
+- **审计交卷阶段**：新增⑥-e，固定输出带优先级、收益、验证与确认边界的 `🛠 建议执行`；不再只报告发现。
+- **深度分析入口**：`技能审查 深度` 逐项检查版本、当前状态、可运行性、联网更新可用性与维护建议。
+- **翻译积压治理**：按 UI 可见性、去重和每批 25 项的质量抽样计划精炼，不再把待处理总数直接抛给用户。
+
+### Fixed
+- 清理已卸载 `caveman` 的用户画像与本地 registry 引用。
+
+---
+
+## [6.4.4] - 2026-07-11
+
+### Added
+- **中文精炼质量门禁**：引入可维护术语/短语库，保护技术术语；精确命中标记 `ready`，不完整候选必须标记 `needs_agent_refinement`。
+- **分类决策报告**：常规审计首屏固定输出“对当前用户的作用”和“保留/归档候选/建议安装/建议更新/翻译精炼”清单；评分明细仅按需展开。
+
+### Research
+- 评估 GitHub `argosopentech/argos-translate`（MIT、离线语言包）：保留为用户确认后的可选后端，因模型与运行时依赖较重，不随 Audit 捆绑。
+
+---
+
+## [6.4.3] - 2026-07-11
+
+### Added
+- **Codex 中文翻译清单**：`技能审查 精炼` 读取全局技能、插件 cache、runtime、`agents/openai.yaml`、manifest 与 remote catalog，固定输出命令栏和侧边栏的简体中文候选。
+- **只读解析器与 fixture 门禁**：新增 `collect_codex_display_candidates.py`；采集前后验证扫描源 SHA256 一致，覆盖普通 `SKILL.md`、插件 UI metadata 与 remote catalog `interface`。
+
+### Changed
+- **边界收紧**：官方插件、runtime 与 remote catalog 永远只生成候选，不提供 UI/cache 写入命令；系统项保持只读。
+
+---
+
+## [6.4.2] - 2026-07-11
+
+### Fixed
+- **Codex 覆盖补齐**：扫描 `~/.codex/skills`、`$CODEX_HOME/skills` 和已启用 runtime 插件；归档与系统目录排除在 editable 扫描之外。
+- **插件翻译候选**：Codex runtime 与系统技能现在必须输出中文精炼候选，并标注只读，不修改缓存。
+
+---
+
+## [6.4.1] - 2026-07-11
+
+### Fixed
+- **描述精炼接入审计流**：新增⑥-d；每次审计发现 Forma 不合格 description 时，强制输出翻译精炼候选。
+- **触发与门禁对齐**：新增 `技能审查 精炼` / `refine` 子命令；候选缺失时报告标记 `partial`，不允许进入执行。
+- **只读一致性**：移除“自动修正”表述，description 修改统一要求明确确认。
+
+---
+
 ## [6.4.0] - 2026-07-11
 
 ### Changed

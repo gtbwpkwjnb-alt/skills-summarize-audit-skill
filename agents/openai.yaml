@@ -1,4 +1,4 @@
 interface:
-  display_name: "Skills Audit Manager"
-  short_description: "Audit agent skills, plugins, MCPs, and recommendations"
-  default_prompt: "Use $skills-summarize-audit to audit this project's skills, plugins, and MCP tools."
+  display_name: "技能审查管家"
+  short_description: "技能翻译、项目画像与工具推荐"
+  default_prompt: "使用 $skills-summarize-audit 对技能库做中文精炼、生成当前项目画像并给出工具推荐。"

@@ -34,6 +34,8 @@ ACP  DOCX  iOS  AI  URL  SSH  HTTP  SSL  SQL
 ~/.agents/skills/*/SKILL.md
 ~/.zcode/skills/*/SKILL.md           # 部分平台有此路径
 ~/.claude/skills/*/SKILL.md          # 部分平台有此路径
+~/.codex/skills/*/SKILL.md           # Codex 用户技能
+$CODEX_HOME/skills/*/SKILL.md        # Codex 全局技能（排除 .system/.archived）
 ```
 
 **扫描命令**（跨平台）：
@@ -45,15 +47,31 @@ find ~/.agents/skills ~/.zcode/skills ~/.claude/skills -name SKILL.md 2>/dev/nul
 Get-ChildItem "$env:USERPROFILE\.agents\skills\*\" -Filter SKILL.md -Recurse
 ```
 
-### 2.2 插件技能
+### 2.2 Codex 展示源（插件与 runtime）
 
 插件技能存放路径因平台而异，常见的模式：
 
 ```
 ~/.zcode/cli/plugins/cache/*/*/skills/*/SKILL.md
+~/.cache/codex-runtimes/*/plugins/*/plugins/*/skills/*/SKILL.md
+$CODEX_HOME/plugins/cache/*/*/skills/*/SKILL.md
+$CODEX_HOME/cache/remote_plugin_catalog/*.json
 ```
 
-> 如果插件技能路径与上述不同，可根据实际环境调整 glob 表达式。
+### 1.1 中文候选生成顺序
+
+1. 保留技术术语：`API`、`CLI`、`MCP`、`Codex`、`GitHub`、`YAML` 等不得意译或删除。
+2. 优先匹配 `codex-ui-zh-glossary.json` 的精确短语；该结果可标 `ready`。
+3. 未命中时，先根据英文原文翻译完整语义，再按 Forma 压缩为“对象 → 动作·范围·结果”。不得逐词拼接，不得丢失限定词。
+4. 无法确认语义时标 `needs_agent_refinement`，保留英文原文和绝对来源路径，不输出“已完成翻译”。
+
+GitHub 调研记录：Argos Translate（MIT）提供离线语言包机制，但其模型与运行时依赖较重；本技能不捆绑模型。未来仅在用户明确要求离线机翻并确认模型下载后，将其作为可选后端，而不替代本地术语表和语义复核。
+
+对每个插件，读取 `SKILL.md`、可选 `agents/openai.yaml`、上级 `.codex-plugin/plugin.json`；remote catalog 的 `skills[].interface.display_name` 与 `short_description` 是命令栏/侧边栏展示候选来源。优先展示元数据，缺失时回退 `SKILL.md description`。
+
+> Codex runtime、插件 cache、remote catalog 和 `$CODEX_HOME/skills/.system/` 为只读：只报告中文候选，不修改缓存、UI 或系统文件。
+
+`remote_plugin_catalog` 是市场可发现元数据，不等于已安装或当前启用。审计统计必须使用采集器的 `--scope installed`：按技能 id 去重后计算健康度、容量和翻译积压；catalog-only 仅作为市场展示候选单列。
 
 ### 2.3 技能索引文档（人工维护的参考）
 
@@ -130,7 +148,7 @@ Get-ChildItem "$env:USERPROFILE\.agents\skills\*\" -Filter SKILL.md -Recurse
 | 6-9/10 | ⚠️ 微调 | 自动精炼 |
 | 0-5/10 | 🔴 需重写 | 按标准重写 |
 
-### 步骤 ③：执行精炼
+### 步骤 ③：生成候选
 
 **转换规则**：
 
@@ -144,6 +162,8 @@ Get-ChildItem "$env:USERPROFILE\.agents\skills\*\" -Filter SKILL.md -Recurse
 原始: "DOCX document creation with support for revisions, comments..."
     → 精炼: "DOCX文档 → 创建·编辑·修订·格式保留·提取"
 ```
+
+对于 Codex 官方插件、runtime 和 remote catalog，此步骤只生成清单，不提供写入命令。用户自制技能的 frontmatter 修改仍需单独确认。
 
 ### 步骤 ④：清理残留
 
@@ -180,7 +200,12 @@ Get-ChildItem "$env:USERPROFILE\.agents\skills\*\" -Filter SKILL.md -Recurse
 | skillfather | 归档残留 | 永久删除 |
 | old-skill-ref | 配置残留 | 清除引用 |
 
-=== C. 不可翻译（X 项）===
+=== C. Codex 命令栏与侧边栏中文翻译清单===
+| 标识 | 命令栏原文 | 中文候选 | 侧边栏原文 | 中文候选 | 来源 | 状态 |
+|------|-----------|----------|------------|----------|------|------|
+| xxx | ... | ... | ... | ... | remote_plugin_catalog | observed / 只读 |
+
+=== D. 不可翻译（X 项）===
 | 项 | 原因 |
 |---|------|
 | /help 等命令 | 平台内置，无 SKILL.md |
@@ -194,7 +219,7 @@ Get-ChildItem "$env:USERPROFILE\.agents\skills\*\" -Filter SKILL.md -Recurse
 | 教训 | 详情 |
 |:-----|:------|
 | ❌ 别改 SKILLS_INDEX.md 作为菜单源 | 它是人工参考文档，不是 `/` 菜单数据源 |
-| ❌ 别改 plugin cache 文件 | 插件缓存可能被覆盖，修改 SKILL.md description 即可 |
-| ✅ SKILL.md 的 description 字段是唯一真实来源 | 所有 AI 助手平台都读它 |
-| ✅ 修改后需重启客户端 | 客户端启动时缓存，会话内不热加载 |
-| ✅ 插件技能只标注不修改 | 只出建议不自动改 |
+| ❌ 别改 plugin cache 或 remote catalog | 不存在已验证的安全 UI 覆盖接口；缓存可能被更新覆盖 |
+| ✅ `SKILL.md` 只负责技能触发元数据 | 插件 UI 展示还可能来自 `agents/openai.yaml` 与 remote catalog `interface` |
+| ✅ 使用只读候选清单 | 通过绝对来源路径和事实状态帮助用户理解英文条目 |
+| ✅ 插件技能只标注不修改 | 官方插件、runtime、catalog 仅出候选，不提供写入动作 |

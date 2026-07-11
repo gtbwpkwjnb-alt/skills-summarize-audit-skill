@@ -16,7 +16,7 @@ skills:
   # ---- User Skills (用户技能, .agents/skills/) ----
 
   - name: "skills-summarize-audit"
-    version: "6.4.0"
+    version: "7.0.0"
     category: management
     tags: ["audit", "project-scan", "profile", "recommendation", "confidence", "capacity-analysis", "ci-cd", "8dim-scoring", "summarize", "forma", "capability-matrix"]
     description: "技能管家 → 审计评分·活性检测·容量预警·归档回滚 | Skills-Summarize-Audit → audit·liveness·capacity·rollback"
@@ -46,14 +46,6 @@ skills:
     description: "互联网调研 → 多平台搜索·13渠道·信息获取 | Web research → multi-platform·13 channels·info gathering"
     source: "local"
     homepage: "https://github.com/Panniantong/Agent-Reach"
-
-  - name: "caveman"
-    version: "1.0.0"
-    category: general
-    tags: ["compress", "token-saving", "minimal"]
-    description: "极简通讯 → 去冠词·省75%token·全精度 | Caveman → no articles·75% less token·full precision"
-    source: "local"
-    homepage: ""
 
   - name: "last30days"
     version: "1.0.0"

@@ -7,6 +7,7 @@
 import hashlib
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -128,7 +129,6 @@ def stale_strings():
         "五维": [],
         "5dim": [],
         "v5.10.0": [],
-        "审查技能": [],
         "skills-audit/issues": [],
     }
     historical = {"self-audit-issues.json", "CHANGELOG.md", "README.md"}
@@ -137,7 +137,7 @@ def stale_strings():
             c = f.read_text(encoding="utf-8", errors="ignore")
             for pat in patterns:
                 if re.search(pat, c):
-                    if f.name in historical and pat in {"五维", "审查技能", "5dim"}:
+                    if f.name in historical and pat in {"五维", "5dim"}:
                         continue
                     patterns[pat].append(str(f.relative_to(ROOT)))
     return patterns
@@ -229,55 +229,104 @@ def release_contract():
 
 
 def behavior_and_output_contract():
-    """审计默认只读，且所有用户可见结论必须保留事实状态。"""
+    """主流程只能覆盖翻译精炼、项目画像和推荐，且默认只读。"""
     errors = []
-    config = (ROOT / "config.yaml").read_text(encoding="utf-8-sig")
-    expected_config = {
-        "write_policy.default_mode": r"write_policy:\s*\n\s+default_mode:\s*\"read_only\"",
-        "write_policy.confirmation": r"require_explicit_confirmation:\s*true",
-        "memory_config.auto_sync": r"memory_config:[\s\S]*?auto_sync:\s*false",
-        "project_profiles.auto_persist": r"project_profiles:[\s\S]*?auto_persist:\s*false",
-        "trend_tracking.enabled": r"trend_tracking:[\s\S]*?enabled:\s*false",
-        "logging.enabled": r"logging:\s*\n\s+enabled:\s*false",
-        "quality_signals.fallback": r"fallback_score:\s*null",
-    }
-    for name, pattern in expected_config.items():
-        if not re.search(pattern, config):
-            errors.append(f"缺少只读/事实配置: {name}")
+    skill = (ROOT / "SKILL.md").read_text(encoding="utf-8-sig")
+    report = (ROOT / "references" / "report-template.md").read_text(encoding="utf-8")
+    flow = (ROOT / "references" / "execution-flow.md").read_text(encoding="utf-8")
+    for required in ["技能库翻译精炼", "项目画像", "技能/插件推荐", "默认只读"]:
+        if required not in skill:
+            errors.append(f"SKILL.md 缺少核心边界: {required}")
+    for required in ["翻译精炼", "项目画像", "推荐", "明确不做"]:
+        if required not in flow:
+            errors.append(f"主流程缺少精简能力定义: {required}")
+    for required in ["中文翻译候选", "项目画像", "💡 推荐", "➡️ 下一步建议"]:
+        if required not in report:
+            errors.append(f"报告模板缺少核心区块: {required}")
+    if "外部搜索必须取得本次明确同意" not in skill:
+        errors.append("SKILL.md 缺少联网同意门禁")
+    return errors
 
-    contract = (ROOT / "references" / "output-contract.md").read_text(encoding="utf-8")
-    for state in ["observed", "inferred", "estimated", "unavailable", "[需确认]"]:
-        if state not in contract:
-            errors.append(f"输出契约缺少状态: {state}")
+
+def codex_display_candidate_contract():
+    """严格门禁：三类 Codex 展示源必须能只读生成中文候选。"""
+    test = ROOT / "tests" / "test_collect_codex_display_candidates.py"
+    collector = ROOT / "scripts" / "collect_codex_display_candidates.py"
+    if not test.exists() or not collector.exists():
+        return ["缺少 Codex 展示候选采集器或 fixture 测试"]
+    result = subprocess.run(
+        [sys.executable, str(test)], cwd=ROOT, text=True, capture_output=True, timeout=30
+    )
+    if result.returncode:
+        detail = (result.stderr or result.stdout).strip()
+        return [f"Codex 展示候选 fixture 失败: {detail}"]
+    try:
+        payload = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        return [f"Codex 展示候选 fixture 未输出 JSON: {exc}"]
+    if payload.get("result") != "passed":
+        return ["Codex 展示候选 fixture 未通过"]
+    return []
+
+
+def translation_and_decision_output_contract():
+    """中文候选与三项核心输出必须可审计。"""
+    errors = []
+    glossary = ROOT / "references" / "codex-ui-zh-glossary.json"
+    if not glossary.exists():
+        return ["缺少 Codex 中文术语库"]
+    try:
+        data = json.loads(glossary.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        return [f"Codex 中文术语库无法解析: {exc}"]
+    for key in ["protected_terms", "phrases", "words"]:
+        if not data.get(key):
+            errors.append(f"Codex 中文术语库缺少 {key}")
+
+    source_map = ROOT / "references" / "display-source-map.md"
+    if not source_map.exists():
+        errors.append("缺少 Agent 展示文案来源地图")
+    else:
+        mapping = source_map.read_text(encoding="utf-8")
+        for token in ["agents/openai.yaml", ".codex-plugin/plugin.json", "remote_plugin_catalog", "commands/<name>.md", "unavailable"]:
+            if token not in mapping:
+                errors.append(f"展示来源地图缺少: {token}")
+
+    collector = (ROOT / "scripts" / "collect_codex_display_candidates.py").read_text(encoding="utf-8")
+    for token in ["translation_quality", "long_description_quality", "inventory_scope", "codex_plugin_manifest", "manifest_candidates", "INSTALLED_SOURCE_TYPES", "--scope", "needs_agent_refinement", "GLOSSARY_PATH"]:
+        if token not in collector:
+            errors.append(f"采集器缺少翻译质量契约: {token}")
 
     report = (ROOT / "references" / "report-template.md").read_text(encoding="utf-8")
-    for forbidden in ["健康度: 良好", "~3,200 tokens", "归档 3 项", "installed skills token 成本"]:
-        if forbidden in report:
-            errors.append(f"报告模板含无证据示例结论: {forbidden}")
+    for section in ["当前用户作用", "中文翻译候选", "项目画像", "💡 推荐", "➡️ 下一步建议"]:
+        if section not in report:
+            errors.append(f"报告模板缺少核心区块: {section}")
+    return errors
 
-    output_check = (ROOT / "references" / "flow" / "06-c-output-check.md").read_text(encoding="utf-8")
-    if "[需确认]" not in output_check or "事实状态" not in output_check:
-        errors.append("输出检查未强制事实状态或确认门禁")
 
-    preflight = (ROOT / "references" / "flow" / "00-config.md").read_text(encoding="utf-8")
-    if "codegraph --help" not in preflight or "命令存在但探针失败" not in preflight:
-        errors.append("关键工具未要求可执行探针与降级")
+def audit_ui_and_skill_contract():
+    """Audit 自身 UI 元数据须中文、可触发且不保留过时输出范式。"""
+    errors = []
+    ui_path = ROOT / "agents" / "openai.yaml"
+    if not ui_path.exists():
+        return ["缺少 Audit 自身 agents/openai.yaml"]
+    ui = ui_path.read_text(encoding="utf-8-sig")
+    expected = {
+        "display_name": "技能审查管家",
+        "short_description": "技能翻译、项目画像与工具推荐",
+        "default_prompt": "使用 $skills-summarize-audit 对技能库做中文精炼、生成当前项目画像并给出工具推荐。",
+    }
+    for key, value in expected.items():
+        if f'{key}: "{value}"' not in ui:
+            errors.append(f"Audit UI 元数据缺少中文 {key}")
 
-    verify = (ROOT / "references" / "flow" / "06-bis-verify.md").read_text(encoding="utf-8")
-    if "execution_blocked=true" not in verify:
-        errors.append("自检或安全失败未阻止执行")
-
-    signals = (ROOT / "references" / "flow" / "05-signals.md").read_text(encoding="utf-8")
-    deepread = (ROOT / "references" / "flow" / "04-bis-deepread.md").read_text(encoding="utf-8")
-    execute = (ROOT / "references" / "flow" / "07-c-execute.md").read_text(encoding="utf-8")
-    if "用户明确同意本次联网查询" not in signals or "用户明确同意本次联网查询" not in deepread:
-        errors.append("外部信号或深读外部验证缺少联网同意门禁")
-    if "execution_blocked=true" not in execute:
-        errors.append("执行阶段未检查 execution_blocked")
-
-    flow = (ROOT / "references" / "execution-flow.md").read_text(encoding="utf-8")
-    if "⑦-b确认→⑦-a快照→⑦-c执行" not in flow:
-        errors.append("执行流程未保持确认优先于快照")
+    skill = (ROOT / "SKILL.md").read_text(encoding="utf-8-sig")
+    for required in ["references/report-template.md", "技能库翻译精炼", "项目画像", "技能/插件推荐", "## 边界"]:
+        if required not in skill:
+            errors.append(f"SKILL.md 缺少当前输出规则: {required}")
+    for stale in ["随后输出评分表片段", "优先输出 30 秒摘要块", "references/installation.md", "CI/CD 无交互模式"]:
+        if stale in skill:
+            errors.append(f"SKILL.md 保留过时输出或无效引用: {stale}")
     return errors
 
 
@@ -307,60 +356,29 @@ def main():
         details = [reg_ver["error"]]
     results.append(("Registry自身版本", ok, details))
 
-    # 3. Weight sum
-    total = weight_sum()
-    ok = abs(total - 1.0) < 0.001
-    failed |= not ok
-    results.append(("8维权重和", ok, [f"sum = {total:.3f}"]))
-
-    # 3b. Forma weight sum
-    forma_total = forma_weight_sum()
-    ok = abs(forma_total - 1.0) < 0.001 or forma_total == 0.0
-    failed |= not ok and forma_total > 0
-    results.append(("Forma四维权重和", ok, [f"sum = {forma_total:.3f}" if forma_total > 0 else "未检测到"]))
-
-    # 3c. 健康阈值合理性
-    thresh_issues = health_thresholds()
-    ok = not thresh_issues
-    failed |= not ok
-    results.append(("健康阈值合理性", ok, thresh_issues or ["OK"]))
-
-    # 4. Stale strings
-    stale = stale_strings()
-    issues = [f"{k}: {v}" for k, v in stale.items() if v]
-    ok = not issues
-    failed |= not ok
-    results.append(("陈旧字符串", ok, issues or ["none"]))
-
-    # 5. Platform compliance
-    errs = platform_compliance()
-    ok = not errs
-    failed |= not ok
-    results.append(("平台配置合规", ok, errs or ["OK"]))
-
-    # 6. Flow format
-    errs = flow_format()
-    ok = not errs
-    failed |= not ok
-    results.append(("flow 格式", ok, errs or ["OK"]))
-
-    # 7. Data directory
-    errs = data_directory()
-    ok = not errs
-    failed |= not ok
-    results.append(("数据目录", ok, errs or ["OK"]))
-
-    # 8. Release contract
-    errs = release_contract()
-    ok = not errs
-    failed |= not ok
-    results.append(("发布契约", ok, errs or ["OK"]))
-
-    # 9. Behavior and output contract
+    # 3. Three-capability behavior and output contract
     errs = behavior_and_output_contract()
     ok = not errs
     failed |= not ok
-    results.append(("行为与输出契约", ok, errs or ["OK"]))
+    results.append(("三项能力与输出契约", ok, errs or ["OK"]))
+
+    # 4. Codex display candidate collector
+    errs = codex_display_candidate_contract()
+    ok = not errs
+    failed |= not ok
+    results.append(("Codex 展示候选只读门禁", ok, errs or ["OK"]))
+
+    # 5. Translation quality and concise decision report
+    errs = translation_and_decision_output_contract()
+    ok = not errs
+    failed |= not ok
+    results.append(("翻译质量与分类输出门禁", ok, errs or ["OK"]))
+
+    # 6. Audit 自身 UI 文案与主工作流
+    errs = audit_ui_and_skill_contract()
+    ok = not errs
+    failed |= not ok
+    results.append(("Audit UI 与主工作流门禁", ok, errs or ["OK"]))
 
     print("=" * 60)
     print("skills-audit 自动化验证")

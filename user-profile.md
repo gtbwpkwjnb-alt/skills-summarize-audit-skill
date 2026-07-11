@@ -16,7 +16,7 @@
 
 ## 技能使用特征
 
-- **高频技能**：skills-audit(5)、summarize(3)、agent-reach、learn、caveman
+- **高频技能**：skills-audit(5)、summarize(3)、agent-reach、learn
 - **工作模式**：迭代开发（多轮优化 → 精简 → 持久化增强）
 - **偏好**：中文界面、极简模式、触发词精炼、单语描述
 
@@ -38,7 +38,7 @@
 <!-- ═══════════════════════════════════════════ -->
 
 - **主要工作**：AI Agent 技能开发与迭代优化（ZCode 平台）
-- **高频技能**：skills-audit(5)、summarize(3)、agent-reach、learn、caveman
+- **高频技能**：skills-audit(5)、summarize(3)、agent-reach、learn
 - **主记忆体系**：mnemon（四图衰减·GC压缩）、MEMORY.md（项目事实库）
 - **工作模式**：迭代开发（skill-creator 方法论，多轮迭代 → 精简 → 持久化增强）
 - **偏好**：中文界面、极简模式、触发词精炼、单语描述

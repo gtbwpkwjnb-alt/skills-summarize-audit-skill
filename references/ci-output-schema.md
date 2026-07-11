@@ -1,4 +1,4 @@
-# CI Output Schema — Skills-Summarize-Audit v6.4.0
+# CI Output Schema — Skills-Summarize-Audit v7.0.0
 
 > CI 模式 JSON 输出格式定义。`$CI_MODE=true` 时使用此 schema。
 
@@ -6,7 +6,7 @@
 
 ```json
 {
-  "version": "6.4.0",
+  "version": "7.0.0",
   "timestamp": "2026-06-28T23:59:00Z",
   "mode": "ci",
   "report_status": "partial",
