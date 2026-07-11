@@ -4,7 +4,7 @@ All notable changes to the skills-summarize-audit skill.
 
 ---
 
-## [7.0.0] - 2026-07-11
+## [7.1.0] - 2026-07-11
 
 ### Changed
 - **职责收缩**：主技能只保留技能库翻译精炼、项目画像和技能/插件推荐。

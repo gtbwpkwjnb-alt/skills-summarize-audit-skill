@@ -35,8 +35,9 @@
 
 ## Audit 操作规则
 
-1. 先运行 `collect_codex_display_candidates.py --scope installed` 处理真实已安装 Codex 项；再单列 `--scope catalog`，绝不混算。
-2. 输出中必须给出 `source_paths`、`source_type`、`inventory_scope` 与 `editable`。
+1. 翻译精炼先取得侧栏和命令栏的可见性证据，再以 `collect_codex_display_candidates.py --scope visible --visible-id <id>` 逐项解析；绝不以 `installed`、`catalog` 或缓存发现结果替代可见性。
+2. 输出中必须给出 `visibility_evidence`、`source_paths`、`source_type`、`inventory_scope` 与 `editable`；未显示项不输出。
 3. official plugin cache、runtime、manifest、remote catalog 一律只读，只生成候选；修改后可见 UI 的说法必须由实际客户端验收支持。
 4. 只有用户自制且 `editable=true` 的技能才可在确认后修改 frontmatter；修改后重新解析并执行严格验证。
-5. 若需要证明某客户端的实际命令栏或侧边栏位置，使用该客户端的 UI 自动化或人工截图验收；文件层证据不能替代 UI 验收。
+5. 若需要证明某客户端的实际命令栏或侧边栏位置，使用客户端自动化或人工截图验收；文件层证据不能替代 UI 验收。客户端自动化不可用时，要求用户提供截图或可复制 ID 列表。
+6. 应用中文候选后，必须以同一可见 ID 集合执行 `--require-chinese --expect-visible-count <n>`；缺少项、仍英文项或未完成两页截图验收时，报告 `partial`。

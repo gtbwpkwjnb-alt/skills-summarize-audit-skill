@@ -101,15 +101,15 @@ def chinese_candidate(value: str, limit: int, fallback: str) -> tuple[str, str]:
 def translated_fields(command: str, sidebar: str, long: str, fallback: str, skill_id: str) -> dict:
     override = GLOSSARY["skill_overrides"].get(skill_id, {})
     if override:
-        display_name = compact(str(override["display_name"]), DISPLAY_MAX)
+        display_name = compact(command, DISPLAY_MAX)
         short_description = compact(str(override["short_description"]), SHORT_MAX)
-        display_method = short_method = "skill_override"
+        display_method = "preserve_original"; short_method = "skill_override"
     else:
-        display_name, display_method = chinese_candidate(command, DISPLAY_MAX, fallback)
+        display_name, display_method = compact(command, DISPLAY_MAX), "preserve_original"
         short_description, short_method = chinese_candidate(sidebar, SHORT_MAX, fallback)
     long_description, long_method = chinese_candidate(long, LONG_MAX, fallback)
     core_methods = {display_method, short_method}
-    quality = "ready" if core_methods <= {"source_chinese", "glossary_exact", "skill_override"} else "needs_agent_refinement"
+    quality = "ready" if core_methods <= {"source_chinese", "glossary_exact", "skill_override", "preserve_original"} else "needs_agent_refinement"
     return {
         "translation_quality": quality,
         "translation_methods": sorted({display_method, short_method, long_method}),
@@ -262,8 +262,21 @@ def collect(root: Path, catalog_dir: Path, runtime_dir: Path) -> tuple[list[dict
     return candidates, sorted(set(watched))
 
 
-def logical_items(items: list[dict], scope: str) -> list[dict]:
+def logical_items(items: list[dict], scope: str, visible_ids: list[str] | None = None) -> list[dict]:
     """Filter the requested inventory scope and de-duplicate installed UI entries."""
+    if scope == "visible":
+        requested = list(dict.fromkeys(item.strip() for item in visible_ids or [] if item.strip()))
+        if not requested:
+            raise ValueError("visible 范围要求至少一个 --visible-id；请根据当前侧栏或命令栏截图提供技能 ID")
+        installed = {item["id"]: item for item in logical_items(items, "installed")}
+        missing = [item for item in requested if item not in installed]
+        if missing:
+            raise ValueError(f"未在本地来源中找到可见技能 ID: {', '.join(missing)}")
+        selected = [installed[item] for item in requested]
+        for item in selected:
+            item["inventory_scope"] = "visible"
+            item["selection_reason"] = "user_provided_visible_ui_evidence"
+        return selected
     if scope == "installed":
         selected = [item for item in items if item["source_type"] in INSTALLED_SOURCE_TYPES]
     elif scope == "catalog":
@@ -288,9 +301,9 @@ def candidate_rank(item: dict) -> tuple:
     newest_mtime = 0.0
     for path in paths:
         for part in path.parts:
-            numbers = re.findall(r"\d+", part)
-            if numbers and ("." in part or "-" in part):
-                versions.append(tuple(int(number) for number in numbers))
+            match = re.fullmatch(r"(\d+(?:\.\d+)+)(?:-[A-Za-z0-9]+)?", part)
+            if match:
+                versions.append(tuple(int(number) for number in match.group(1).split(".")))
         try:
             newest_mtime = max(newest_mtime, path.stat().st_mtime)
         except OSError:
@@ -328,6 +341,14 @@ def markdown(items: list[dict], scope: str) -> str:
     return "\n".join(lines)
 
 
+def untranslated_visible_items(items: list[dict]) -> list[str]:
+    """Return visible IDs whose current command or sidebar text has no Chinese text."""
+    return [
+        item["id"] for item in items
+        if not re.search(r"[\u4e00-\u9fff]", item["sidebar"]["original"])
+    ]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Collect read-only Codex Chinese UI candidates.")
     parser.add_argument("--root", type=Path, default=Path(os.environ.get("CODEX_HOME", Path.home() / ".codex")))
@@ -335,7 +356,10 @@ def main() -> int:
     parser.add_argument("--runtime-dir", type=Path, default=Path.home() / ".cache" / "codex-runtimes")
     parser.add_argument("--json", action="store_true", dest="as_json")
     parser.add_argument("--check-unchanged", action="store_true")
-    parser.add_argument("--scope", choices=("installed", "catalog", "all"), default="all")
+    parser.add_argument("--scope", choices=("visible", "installed", "catalog", "all"), default="visible")
+    parser.add_argument("--visible-id", action="append", default=[], help="A skill ID currently visible in the Codex sidebar or command palette; repeat for each visible skill.")
+    parser.add_argument("--expect-visible-count", type=int, help="Require this many resolved visible IDs; use with --scope visible.")
+    parser.add_argument("--require-chinese", action="store_true", help="Fail when a visible item's current command or sidebar text has no Chinese text.")
     parser.add_argument("--batch-size", type=int, default=0, help="Limit the emitted scope items for P1 refinement batches.")
     parser.add_argument("--offset", type=int, default=0, help="Zero-based offset used with --batch-size.")
     args = parser.parse_args()
@@ -345,14 +369,26 @@ def main() -> int:
     items, _ = collect(args.root, catalog_dir, args.runtime_dir)
     # Formatting happens after collection; this script intentionally has no write path.
     summary = inventory_summary(items)
-    scoped_items = logical_items(items, args.scope)
+    try:
+        scoped_items = logical_items(items, args.scope, args.visible_id)
+    except ValueError as exc:
+        parser.error(str(exc))
+    if args.expect_visible_count is not None:
+        if args.scope != "visible" or args.expect_visible_count < 0:
+            parser.error("--expect-visible-count 只能与 visible 范围及非负数一起使用")
+        if len(scoped_items) != args.expect_visible_count:
+            parser.error(f"可见项数量不完整：期望 {args.expect_visible_count}，实际 {len(scoped_items)}")
+    untranslated = untranslated_visible_items(scoped_items) if args.require_chinese else []
     if args.batch_size < 0 or args.offset < 0:
         parser.error("--batch-size and --offset must be non-negative")
     if args.batch_size:
         scoped_items = scoped_items[args.offset: args.offset + args.batch_size]
     output = {
         "mode": "read_only", "only_list": True, "scope": args.scope,
-        "inventory_summary": summary, "items": scoped_items,
+        "inventory_summary": (
+            {"visible_items": len(scoped_items), "note": "仅输出用户提供证据表明当前 UI 可见的技能。"}
+            if args.scope == "visible" else summary
+        ), "items": scoped_items,
         "batch": {"offset": args.offset, "size": args.batch_size or None},
         "watched_source_count": len(watched),
     }
@@ -360,6 +396,9 @@ def main() -> int:
     if args.check_unchanged and before != after:
         print("扫描源 SHA256 在运行期间变化", file=sys.stderr)
         return 2
+    if untranslated:
+        print("可见项仍含英文展示字段: " + ", ".join(untranslated), file=sys.stderr)
+        return 3
     if args.as_json:
         print(json.dumps(output, ensure_ascii=False, indent=2))
     else:

@@ -16,7 +16,7 @@ skills:
   # ---- User Skills (用户技能, .agents/skills/) ----
 
   - name: "skills-summarize-audit"
-    version: "7.0.0"
+    version: "7.1.0"
     category: management
     tags: ["audit", "project-scan", "profile", "recommendation", "confidence", "capacity-analysis", "ci-cd", "8dim-scoring", "summarize", "forma", "capability-matrix"]
     description: "技能管家 → 审计评分·活性检测·容量预警·归档回滚 | Skills-Summarize-Audit → audit·liveness·capacity·rollback"

@@ -3,10 +3,17 @@
 import hashlib
 import importlib.util
 import json
+import shutil
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-FIXTURE = Path(__file__).resolve().parent / "fixtures" / "codex-display"
+FIXTURE_SOURCE = ROOT / "tests" / "fixture-data" / "codex-display"
+FIXTURE = Path(tempfile.mkdtemp(prefix="codex-display-")) / "codex-display"
+shutil.copytree(FIXTURE_SOURCE, FIXTURE)
+for source in FIXTURE.rglob("SKILL.fixture.md"):
+    source.rename(source.with_name("SKILL.md"))
+assert any(part.startswith("codex-display-") for part in FIXTURE.parts), "fixture 必须覆盖随机数字路径"
 SCRIPT = ROOT / "scripts" / "collect_codex_display_candidates.py"
 
 spec = importlib.util.spec_from_file_location("collector", SCRIPT)
@@ -33,7 +40,7 @@ def main():
         if source != "codex_global_skill":
             assert item["editable"] is False
         assert item["command_palette"]["original"] and item["sidebar"]["original"]
-        assert any("\u4e00" <= char <= "\u9fff" for char in item["command_palette"]["display_name"])
+        assert item["command_palette"]["display_name"] == item["command_palette"]["original"]
         assert any("\u4e00" <= char <= "\u9fff" for char in item["sidebar"]["short_description"])
         assert len(item["command_palette"]["display_name"]) <= collector.DISPLAY_MAX
         assert len(item["sidebar"]["short_description"]) <= collector.SHORT_MAX
@@ -45,12 +52,22 @@ def main():
     assert by_type["remote_plugin_catalog"]["long_description_quality"] == "ready"
     assert by_type["remote_plugin_catalog"]["sidebar"]["long_original"] == "Build dashboards for product metrics."
     summary = collector.inventory_summary(items)
-    assert by_type["codex_plugin_manifest"]["command_palette"]["display_name"] == "插件"
+    assert by_type["codex_plugin_manifest"]["command_palette"]["display_name"] == by_type["codex_plugin_manifest"]["command_palette"]["original"]
     assert by_type["codex_plugin_manifest"]["sidebar"]["short_description"] == "创建可复用工件模板"
     assert summary["installed_unique_items"] == 3
     assert summary["catalog_only_source_records"] == 1
     assert len(collector.logical_items(items, "installed")) == 3
     assert len(collector.logical_items(items, "catalog")) == 1
+    visible = collector.logical_items(items, "visible", ["fixture-global", "fixture-plugin"])
+    assert [item["id"] for item in visible] == ["fixture-global", "fixture-plugin"]
+    assert all(item["inventory_scope"] == "visible" for item in visible)
+    assert collector.untranslated_visible_items(visible) == ["fixture-plugin"]
+    try:
+        collector.logical_items(items, "visible", [])
+    except ValueError as exc:
+        assert "--visible-id" in str(exc)
+    else:
+        raise AssertionError("visible 范围未拒绝空清单")
     selected_plugin = next(item for item in collector.logical_items(items, "installed") if item["id"] == "fixture-plugin")
     assert "1.0.0" in selected_plugin["source_paths"][0]
     assert selected_plugin["selection_reason"] == "highest_non_temporary_cache_version"

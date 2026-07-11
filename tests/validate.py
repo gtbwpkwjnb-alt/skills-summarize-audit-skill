@@ -293,7 +293,7 @@ def translation_and_decision_output_contract():
                 errors.append(f"展示来源地图缺少: {token}")
 
     collector = (ROOT / "scripts" / "collect_codex_display_candidates.py").read_text(encoding="utf-8")
-    for token in ["translation_quality", "long_description_quality", "inventory_scope", "codex_plugin_manifest", "manifest_candidates", "INSTALLED_SOURCE_TYPES", "--scope", "needs_agent_refinement", "GLOSSARY_PATH"]:
+    for token in ["translation_quality", "long_description_quality", "inventory_scope", "codex_plugin_manifest", "manifest_candidates", "INSTALLED_SOURCE_TYPES", "--scope", "--visible-id", "--require-chinese", "--expect-visible-count", "untranslated_visible_items", "user_provided_visible_ui_evidence", "needs_agent_refinement", "GLOSSARY_PATH"]:
         if token not in collector:
             errors.append(f"采集器缺少翻译质量契约: {token}")
 
@@ -312,16 +312,16 @@ def audit_ui_and_skill_contract():
         return ["缺少 Audit 自身 agents/openai.yaml"]
     ui = ui_path.read_text(encoding="utf-8-sig")
     expected = {
-        "display_name": "技能审查管家",
-        "short_description": "技能翻译、项目画像与工具推荐",
-        "default_prompt": "使用 $skills-summarize-audit 对技能库做中文精炼、生成当前项目画像并给出工具推荐。",
+        "display_name": "可见技能中文导览",
+        "short_description": "可见技能中文化·项目画像·工具推荐",
+        "default_prompt": "使用 $skills-summarize-audit 仅对当前 Codex 可见技能生成中文触发词与简介。",
     }
     for key, value in expected.items():
         if f'{key}: "{value}"' not in ui:
             errors.append(f"Audit UI 元数据缺少中文 {key}")
 
     skill = (ROOT / "SKILL.md").read_text(encoding="utf-8-sig")
-    for required in ["references/report-template.md", "技能库翻译精炼", "项目画像", "技能/插件推荐", "## 边界"]:
+    for required in ["references/report-template.md", "当前 UI 可见", "--visible-id", "用户交互与反馈", "项目画像", "技能/插件推荐", "## 边界"]:
         if required not in skill:
             errors.append(f"SKILL.md 缺少当前输出规则: {required}")
     for stale in ["随后输出评分表片段", "优先输出 30 秒摘要块", "references/installation.md", "CI/CD 无交互模式"]:

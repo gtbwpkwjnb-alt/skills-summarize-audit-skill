@@ -1,4 +1,4 @@
-﻿# skills-summarize-audit v7.0.0 配置
+# skills-summarize-audit v7.1.0 配置
 # Project Skill Audit — 项目技能审计
 # 唯一配置源。scan_paths 以此文件为准。
 # platforms/zcode.yaml 仅存平台特征（归档路径等），不定义扫描路径。
@@ -309,4 +309,3 @@ community_feed:
 logging:
   enabled: false             # 仅在用户确认保存审计历史后启用
   activity_log: ".data/activity-log.jsonl"  # 每次审计/操作的 JSON Lines 日志
-

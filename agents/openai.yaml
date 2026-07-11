@@ -1,4 +1,4 @@
 interface:
-  display_name: "技能审查管家"
-  short_description: "技能翻译、项目画像与工具推荐"
-  default_prompt: "使用 $skills-summarize-audit 对技能库做中文精炼、生成当前项目画像并给出工具推荐。"
+  display_name: "可见技能中文导览"
+  short_description: "可见技能中文化·项目画像·工具推荐"
+  default_prompt: "使用 $skills-summarize-audit 仅对当前 Codex 可见技能生成中文触发词与简介。"

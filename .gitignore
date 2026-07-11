@@ -1,5 +1,2 @@
-*.json
-*.bak
-user-profile.md
-
-nul
+__pycache__/
+*.py[cod]
