@@ -80,10 +80,17 @@ def compact(value: str, limit: int) -> str:
     return value if len(value) <= limit else value[: limit - 1].rstrip() + "…"
 
 
+def substantial_chinese(value: str) -> bool:
+    """Accept source Chinese only when it is not a token-level mixed-language fragment."""
+    han_count = len(re.findall(r"[\u4e00-\u9fff]", value))
+    latin_words = re.findall(r"[A-Za-z]{3,}", value)
+    return han_count >= 3 and len(latin_words) <= 1
+
+
 def chinese_candidate(value: str, limit: int, fallback: str) -> tuple[str, str]:
     """Create a conservative candidate; unrecognized prose is flagged for agent refinement."""
     value = re.sub(r"\bUse when\b.*", "", value, flags=re.I).strip()
-    if re.search(r"[\u4e00-\u9fff]", value):
+    if substantial_chinese(value):
         return compact(value, limit), "source_chinese"
     normalized = re.sub(r"[.?!]+$", "", value).lower().strip()
     phrase = GLOSSARY["phrases"].get(normalized)
@@ -342,7 +349,7 @@ def markdown(items: list[dict], scope: str) -> str:
 
 
 def untranslated_visible_items(items: list[dict]) -> list[str]:
-    """Return visible IDs whose current command or sidebar text has no Chinese text."""
+    """Return visible IDs whose sidebar short description has no Chinese text."""
     return [
         item["id"] for item in items
         if not re.search(r"[\u4e00-\u9fff]", item["sidebar"]["original"])
@@ -359,7 +366,7 @@ def main() -> int:
     parser.add_argument("--scope", choices=("visible", "installed", "catalog", "all"), default="visible")
     parser.add_argument("--visible-id", action="append", default=[], help="A skill ID currently visible in the Codex sidebar or command palette; repeat for each visible skill.")
     parser.add_argument("--expect-visible-count", type=int, help="Require this many resolved visible IDs; use with --scope visible.")
-    parser.add_argument("--require-chinese", action="store_true", help="Fail when a visible item's current command or sidebar text has no Chinese text.")
+    parser.add_argument("--require-chinese", action="store_true", help="Fail when a visible item's sidebar short description has no Chinese text; command names remain original by design.")
     parser.add_argument("--batch-size", type=int, default=0, help="Limit the emitted scope items for P1 refinement batches.")
     parser.add_argument("--offset", type=int, default=0, help="Zero-based offset used with --batch-size.")
     args = parser.parse_args()

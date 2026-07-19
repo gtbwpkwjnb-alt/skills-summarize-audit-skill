@@ -51,6 +51,9 @@ def main():
     assert by_type["remote_plugin_catalog"]["translation_quality"] == "ready"
     assert by_type["remote_plugin_catalog"]["long_description_quality"] == "ready"
     assert by_type["remote_plugin_catalog"]["sidebar"]["long_original"] == "Build dashboards for product metrics."
+    mixed_candidate, mixed_method = collector.chinese_candidate("Build 中 dashboard", collector.SHORT_MAX, "fixture")
+    assert mixed_method == "glossary_partial_needs_refinement"
+    assert mixed_candidate != "Build 中 dashboard"
     summary = collector.inventory_summary(items)
     assert by_type["codex_plugin_manifest"]["command_palette"]["display_name"] == by_type["codex_plugin_manifest"]["command_palette"]["original"]
     assert by_type["codex_plugin_manifest"]["sidebar"]["short_description"] == "创建可复用工件模板"

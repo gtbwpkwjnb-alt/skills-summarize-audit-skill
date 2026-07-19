@@ -1,4 +1,4 @@
-# Actions JSON Schema — Skills-Summarize-Audit v7.1.0
+# Actions JSON Schema — Skills-Summarize-Audit v8.0.0
 
 > 对接 Skills Manager（xingkongliang 桌面应用）的桥梁格式。
 > 步骤⑦执行时输出，Skills Manager 读取并执行操作。

@@ -1,11 +1,14 @@
-# skills-summarize-audit v7.1.0 配置
-# Project Skill Audit — 项目技能审计
+# skills-summarize-audit v8.0.0 配置
+# Project Skill Audit — 项目技能审计（加强大脑版）
 # 唯一配置源。scan_paths 以此文件为准。
 # platforms/zcode.yaml 仅存平台特征（归档路径等），不定义扫描路径。
 #
-# ⚠️ 触发词权威来源：SKILL.md 触发词矩阵（第 31-41 行）。
+# ⚠️ 触发词权威来源：SKILL.md 触发词矩阵。
 # platforms/*.yaml 不定义扫描路径，也不重复定义触发词，仅保留平台特征（归档路径、Agent 模型约束等）。
 # 同步规则：修改触发词 → 仅需更新 SKILL.md。
+#
+# v8.0.0 加强大脑：新增 9 个 references 知识库（指纹/市场/TQI/冲突/体检/推荐/生命周期）
+# 仍保持"只读 + 不动手"底线；输出可执行指令模板由用户的 Agent 执行。
 
 # 运行时数据目录（v5.9.2 治理）：所有缓存/日志/统计文件统一放 .data/，避免与源码混在一起
 data_dir: "$SKILL_DIR/.data"
@@ -128,6 +131,26 @@ translation_refinement:
   glossary: "$SKILL_DIR/references/codex-ui-zh-glossary.json"
   target_language: "zh-Hans"
   require_quality_status: true
+  # v8.0.0：TQI 四维评分（translation-quality.md）
+  tqi:
+    enabled: true
+    weights:
+      term_preservation: 0.30   # 术语保护率
+      trigger_match: 0.30       # 触发词命中率
+      length_compliance: 0.20   # 长度合规
+      source_consistency: 0.20  # 同源一致性
+    thresholds:
+      ready: 8.0                # ≥8 → ready
+      needs_minor: 6.0          # 6-7.9 → needs_minor
+      needs_agent_refinement: 4.0  # 4-5.9 → needs_agent_refinement
+      untranslatable: 0         # <4 → untranslatable
+    # v8.0.0：自学习（用户确认翻译后扩充 glossary）
+    auto_learn:
+      enabled: true
+      store_in: "codex-ui-zh-glossary.json#learned_phrases"
+      require_explicit_confirmation: true
+      min_tqi_to_learn: 8.0     # TQI ≥ 8 才学习
+      log_file: ".data/glossary-learn-log.jsonl"
   offline_engine:
     enabled: false
     name: "argos-translate"
@@ -309,3 +332,194 @@ community_feed:
 logging:
   enabled: false             # 仅在用户确认保存审计历史后启用
   activity_log: ".data/activity-log.jsonl"  # 每次审计/操作的 JSON Lines 日志
+
+# ============================================================================
+# v8.0.0 加强大脑 — 新增配置块
+# ============================================================================
+
+# 项目画像：技术指纹（references/tech-fingerprints.yaml）
+project_fingerprints:
+  enabled: true
+  fingerprints_file: "$SKILL_DIR/references/tech-fingerprints.yaml"
+  # 指纹库覆盖范围（80+ 技术，参考 specfy/stack-analyser 700+ 精选）
+  categories:
+    - frontend           # React/Vue/Angular/Svelte/Next.js/Nuxt/Remix/Astro
+    - backend            # Express/Fastify/NestJS/Django/Flask/FastAPI/Spring Boot/Rails
+    - mobile             # React Native/Flutter/Android/iOS
+    - desktop            # Electron/Tauri/Qt
+    - database           # PostgreSQL/MySQL/SQLite/MongoDB/Redis/Prisma/SQLAlchemy
+    - devops             # Docker/K8s/Terraform/Ansible
+    - ci                 # GitHub Actions/GitLab CI/CircleCI/Jenkins
+    - paas               # Vercel/Netlify/Cloudflare Workers
+    - ai_ml              # PyTorch/TensorFlow/Transformers/LangChain
+    - language           # TypeScript/Python/Go/Rust/Java/Kotlin/Swift/Ruby/PHP
+    - tooling            # Vite/Webpack/esbuild/Rollup/ESLint/Prettier/Ruff/pytest
+    - agent              # Claude Skill/MCP Server/Codex Plugin/ZCode Plugin
+    - docs               # MkDocs/Docusaurus/VitePress/Docsify
+  # CodeGraph 联动（如已启用）
+  codegraph_integration:
+    enabled: true
+    command: "codegraph"
+    fallback_when_unavailable: "降级为文件特征匹配"
+  # 画像趋势追踪
+  trend_tracking:
+    history_file: ".data/project-profile-history.jsonl"
+    max_history_entries: 52  # 保留近 52 次画像
+
+# 市场抓取（references/mcp-marketplaces.md + skill-marketplaces.md）
+# ⚠️ 默认关闭；用户授权后由用户的 Agent 按 URL 模板抓取，Audit 不直接发请求
+market_discovery:
+  enabled: false  # 永远 false；触发词授权后由 agent 抓取
+  
+  mcp_marketplaces:
+    - name: "Glama"
+      url: "https://glama.ai/mcp/servers"
+      api_url: "https://glama.ai/mcp/servers/@v1/servers"
+      weight: 0.35  # 数据源权重
+      features: ["quality_score", "safety_grade", "maintainer_verified"]
+    - name: "Smithery"
+      url: "https://smithery.ai"
+      api_url: "https://registry.smithery.ai/v1/servers"
+      weight: 0.25
+      features: ["install_count", "stars"]
+    - name: "MCP Official Registry"
+      url: "https://registry.modelcontextprotocol.io/"
+      api_url: "https://registry.modelcontextprotocol.io/v0/servers"
+      weight: 0.20
+      features: ["official"]
+    - name: "MCP Toplist"
+      url: "https://mcptoplist.com"
+      api_url: "https://mcptoplist.com/api/toplist"
+      weight: 0.20
+      features: ["aggregated_ranking"]
+  
+  skill_marketplaces:
+    - name: "Skills Directory"
+      url: "https://www.skillsdirectory.com/"
+      api_url: "https://www.skillsdirectory.com/api/registry"
+      weight: 0.40
+      features: ["security_grade", "50_plus_detection_rules"]
+    - name: "SkillRegistry.io"
+      url: "https://skillregistry.io/"
+      api_url: "https://skillregistry.io/api/skills"
+      weight: 0.25
+      features: ["cross_platform"]
+    - name: "csreg.nexus"
+      url: "https://www.csreg.nexus/"
+      api_url: "https://www.csreg.nexus/api/skills"
+      weight: 0.20
+      features: ["versioning", "team_sharing"]
+    - name: "Anthropic Skills"
+      url: "https://claude.com/skills"
+      api_url: ""  # 官方页面，无 API
+      weight: 0.15
+      features: ["official"]
+  
+  # 缓存（agent 抓取后存这里，Audit 读取）
+  cache:
+    enabled: true
+    cache_dir: ".data/market-cache/"
+    mcp_ttl_days: 7
+    skill_ttl_days: 14
+    max_entries: 1000
+
+# 健康度主动体检（references/health-checklist.md）
+health_checkup:
+  enabled: true
+  dimensions:
+    existence: 0.15
+    metadata: 0.10        # 联动 TQI
+    dependency: 0.20      # 联动 liveness_check
+    usage: 0.15           # 联动 quality_signals error-ledger
+    version: 0.10
+    trigger: 0.10         # 联动 conflict_detection
+    security: 0.15        # 联动 security_scan
+    consistency: 0.05     # 跨平台一致
+  # 综合健康分阈值
+  thresholds:
+    excellent: 8.0        # 🟢
+    good: 6.0             # 🟡
+    needs_improvement: 4.0  # 🟠
+    dangerous: 0          # 🔴
+  # 增量 vs 全量
+  modes:
+    full:
+      triggers: ["技能体检", "技能体检 深度", "skill checkup"]
+      scope: "all_visible"
+    quick:
+      triggers: ["技能体检 快速"]
+      skip_dimensions: ["usage", "version", "security"]
+    incremental:
+      triggers: ["新增技能", "修改 description"]
+      scope: "affected_only"
+    targeted:
+      triggers: ["体检 <skill-name>"]
+      scope: "single"
+  # 定时检查（参考 Dependabot）
+  scheduled:
+    enabled: false        # 默认关闭；用户在 AGENTS.md 配置
+    interval_days: 30
+    notify_on_critical: true
+
+# 触发词冲突检测（references/conflict-detection.md）
+conflict_detection:
+  enabled: true
+  thresholds:
+    high: 0.7          # 🔴 同义词冲突
+    medium: 0.5        # 🟠 范围重叠
+    low: 0.3           # 🟡 轻度相似
+  # 同义词表（同源 codex-ui-zh-glossary.json 的扩展）
+  synonyms_file: "$SKILL_DIR/references/conflict-detection.md"
+  # 豁免清单
+  exemptions_file: ".data/conflict-exemptions.json"
+  # 检测模式
+  modes:
+    full: "全量两两"
+    incremental: "仅新增/修改"
+    targeted: "指定技能对"
+
+# 推荐引擎（references/recommendation-framework.md）
+recommendation:
+  enabled: true
+  # 五档输出（取代 v7.1.0 四档）
+  levels: ["保留", "升级", "替换", "引入", "共存", "归档"]
+  # 候选评估维度
+  evaluation:
+    skill_health_dimensions: 7  # 见 skill-marketplaces.md
+    mcp_health_dimensions: 6    # 见 mcp-marketplaces.md
+  # 互补分析
+  relationship:
+    supersede_threshold: 0.7    # overlap_ratio ≥ 0.7 + avg_lead ≥ 2
+    complement_threshold: 0.3   # overlap_ratio ≤ 0.3 + 各有独占
+    supplement_threshold: 0.5   # 0.3-0.7 + avg_lead ≥ 1
+  # 组合套餐
+  combo:
+    enabled: true
+    max_combo_size: 5           # 单套餐最多工具数
+    coverage_target: 0.9        # 套餐覆盖需求的比例
+  # 可达性反推（参考 Safeguard reachability）
+  reachability:
+    enabled: true
+    history_window_days: 14     # 看用户最近 14 天会话
+    weight: 0.30                # 信心加权 30%
+  # 信心阈值
+  confidence_thresholds:
+    strongly_recommended: 8.0
+    recommended: 6.0
+    consider: 4.0
+
+# 生命周期指导（references/lifecycle-guidance.md）
+lifecycle_guidance:
+  enabled: true
+  templates: ["A_install", "B_upgrade", "C_uninstall", "D_archive",
+              "E_enable_disable", "F_migrate", "G_rename", "H_sync", "I_rollback"]
+  # 快照要求
+  snapshot:
+    required_for: ["C_uninstall", "B_upgrade", "F_migrate", "G_rename"]
+    snapshot_dir: ".audit-snapshots/"
+    retention_days: 30
+  # 高风险操作必须二次确认
+  high_risk:
+    - "C_uninstall"
+    - "F_migrate"
+  require_double_confirm: true

@@ -1,4 +1,4 @@
-# Skills-Summarize-Audit v7.1.0
+# Skills-Summarize-Audit v8.0.0
 
 技能库翻译精炼、项目画像与工具推荐。默认只读，不把 Audit 扩展为安装、发布、配置、迁移或历史清理总管。
 

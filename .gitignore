@@ -1,2 +1,19 @@
+# Python
 __pycache__/
 *.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# 运行时数据（v8.0.0 治理）
+.data/
+nul
+self-audit-issues.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# 快照（不应提交）
+.audit-snapshots/

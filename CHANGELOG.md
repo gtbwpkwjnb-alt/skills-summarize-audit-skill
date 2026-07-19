@@ -4,6 +4,49 @@ All notable changes to the skills-summarize-audit skill.
 
 ---
 
+## [8.0.0] - 2026-07-19
+
+### Summary
+**加强大脑，不动手**：扩充 9 个 references 知识库，把"被动响应、静态规则、四档建议"升级为"主动体检、80+ 指纹、五档推荐、九大生命周期模板"。保持 v7.1.0 只读底线，所有写入操作仍由用户的 Agent 按 Audit 输出的指令模板执行。
+
+### Changed
+- **职责重新定位**：从"翻译/画像/推荐器"升级为"AI Agent 技能管家大脑"。仍只读，但输出更密集、更可执行。
+- **触发词扩展**：新增 `技能体检`/`skill checkup`/`僵尸技能`/`过期检查`/`触发词冲突`/`指导安装/升级/卸载/迁移` 等定向触发词。
+- **推荐输出**：四档（保留/观察/考虑引入/不建议）→ 五档（保留/升级/替换/引入/共存/归档），新增"组合套餐"与"可达性反推"。
+
+### Added（9 个新 references 知识库）
+- **`references/tech-fingerprints.yaml`**：80+ 技术指纹（前端/后端/移动/桌面/DB/DevOps/AI/语言/工具/Agent 生态/文档），参考 specfy/stack-analyser 700+ 精选。覆盖 React/Vue/Next.js/Django/FastAPI/PyTorch/Docker/K8s 等。
+- **`references/mcp-marketplaces.md`**：MCP 市场目录（Glama/Smithery/官方 Registry/MCP Toplist）+ 六维健康分评估框架 + URL 模板供用户的 Agent 抓取。
+- **`references/skill-marketplaces.md`**：技能市场目录（Skills Directory/SkillRegistry/csreg/Skill CLI）+ 七维健康分 + 跨平台一致性检查规则。
+- **`references/translation-quality.md`**：TQI 四维评分（术语保护 30% + 触发词命中 30% + 长度合规 20% + 同源一致 20%）+ 自学习规则。
+- **`references/conflict-detection.md`**：触发词冲突检测（同义词/包含/范围/格式/过宽五大类型）+ 豁免机制 + 增量检测。
+- **`references/health-checklist.md`**：八大健康维度（存在性/元数据/依赖/使用/版本/触发词/安全/跨平台）+ 综合健康分 0–10。
+- **`references/recommendation-framework.md`**：五档推荐 + 互补性分析（替代/共存/补充/无关）+ 组合套餐算法（贪心集合覆盖）+ 可达性反推（参考 Safeguard reachability）+ 信心指数六因子。
+- **`references/lifecycle-guidance.md`**：九大生命周期模板 A-I（安装/升级/卸载/归档/启用禁用/迁移/重命名/同步/回滚），每个含"前置检查 + 快照 + 主操作 + 验证 + 风险 + 回滚"。
+
+### Research（业界轮子对照）
+- **`specfy/stack-analyser` ⭐416**：700+ 技术指纹 → 精选 80+，避免手维护 project-types.yaml
+- **`OpenSSF Scorecard`**：18 项检查透明权重 → health-checklist.md 八维
+- **`npms.io`**：quality 35% + popularity 25% + maintenance 40% → 健康分公式参考
+- **`Skills Directory`**：50+ 安全规则 + A/B/C 评级 → 候选库安全维度
+- **`Glama`**：10,000+ maintainer-verified MCP + 质量分 → MCP 市场首选
+- **`Safeguard`**：reachability analysis → recommendation-framework.md 可达性反推
+- **`Dependabot/Renovate`**：定时扫描 + 自动 PR → health-checklist.md 定时检查
+- **`Skill CLI (skillsdir.dev)`**：包管理体验 → lifecycle-guidance.md 模板规范
+- **`OpenSSF dependency depth`**：依赖深度惩罚 → 健康分"依赖深度"维度
+
+### Compatibility
+- **向下兼容**：v7.1.0 的 collect_codex_display_candidates.py 输出字段保留；translation_quality 字段值映射（ready → TQI ≥ 8）。
+- **触发词兼容**：v7.1.0 的所有触发词仍然有效；新增触发词不冲突。
+- **配置兼容**：v7.1.0 的 config.yaml 字段全部保留；新增字段默认值不破坏现有行为。
+
+### Boundary
+- 仍保持"默认只读"底线；不直接执行写入/安装/卸载。
+- 所有候选评估的市场数据抓取由用户的 Agent 按 URL 模板执行。
+- 仍要求用户明确授权才进行联网查询。
+
+---
+
 ## [7.1.0] - 2026-07-11
 
 ### Changed

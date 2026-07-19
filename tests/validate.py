@@ -313,7 +313,7 @@ def audit_ui_and_skill_contract():
     ui = ui_path.read_text(encoding="utf-8-sig")
     expected = {
         "display_name": "可见技能中文导览",
-        "short_description": "可见技能中文化·项目画像·工具推荐",
+        "short_description": "面向当前可见技能的中文化、项目画像及能力缺口分析推荐",
         "default_prompt": "使用 $skills-summarize-audit 仅对当前 Codex 可见技能生成中文触发词与简介。",
     }
     for key, value in expected.items():
