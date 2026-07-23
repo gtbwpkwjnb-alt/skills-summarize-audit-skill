@@ -1,4 +1,4 @@
-# skills-summarize-audit v8.2.2 配置
+# skills-summarize-audit v8.2.3 配置
 # Project Skill Audit — 项目技能审计（加强大脑版）
 # 唯一配置源。scan_paths 以此文件为准。
 # platforms/zcode.yaml 仅存平台特征（归档路径等），不定义扫描路径。
@@ -238,17 +238,8 @@ health_thresholds:
     cursor:
       max_total_skills: 50
 
-# 趋势追踪（v5.9.1 新增）— 历史快照对比
-trend_tracking:
-  enabled: false            # 仅在用户确认保存历史后启用
-  max_snapshots: 52           # 保留近 52 次审计（约一年，按周审计）
-  snapshot_file: ".data/stats.json" # 与 liveness_check 共用
-
-# 容量分析（v5.9.1 多因子有效容量）
-capacity_analysis:
-  use_effective_capacity: true    # 启用多因子有效容量计算
-  cognition_multiplier: 2.0       # 认知容量 = activity_count × 此值
-  conflict_penalty: 0.3           # 冲突因子 = 1 - (contamination均分/5 × 此值)
+# trend_tracking 已移至 references/config-candidates.md（未生效候选）
+# capacity_analysis 已移至 references/config-candidates.md（未生效候选）
 
 # CI/CD 无交互模式（v5.8.0 新增）
 ci:

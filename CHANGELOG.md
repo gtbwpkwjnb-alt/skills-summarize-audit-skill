@@ -4,6 +4,12 @@ All notable changes to the skills-summarize-audit skill.
 
 ---
 
+## [8.2.3] - 2026-07-23
+
+- config.yaml 瘦身：trend_tracking（默认关闭、无消费者）与 capacity_analysis（唯一消费者为已归档的 .archived/flow-v7/02-bis-capacity.md）移至 references/config-candidates.md，原位留指针注释；community_feed 与 dev_search_policy 因 security-rules.yaml 现行依赖保留不动。
+- config.yaml 与 user-profile.md 行尾统一为 LF（仓库无 .gitattributes，core.autocrlf=true，入库 LF 约定），内容不变。
+- SKILL.md 触发节新增与 summarize 技能的分工声明：文本压缩/摘要属 summarize，本技能只做技能库审查、翻译精炼、项目画像与推荐。
+
 ## [8.2.2] - 2026-07-23
 
 - config.yaml 顶部注明本文件为 Agent 行为约定配置、无脚本消费，并在 translation_refinement 块补 collect 脚本声明，三个脚本均有 script 声明。
