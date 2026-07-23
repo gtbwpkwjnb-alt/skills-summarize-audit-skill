@@ -281,7 +281,7 @@ def incremental_detection(new_skill, all_skills):
 ### 新增 Phase：在 ⑥ 报告后追加
 
 ```yaml
-# 在 references/flow/ 增加一步 ⑥-f
+# 注：references/flow/ 已于 v8.2.1 归档至 references/.archived/flow-v7/，此过时 TODO 不再适用
 phase: "⑥-f 冲突检测"
 trigger:
   - 全量审计时

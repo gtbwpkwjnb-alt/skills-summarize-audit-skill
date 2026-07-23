@@ -15,6 +15,8 @@
     "review pull request comments": "审查拉取请求评论",
     "create and edit documents": "创建与编辑文档"
   },
+  "learned_phrases": {},
+  "learned_overrides": {},
   "skill_overrides": {
     "imagegen": {"display_name": "图像生成", "short_description": "为网站、游戏等生成或编辑图像"},
     "openai-docs": {"display_name": "OpenAI 文档", "short_description": "查询 OpenAI 文档、Codex 自身知识与模型迁移指南"},

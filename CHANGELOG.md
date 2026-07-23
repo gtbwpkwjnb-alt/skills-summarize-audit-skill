@@ -4,6 +4,13 @@ All notable changes to the skills-summarize-audit skill.
 
 ---
 
+## [8.2.1] - 2026-07-23
+
+- 归档 v7 阶段式旧流程 references/flow/ 至 references/.archived/flow-v7/，消除与只读底线矛盾的写入流程误导。
+- 修复 analyze_project_profile.py PyYAML 硬依赖：缺失时优雅降级输出 unavailable，新增 requirements.txt 与 README 环境依赖说明；相关测试与 validate 画像门禁在缺依赖时跳过。
+- 兑现翻译自学习存储段：glossary 增加 learned_phrases/learned_overrides 空段，创建 .data/glossary-learn-log.jsonl。
+- 清理根目录误生成的 nul 文件与空目录残留。
+
 ## [8.2.0] - 2026-07-23
 
 - 将 `installed`/`visible` 审查绑定到 `config.toml` 插件登记和远程安装回执；缓存、市场目录和未安装残留不再静默视为已安装。

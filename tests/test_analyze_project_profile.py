@@ -14,6 +14,10 @@ module = importlib.util.module_from_spec(spec)
 assert spec and spec.loader
 spec.loader.exec_module(module)
 
+if module.yaml is None:
+    print(json.dumps({"result": "skipped", "reason": "PyYAML not installed", "remediation": "pip install pyyaml"}, ensure_ascii=False))
+    raise SystemExit(0)
+
 
 def main() -> None:
     project = Path(tempfile.mkdtemp(prefix="project-profile-"))

@@ -1,10 +1,11 @@
 # 测试：8 维权重和
 
-> 验证 `references/flow/04-scoring.md` 中 8 维权重之和为 100%。
+> 验证 `references/.archived/flow-v7/04-scoring.md` 中 8 维权重之和为 100%。
+> 注：v7 阶段式旧流程已于 v8.2.1 归档至 `references/.archived/flow-v7/`（见 `references/.archived/README.md`）。
 
 ## 输入
 
-读取 `references/flow/04-scoring.md` 权重表与公式。
+读取 `references/.archived/flow-v7/04-scoring.md` 权重表与公式。
 
 ## 预期输出
 

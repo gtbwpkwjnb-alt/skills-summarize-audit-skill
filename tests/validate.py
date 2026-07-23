@@ -86,7 +86,7 @@ def registry_self_version():
 
 def weight_sum():
     """8维权重和 = 100%"""
-    c = (ROOT / "references" / "flow" / "04-scoring.md").read_text(encoding="utf-8")
+    c = (ROOT / "references" / ".archived" / "flow-v7" / "04-scoring.md").read_text(encoding="utf-8")
     m = re.search(r"综合\s*=\s*(.+?)(?:\n|$)", c)
     if not m:
         return 0.0
@@ -158,7 +158,7 @@ def platform_compliance():
 def flow_format():
     """flow 文件无单引号多行代码块"""
     errors = []
-    for f in (ROOT / "references" / "flow").glob("*.md"):
+    for f in (ROOT / "references" / ".archived" / "flow-v7").glob("*.md"):
         lines = f.read_text(encoding="utf-8").splitlines()
         for i, line in enumerate(lines, 1):
             if line.strip() == "`":
@@ -189,8 +189,8 @@ def release_contract():
         errors.append("缺少项目/全局作用域配置")
 
     required = [
-        ROOT / "references" / "flow" / "05-ab-github-comparison.md",
-        ROOT / "references" / "flow" / "05-c-scope-decision.md",
+        ROOT / "references" / ".archived" / "flow-v7" / "05-ab-github-comparison.md",
+        ROOT / "references" / ".archived" / "flow-v7" / "05-c-scope-decision.md",
         ROOT / "references" / "release-checklist.md",
         ROOT / "references" / "output-contract.md",
     ]
@@ -421,10 +421,13 @@ def main():
     results.append(("技能/插件问题审查门禁", ok, errs or ["OK"]))
 
     # 4c. Project profile scanner
-    errs = project_profile_contract()
-    ok = not errs
-    failed |= not ok
-    results.append(("项目画像扫描门禁", ok, errs or ["OK"]))
+    if HAS_YAML:
+        errs = project_profile_contract()
+        ok = not errs
+        failed |= not ok
+        results.append(("项目画像扫描门禁", ok, errs or ["OK"]))
+    else:
+        results.append(("项目画像扫描门禁", True, ["PyYAML 未安装，门禁跳过/降级（pip install -r requirements.txt）"]))
 
     # 5. Translation quality and concise decision report
     errs = translation_and_decision_output_contract()

@@ -1,4 +1,4 @@
-# Skills-Summarize-Audit v8.2.0
+# Skills-Summarize-Audit v8.2.1
 
 已安装技能与插件问题审查、版本/可用性核验、用户画像定位与评分、冲突/互补分析、技能翻译精炼、项目画像与工具推荐。默认只读，不负责安装、更新、发布、配置、迁移或历史清理。
 
@@ -36,3 +36,8 @@
 python tests/validate.py --strict
 python tests/test_collect_codex_display_candidates.py
 ```
+
+## 环境依赖
+
+- `scripts/analyze_project_profile.py` 需要 PyYAML：`pip install -r requirements.txt`。缺失时脚本不再直接崩溃，而是以退出码 2 输出 `unavailable` 降级信息，相关测试与 validate 的项目画像门禁自动跳过。
+- `scripts/collect_codex_display_candidates.py` 与 `scripts/audit_skill_plugin_issues.py` 仅需标准库 + `tomllib`（要求 Python ≥ 3.11）；PyYAML 对 collect 脚本为可选依赖，缺失时自动降级。

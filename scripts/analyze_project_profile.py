@@ -6,12 +6,13 @@ import argparse
 import json
 import os
 import re
+import sys
 from pathlib import Path
 
 try:
     import yaml
-except ImportError as exc:  # pragma: no cover - exercised by environment setup
-    raise SystemExit("PyYAML is required for project profile scanning") from exc
+except ImportError:  # 优雅降级：缺少 PyYAML 时主入口输出 unavailable 并以退出码 2 退出
+    yaml = None
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -171,6 +172,12 @@ def main() -> int:
     parser.add_argument("--max-depth", type=int, default=10)
     parser.add_argument("--json", action="store_true", dest="as_json")
     args = parser.parse_args()
+    if yaml is None:
+        if args.as_json:
+            print(json.dumps({"status": "unavailable", "reason": "PyYAML not installed", "remediation": "pip install pyyaml"}, ensure_ascii=False, indent=2))
+        else:
+            print("错误：缺少 PyYAML 依赖，无法加载 YAML 技术指纹文件。请运行 pip install -r requirements.txt 后重试。", file=sys.stderr)
+        return 2
     report = detect(args.project, args.max_files, args.max_depth)
     if args.as_json:
         print(json.dumps(report, ensure_ascii=False, indent=2))
