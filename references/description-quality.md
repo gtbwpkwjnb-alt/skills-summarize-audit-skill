@@ -124,3 +124,38 @@
 2. 用 Forma 4 项规则评分
 3. 不合格时在报告中输出"⚠️ 自检：审计技能自身描述不合格 → 建议修正" 
 4. 自动生成修正候选，不得绕过 description 写入确认门禁
+
+---
+
+## Forma 格式分规则（v8.2.2 合并自 description-refinement.md）
+
+> 以下来自已删除的 `references/description-refinement.md`（v7 时代 Forma 格式分规则，原仅被已归档的 `.archived/flow-v7/06-d` 引用），其独特内容（Forma 维度、权重、阈值）合并于此，作为 Forma 维度的唯一事实源。
+
+### Forma 四项检查规则
+
+| 检查项 | 合格标准 | 不合格示例 |
+|:-------|:---------|:-----------|
+| **格式规范** | `主题 → 功能1·功能2·功能3` 箭头短语 | 完整句子、纯段落 |
+| **语言一致性** | 全中文（标准缩写除外） | 中英混搭、整段英文 |
+| **长度合规** | 单侧 ≤40 字符 | 超长描述含使用说明 |
+| **信息密度** | 纯功能短语，无杂质 | 含触发条件、使用说明、版本号 |
+
+### 标准缩写白名单
+
+```
+MCP  TDD  PR  TS  Python  API  Git  JSON  CLI  IDE
+ACP  DOCX  iOS  AI  URL  SSH  HTTP  SSL  SQL
+```
+
+### Forma 权重与阈值
+
+- 权重（唯一权威：`config.yaml` 的 `forma_check.weights`）：format_style 0.40 / language_consistency 0.30 / length_limit 0.20 / info_density 0.10。
+- 报告阈值：Forma < 6.0 → 在报告中标记为"需优化"（`config.yaml` 的 `forma_check.threshold`）。
+
+### Forma 评分等级
+
+| Forma 分 | 等级 | 处理方式 |
+|:---------|:-----|:---------|
+| 10/10 | ✅ 合格 | 跳过 |
+| 6-9/10 | ⚠️ 微调 | 自动精炼 |
+| 0-5/10 | 🔴 需重写 | 按标准重写 |

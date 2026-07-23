@@ -1,4 +1,6 @@
-# Report Template — Skills-Summarize-Audit v8.2.0
+# Report Template — Skills-Summarize-Audit v8.2.2
+
+事实状态（observed/inferred/estimated/unavailable）遵循 `references/output-contract.md`。
 
 只输出本次请求涉及的区块。报告采用“先结论、后行动、再证据”的阅读顺序：每个结论标注 `observed`、`inferred`、`estimated` 或 `unavailable`；默认只读。不要用全量技能表、逐项健康分或 `info` 提示占据首屏。
 

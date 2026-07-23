@@ -1,11 +1,11 @@
 ---
 name: skills-summarize-audit
-description: 面向中文用户，审查当前已安装技能与插件的问题、来源、版本、可用性和元数据，并结合用户画像定位、评分、检测触发冲突与能力互补；同时支持可见技能中文翻译精炼、项目画像和技能推荐。用于”技能审查””技能问题审查””插件问题审查””技能翻译精炼””项目画像””技能推荐””技能体检”等独立请求；默认只读，不安装、更新、发布、迁移、清理或修改配置。
+description: 面向中文用户，审查当前已安装技能与插件的问题、来源、版本、可用性和元数据，并结合用户画像定位、评分、检测触发冲突与能力互补；同时支持可见技能中文翻译精炼、项目画像和技能推荐。用于“技能审查”“技能问题审查”“插件问题审查”“技能翻译精炼”“项目画像”“技能推荐”“技能体检”等独立请求；默认只读，不安装、更新、发布、迁移、清理或修改配置。
 ---
 
 # Skills-Summarize-Audit
 
-> Version: 8.2.1
+> Version: 8.2.2
 
 核心能力：已安装技能/插件问题审查、用户画像定位与评分、冲突/互补分析、可见技能翻译精炼、项目画像和技能/插件推荐。先明确证据，再输出结论与处理方案；默认只读。
 v8.2.0：在上述核心能力上补齐真实插件安装证据、缓存/远程回执边界、可见翻译一次完成门禁、项目画像规则执行和可解释冲突/互补判定；使用结构化 Codex session/tool-call 事件作为使用证据。
@@ -22,7 +22,7 @@ v8.2.0：在上述核心能力上补齐真实插件安装证据、缓存/远程�
 - `技能问题审查`、`插件问题审查`、`审查技能插件`、`技能/插件问题`：扫描已安装技能与插件的来源、版本、元数据、可用性和缓存/manifest 问题，输出严重度、证据和处理方案。
 - `技能翻译精炼`、`描述精炼`、`技能审查 精炼`：只生成展示文案和 description 的中文候选，按 `references/translation-quality.md` 的 TQI 四维评分输出。
 - `项目画像`、`项目审查`：扫描当前项目，按 `references/tech-fingerprints.yaml` 识别 80+ 技术，输出技术栈、工作流和能力缺口。
-- `技能推荐`、`插件推荐`、`技能审查 推荐`：按 `references/recommendation-framework.md` 五档输出（保留/升级/替换/引入/共存/归档），联动 `references/mcp-marketplaces.md` 与 `references/skill-marketplaces.md` 候选库。
+- `技能推荐`、`插件推荐`、`技能审查 推荐`：按 `references/recommendation-framework.md` 六档输出（保留/升级/替换/引入/共存/归档），联动 `references/mcp-marketplaces.md` 与 `references/skill-marketplaces.md` 候选库。
 - `技能体检`、`skill checkup`：按 `references/health-checklist.md` 八大维度主动健康扫描。
 - `僵尸技能`、`过期检查`、`触发词冲突`：定向检查（联动 `references/conflict-detection.md`）。
 - `指导安装/升级/卸载/迁移/重命名`：按 `references/lifecycle-guidance.md` 输出九大模板对应的可执行指令。
@@ -94,7 +94,7 @@ v8.2.0：在上述核心能力上补齐真实插件安装证据、缓存/远程�
 
 ## 能力三：推荐
 
-1. 以翻译清单或项目画像发现的具体缺口为输入，按 `references/recommendation-framework.md` 五档输出：`保留`、`升级`、`替换`、`引入`、`共存`、`归档`。
+1. 以翻译清单或项目画像发现的具体缺口为输入，按 `references/recommendation-framework.md` 六档输出：`保留`、`升级`、`替换`、`引入`、`共存`、`归档`。
 2. 候选来源：
    - `references/mcp-marketplaces.md`：MCP 候选库（firecrawl/playwright/tavily 等）+ 六维健康分评估框架
    - `references/skill-marketplaces.md`：技能候选库 + 七维健康分 + 跨平台一致性
@@ -127,7 +127,7 @@ v8.2.0：在上述核心能力上补齐真实插件安装证据、缓存/远程�
 
 ## 输出
 
-按 `references/execution-flow.md` 和 `references/report-template.md` 输出。常规报告固定采用“先结论、后行动、再证据”的层级：
+按 `references/execution-flow.md` 和 `references/report-template.md` 输出；事实状态（observed/inferred/estimated/unavailable）契约见 `references/output-contract.md`。常规报告固定采用“先结论、后行动、再证据”的层级：
 
 1. 首屏只给范围、证据覆盖、一眼结论和 critical/warning 数；随后以表格展示 system/global/runtime/插件来源组、安装项数、低适用项和推断的上下文压力。
 2. 健康分、适用度、使用频率和上下文压力必须分开说明：健康分只反映来源/元数据/版本，适用度只反映画像匹配，使用频率只能来自可归因 session/tool-call 事件，上下文压力仅为安装项数量推断，不能当作 token 实测值。
@@ -159,7 +159,7 @@ v8.2.0：在上述核心能力上补齐真实插件安装证据、缓存/远程�
 | `references/translation-quality.md` | TQI 四维评分（术语保护/触发词/长度/同源）+ 自学习规则 | 翻译精炼 |
 | `references/conflict-detection.md` | 触发词冲突检测（同义词/包含/范围/格式/过宽）+ 豁免机制 | 体检 / 推荐 |
 | `references/health-checklist.md` | 八大健康维度 + 主动体检 + 综合健康分 | 技能体检 |
-| `references/recommendation-framework.md` | 五档推荐 + 互补分析 + 组合套餐 + 可达性反推 + 信心指数 | 推荐 |
+| `references/recommendation-framework.md` | 六档推荐 + 互补分析 + 组合套餐 + 可达性反推 + 信心指数 | 推荐 |
 | `references/skill-plugin-issue-audit.md` | 已安装技能/插件问题代码、严重度、证据与处理方案 | 技能问题审查 / 插件问题审查 |
 | `references/lifecycle-guidance.md` | 九大模板（安装/升级/卸载/归档/启用/迁移/重命名/同步/回滚） | 任何变更建议 |
 

@@ -50,8 +50,7 @@ marketplace:
   min_workbuddy_version: "1.0.0"
   # 依赖声明
   dependencies: []
-  # 权限声明
+  # 权限声明（只读底线：不声明 write 权限）
   permissions:
     - "read"   # 读取项目文件
-    - "write"  # 写入画像、日志、缓存（均在技能目录内）
     - "web"    # WebFetch 获取外部信号

@@ -4,6 +4,17 @@ All notable changes to the skills-summarize-audit skill.
 
 ---
 
+## [8.2.2] - 2026-07-23
+
+- config.yaml 顶部注明本文件为 Agent 行为约定配置、无脚本消费，并在 translation_refinement 块补 collect 脚本声明，三个脚本均有 script 声明。
+- platforms/workbuddy.yaml 移除与只读底线矛盾的 write 权限；新增 platforms/README.md 说明平台文件仅记录平台特征、无脚本消费。
+- 推荐档位术语统一为六档（保留/升级/替换/引入/共存/归档），修正 SKILL.md、config.yaml 注释与 recommendation-framework.md 中的"五档"误述。
+- 合并 references/description-refinement.md 的 Forma 维度/权重/阈值至 description-quality.md 并删除原文件，消除双份事实源。
+- SKILL.md 输出节与 report-template.md 接入 references/output-contract.md 事实状态契约引用。
+- README 新增「脚本参数」一节，文档化三个脚本的 argparse 参数（含 --batch-size/--offset/--fail-on/--profile/--max-files/--max-depth 与各目录参数）。
+- agents/openai.yaml 增加顶层 version 字段并纳入 tests/validate.py 版本一致性门禁。
+- 修正 SKILL.md frontmatter description 中的右双引号误用为正常引号对。
+
 ## [8.2.1] - 2026-07-23
 
 - 归档 v7 阶段式旧流程 references/flow/ 至 references/.archived/flow-v7/，消除与只读底线矛盾的写入流程误导。

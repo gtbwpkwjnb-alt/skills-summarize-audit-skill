@@ -6,7 +6,7 @@
 
 ```json
 {
-  "version": "8.2.1",
+  "version": "8.2.2",
   "timestamp": "2026-06-28T23:59:00Z",
   "mode": "ci",
   "report_status": "partial",

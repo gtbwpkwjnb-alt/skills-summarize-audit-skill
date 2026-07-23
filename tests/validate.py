@@ -53,7 +53,25 @@ def version_consistency():
             continue
         match = re.search(pattern, path.read_text(encoding="utf-8-sig"), re.MULTILINE)
         versions[name] = match.group(1) if match else "MISSING"
+    versions["agents/openai.yaml"] = openai_ui_version()
     return versions
+
+
+def openai_ui_version():
+    """agents/openai.yaml 顶层 version 字段；优先 YAML 解析，无 PyYAML 时退化为行匹配。"""
+    path = ROOT / "agents" / "openai.yaml"
+    if not path.exists():
+        return "MISSING"
+    text = path.read_text(encoding="utf-8-sig")
+    if HAS_YAML:
+        try:
+            data = yaml.safe_load(text)
+            if isinstance(data, dict) and data.get("version"):
+                return str(data["version"])
+        except Exception:
+            pass
+    match = re.search(r'^version:\s*"?(\d+\.\d+\.\d+)"?\s*$', text, re.MULTILINE)
+    return match.group(1) if match else "MISSING"
 
 
 def registry_self_version():
