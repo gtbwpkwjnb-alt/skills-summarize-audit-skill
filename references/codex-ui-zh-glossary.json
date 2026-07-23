@@ -2,7 +2,7 @@
   "version": 1,
   "source_language": "en",
   "target_language": "zh-Hans",
-  "protected_terms": ["AI", "API", "CI", "CLI", "Codex", "DOCX", "Git", "GitHub", "JSON", "MCP", "OpenAI", "PR", "Python", "SDK", "SQL", "URL", "YAML"],
+  "protected_terms": ["AI", "API", "ADR", "CI", "CLI", "Codex", "CONTEXT", "DOCX", "frontmatter", "Git", "GitHub", "JSON", "MCP", "OpenAI", "PR", "Python", "SDK", "SQL", "URL", "YAML"],
   "phrases": {
     "analyze data quality": "分析数据质量",
     "assess tables and datasets before analysis or publication": "分析或发布前评估表格与数据集",

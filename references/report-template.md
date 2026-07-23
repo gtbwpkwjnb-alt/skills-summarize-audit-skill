@@ -1,4 +1,4 @@
-# Report Template — Skills-Summarize-Audit v7.0.0
+# Report Template — Skills-Summarize-Audit v8.1.0
 
 只输出本次请求涉及的区块。每个结论标注 `observed`、`inferred` 或 `unavailable`；本轮默认只读。
 
@@ -9,6 +9,15 @@
 🎯 当前用户作用
 | 发现 | 对当前工作的影响 | 证据 | 状态 |
 | <发现> | <作用或限制> | <绝对路径/命令/已获同意的 URL> | observed/inferred/unavailable |
+
+🧪 技能/插件问题审查（请求问题审查或全量技能审查时）
+扫描范围：<installed / visible> · 已安装技能/插件：<n> · 证据状态：<observed/inferred/unavailable>
+| 技能/插件 | 版本状态 | 健康分 | 画像匹配 | 问题代码/严重度 | 证据 | 处理方案 |
+| <id> | <observed/unavailable> | <0-10> | <score/unavailable> | <code / severity> | <path/命令> | <只读建议或需确认动作> |
+
+🔀 冲突与互补
+| 技能 A | 技能 B | 关系 | 重叠分 | 判断理由 | 建议 |
+| <id> | <id> | conflict / complementary | <0-1> | <证据> | <边界限定/共存/冲突处理> |
 
 📋 中文翻译候选（仅请求翻译精炼时）
 可见性证据：<用户截图/用户提供 ID 列表/已验收导出；缺失则 unavailable>

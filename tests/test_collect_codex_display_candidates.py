@@ -3,7 +3,10 @@
 import hashlib
 import importlib.util
 import json
+import os
 import shutil
+import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -64,7 +67,13 @@ def main():
     visible = collector.logical_items(items, "visible", ["fixture-global", "fixture-plugin"])
     assert [item["id"] for item in visible] == ["fixture-global", "fixture-plugin"]
     assert all(item["inventory_scope"] == "visible" for item in visible)
-    assert collector.untranslated_visible_items(visible) == ["fixture-plugin"]
+    assert collector.untranslated_visible_items(visible) == []
+    assert collector.unresolved_visible_items(visible) == ["fixture-plugin"]
+    namespaced = collector.logical_items(items, "visible", ["$fixture:fixture-global"])
+    assert namespaced[0]["input_id"] == "$fixture:fixture-global"
+    assert namespaced[0]["normalized_id"] == "fixture-global"
+    assert collector.substantial_chinese("使用 CONTEXT、ADR 和 frontmatter 生成报告")
+    assert any(item["source_conflict"] for item in collector.logical_items(items, "installed") if item["id"] == "fixture-plugin")
     try:
         collector.logical_items(items, "visible", [])
     except ValueError as exc:
@@ -74,10 +83,38 @@ def main():
     selected_plugin = next(item for item in collector.logical_items(items, "installed") if item["id"] == "fixture-plugin")
     assert "1.0.0" in selected_plugin["source_paths"][0]
     assert selected_plugin["selection_reason"] == "highest_non_temporary_cache_version"
+    assert selected_plugin["source_resolution_status"] == "requires_ui_confirmation"
+    assert "暂停写入" in selected_plugin["source_resolution_plan"]
+    catalog_item = next(item for item in items if item["source_type"] == "remote_plugin_catalog")
+    assert catalog_item["source_resolution_status"] == "single_source"
     installed_markdown = collector.markdown(collector.logical_items(items, "installed"), "installed")
     assert "fixture-catalog" not in installed_markdown
     assert "（installed，3 项）" in installed_markdown
     assert collector.GLOSSARY["skill_overrides"]["imagegen"]["display_name"] == "图像生成"
+
+    # 用户声明数量与 ID 数量不一致时，必须在写入前失败。
+    command = [
+        sys.executable, str(SCRIPT), "--root", str(FIXTURE), "--catalog-dir", str(FIXTURE / "remote_plugin_catalog"),
+        "--runtime-dir", str(FIXTURE / "missing-runtime"), "--user-skill-dir", str(FIXTURE / "missing-user-skills"),
+        "--scope", "visible", "--provided-visible-count", "1",
+        "--visible-id", "fixture-global", "--visible-id", "fixture-plugin",
+    ]
+    result = subprocess.run(command, capture_output=True, text=True)
+    assert result.returncode != 0
+    assert "数量不一致" in (result.stderr + result.stdout)
+
+    # 可选的 Junction/符号链接目录不可阻断扫描；无法创建时跳过该平台专属部分。
+    link_root = Path(tempfile.mkdtemp(prefix="codex-links-"))
+    try:
+        link = link_root / "broken-junction"
+        try:
+            link.symlink_to(link_root / "missing-target", target_is_directory=True)
+        except (OSError, NotImplementedError):
+            pass
+        else:
+            assert collector.skill_files(link_root) == []
+    finally:
+        shutil.rmtree(link_root, ignore_errors=True)
     print(json.dumps({"result": "passed", "candidate_count": len(items)}, ensure_ascii=False))
 
 

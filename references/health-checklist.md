@@ -22,7 +22,7 @@
 | 1 | **存在性** | SKILL.md 存在且可解析 | 必有 | 标记 invalid |
 | 2 | **元数据完整** | name + description 都有且符合 Forma | TQI ≥ 6 | 触发翻译精炼 |
 | 3 | **依赖可达** | 引用的 MCP/命令/路径全部可达 | PASS 率 ≥ 80% | 标记 broken |
-| 4 | **使用证据** | 最近 90 天在会话中有调用记录 | ≥1 次 | 标记 zombie |
+| 4 | **使用证据** | 最近 90 天存在可归因的显式调用事件 | ≥1 次 | 无可归因事件时标记 unavailable，不直接判定 zombie |
 | 5 | **版本新鲜** | VERSION / CHANGELOG 最新更新 ≤180 天 | <180 天 | 标记 stale |
 | 6 | **触发词唯一** | 与其他技能冲突分 < 0.7 | <0.7 | 触发冲突流程 |
 | 7 | **安全合规** | 通过 security-rules.yaml 全部规则 | 0 critical | 标记 risky |
@@ -83,23 +83,23 @@ def check_dependency_reachable(skill):
     }
 ```
 
-### 检测 4：使用证据（联动 summarize error-ledger）
+### 检测 4：使用证据（结构化 Codex session/tool-call 事件）
 
 ```python
-def check_usage_evidence(skill_name, days=90):
-    # 从 summarize 错误账本提取使用记录
-    ledger_path = "~/.agents/skills/summarize/harvests/error-ledger.md"
-    if not ledger_path.exists():
-        return {"status": "unavailable", "reason": "summarize 未安装"}
-    
-    recent_uses = count_skill_mentions_in_days(ledger_path, skill_name, days)
+def check_usage_evidence(skill_name, days=90, codex_home=None):
+    # 只从 session_index + rollout response/tool 事件提取显式调用。
+    # 系统提示、skill catalog、原始 user 文本中的名称一律忽略。
+    events = load_structured_codex_events(codex_home, days=days)
+    if events is None:
+        return {"status": "unavailable", "reason": "缺少结构化 session/tool-call 证据"}
+    recent_uses = count_explicit_skill_or_tool_calls(events, skill_name)
     
     if recent_uses >= 5:
         return {"status": "pass", "uses": recent_uses}
     elif recent_uses >= 1:
         return {"status": "warn", "uses": recent_uses, "note": "低频使用"}
     else:
-        return {"status": "zombie", "uses": 0, "suggestion": "考虑归档"}
+        return {"status": "unavailable", "uses": 0, "reason": "没有可归因调用，不能判定 zombie"}
 ```
 
 ### 检测 5：版本新鲜
@@ -377,7 +377,7 @@ scheduled_checkup:
 | v7.1.0 已有 | 本文件加强 |
 |---|---|
 | liveness_check（7 项检测） | 扩展到 8 维，加上元数据/触发词/跨平台 |
-| quality_signals（读 error-ledger） | 用作"使用证据"维度 |
+| usage_signals（读结构化 session/tool-call 事件） | 用作"使用证据"维度；无可归因事件时 unavailable |
 | security_scan（10 条 SEC 规则） | 作为"安全合规"维度输入 |
 | project_profiles.auto_refresh_days | 借鉴思路做"健康度过期提醒" |
 

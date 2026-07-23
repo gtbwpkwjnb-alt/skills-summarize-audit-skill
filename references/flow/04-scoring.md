@@ -2,32 +2,27 @@
 
 **分层**：T1核心→保留 · T2通用→保留 · T3专业→建议归档
 
-**质量信号读取**（v6.0.0 — 联动 summarize 错误账本）：
+**使用信号读取**（v8.1.0 — 结构化 Codex session/tool-call 事件）：
 
-在评分前，读取 `config.yaml quality_signals.error_ledger` 指向的 error-ledger.md，提取 `TOOL:{工具名}` 格式的错误记录。
+在评分前，按 `config.yaml usage_signals.source` 读取 `session_index.jsonl` 与对应 rollout JSONL，只统计显式 skill/tool 调用事件。系统提示、skill catalog、原始 user 文本或历史摘要中的名称不算使用证据。
 
 ```
 解析规则:
-  1. 扫描 error-ledger.md 表格中"涉实体"列含 TOOL: 的行
-  2. 提取: 工具名, 错误次数, days_clean, 状态
-  3. 转换为质量评分(0-10):
-     - 错误次数 ≥3 且 days_clean=0 → 4/10 (危险)
-     - 错误次数 ≥1 且 days_clean=0 → 5/10 (需关注)
-     - 错误次数 ≥1 且 days_clean≥1 → 6/10 (有历史问题)
-     - 无错误记录 → 9/10 (正常)
-     - 不在账本中 → unavailable（没有质量观察）
-  4. 质量评分 < quality_threshold(默认6.0) → 标记为 P1 缺口
+  1. 以 session_index 的更新时间筛选最近窗口
+  2. 只读取对应 rollout 中的显式 skill/tool 事件并保留 provenance
+  3. 可归因调用 ≥5 → pass；1–4 → warn；0 → unavailable
+  4. unavailable 不回填分数、不判定 zombie、不触发 P1 缺口搜索
 ```
 
-**降级策略**（v6.2.2 新增 — summarize 未安装时自动降级）：
-- 若 error_ledger 文件不存在或路径不可达 → 质量信号为 `unavailable`，不使用回填分数
-- 不触发 P1 缺口搜索，社区 Feed 步骤跳过质量缺口分支
-- 报告中标注「⏸ 质量信号待获取」，不影响其他维度评分或推荐排序
-- 降级不扣 Forma 分，仅影响 Fit 维度的质量联动扣档逻辑
+**降级策略**（v8.1.0）：
+- 若 session_index/rollout 路径不存在、解析失败或无法建立 provenance → 使用信号为 `unavailable`，不使用回填分数
+- 不触发 P1 缺口搜索，社区 Feed 步骤跳过使用缺口分支
+- 报告中标注「使用证据 unavailable」，不影响其他维度评分或推荐排序
+- 降级不扣 Forma 分，也不降低工具质量评分
 
-质量评分影响：
-- 评分时，质量过低的工具在 Fit 维度扣 1 档
-- 推荐时，P1 缺口自动触发搜索替代品（Phase 3）
+使用信号影响：
+- 只为 Fit/Value 的实际频率提供 evidence；低频不等于低质量
+- 没有可归因调用时保持 unavailable，不自动归档或搜索替代品
 
 **八维评分（S/A/B/C/D + 强制理由）**：
 

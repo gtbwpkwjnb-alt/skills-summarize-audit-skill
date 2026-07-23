@@ -16,10 +16,10 @@ skills:
   # ---- User Skills (用户技能, .agents/skills/) ----
 
   - name: "skills-summarize-audit"
-    version: "8.0.0"
+    version: "8.1.0"
     category: management
-    tags: ["audit", "project-scan", "profile", "recommendation", "confidence", "capacity-analysis", "ci-cd", "8dim-scoring", "summarize", "forma", "capability-matrix", "tqi", "health-checkup", "lifecycle-guidance", "tech-fingerprints"]
-    description: "技能管家 → 审计评分·活性检测·容量预警·归档回滚·体检·生命周期 | Skills-Summarize-Audit → audit·liveness·capacity·rollback·checkup·lifecycle"
+    tags: ["audit", "skill-plugin-issues", "version", "project-scan", "profile", "recommendation", "confidence", "capacity-analysis", "ci-cd", "8dim-scoring", "summarize", "translation", "conflict", "complementarity", "forma", "capability-matrix", "tqi", "health-checkup", "lifecycle-guidance", "tech-fingerprints"]
+    description: "技能管家 → 技能插件问题·版本·画像评分·冲突互补·翻译·推荐 | Skills-Summarize-Audit → skill-plugin-issues·version·profile·conflict·translation·recommendation"
     source: "local"
     homepage: "https://github.com/gtbwpkwjnb-alt/skills-summarize-audit-skill"
 

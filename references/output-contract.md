@@ -15,7 +15,7 @@
 
 1. 健康度、趋势、活性、收益、容量和推荐必须逐项标明事实状态。
 2. 外部信号关闭时，Community 为 `unavailable`；本地 registry 只能说明“registry 对齐”，不能证明版本新鲜度。
-3. error ledger 缺失时，质量信号为 `unavailable`；不得回填 8/10 或触发质量缺口。
+3. 结构化 Codex session/tool-call 事件缺失或无法可靠归因时，使用证据为 `unavailable`；不得从旧版 error ledger、系统提示、skill catalog 或原始 prompt 回填分数或触发质量缺口。
 4. 容量只输出 `estimated`，并注明“文件字节/4 不是实际注入 token”。
 5. 没有证据 URL、许可证、兼容性或作用域理由的候选只能标为“评估中”。
 6. 未确认前，所有操作只能标记为 `[需确认]`，不能创建画像、缓存、日志、快照或修改目标文件。

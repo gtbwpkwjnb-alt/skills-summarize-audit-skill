@@ -30,8 +30,8 @@ def infer_real_need():
     # 来源 A：项目画像（tech-fingerprints 识别的技术栈）
     needs += infer_from_project_profile()
     
-    # 来源 B：最近会话（summarize 错误账本）
-    needs += infer_from_recent_sessions(days=14)
+    # 来源 B：结构化 Codex session/tool-call 事件（排除 prompt 文本提及）
+    needs += infer_from_structured_session_events(days=14, provenance_required=True)
     
     # 来源 C：用户画像（user-profile.md 兴趣领域）
     needs += infer_from_user_profile()
@@ -346,7 +346,7 @@ def calculate_confidence(recommendation):
 
 请按 references/recommendation-framework.md 为我做一次完整推荐：
 
-1. 从 summarize 错误账本提取我最近 14 天的使用路径
+1. 从结构化 Codex session/tool-call 事件提取最近 14 天可归因的实际使用路径；忽略系统提示、skill catalog 和原始 prompt 中的名称提及
 2. 用 references/tech-fingerprints.yaml 扫描项目
 3. 列出能力缺口（参考 capability-dimensions.yaml）
 4. 对每个缺口，按 references/mcp-marketplaces.md 评估候选

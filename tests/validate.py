@@ -234,7 +234,7 @@ def behavior_and_output_contract():
     skill = (ROOT / "SKILL.md").read_text(encoding="utf-8-sig")
     report = (ROOT / "references" / "report-template.md").read_text(encoding="utf-8")
     flow = (ROOT / "references" / "execution-flow.md").read_text(encoding="utf-8")
-    for required in ["技能库翻译精炼", "项目画像", "技能/插件推荐", "默认只读"]:
+    for required in ["技能库翻译精炼", "技能与插件问题审查", "项目画像", "技能/插件推荐", "用户画像", "默认只读"]:
         if required not in skill:
             errors.append(f"SKILL.md 缺少核心边界: {required}")
     for required in ["翻译精炼", "项目画像", "推荐", "明确不做"]:
@@ -269,6 +269,31 @@ def codex_display_candidate_contract():
     return []
 
 
+def skill_plugin_issue_audit_contract():
+    """问题审查必须有可执行的只读入口、fixture 和处理方案字段。"""
+    script = ROOT / "scripts" / "audit_skill_plugin_issues.py"
+    test = ROOT / "tests" / "test_audit_skill_plugin_issues.py"
+    reference = ROOT / "references" / "skill-plugin-issue-audit.md"
+    if not script.exists() or not test.exists() or not reference.exists():
+        return ["缺少技能/插件问题审查脚本、fixture 或 reference"]
+    config = (ROOT / "config.yaml").read_text(encoding="utf-8-sig")
+    if "issue_audit:" not in config or "profile_alignment" not in config or "capability_complementarity" not in config:
+        return ["config.yaml 缺少问题审查、画像匹配或互补分析配置"]
+    result = subprocess.run([sys.executable, str(test)], cwd=ROOT, text=True, capture_output=True, timeout=30)
+    if result.returncode:
+        return [f"技能/插件问题审查 fixture 失败: {(result.stderr or result.stdout).strip()}"]
+    try:
+        payload = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        return [f"技能/插件问题审查 fixture 未输出 JSON: {exc}"]
+    if payload.get("result") != "passed":
+        return ["技能/插件问题审查 fixture 未通过"]
+    for token in ["SOURCE_DIVERGENCE", "METADATA_MISSING", "profile_alignment", "relationships", "relationship_counts", "remediation"]:
+        if token not in script.read_text(encoding="utf-8") and token not in test.read_text(encoding="utf-8"):
+            return [f"问题审查缺少字段或规则: {token}"]
+    return []
+
+
 def translation_and_decision_output_contract():
     """中文候选与三项核心输出必须可审计。"""
     errors = []
@@ -293,7 +318,7 @@ def translation_and_decision_output_contract():
                 errors.append(f"展示来源地图缺少: {token}")
 
     collector = (ROOT / "scripts" / "collect_codex_display_candidates.py").read_text(encoding="utf-8")
-    for token in ["translation_quality", "long_description_quality", "inventory_scope", "codex_plugin_manifest", "manifest_candidates", "INSTALLED_SOURCE_TYPES", "--scope", "--visible-id", "--require-chinese", "--expect-visible-count", "untranslated_visible_items", "user_provided_visible_ui_evidence", "needs_agent_refinement", "GLOSSARY_PATH"]:
+    for token in ["translation_quality", "long_description_quality", "inventory_scope", "codex_plugin_manifest", "manifest_candidates", "INSTALLED_SOURCE_TYPES", "CONFLICT_SOURCE_TYPES", "--scope", "--visible-id", "--user-skill-dir", "--require-chinese", "--expect-visible-count", "--provided-visible-count", "--fail-on-source-conflict", "source_conflict", "source_candidates", "catalog_candidates", "source_resolution_status", "source_resolution_plan", "equivalent_sources", "requires_ui_confirmation", "resolve_visible_ids", "untranslated_visible_items", "user_provided_visible_ui_evidence", "needs_agent_refinement", "GLOSSARY_PATH"]:
         if token not in collector:
             errors.append(f"采集器缺少翻译质量契约: {token}")
 
@@ -312,16 +337,16 @@ def audit_ui_and_skill_contract():
         return ["缺少 Audit 自身 agents/openai.yaml"]
     ui = ui_path.read_text(encoding="utf-8-sig")
     expected = {
-        "display_name": "可见技能中文导览",
-        "short_description": "面向当前可见技能的中文化、项目画像及能力缺口分析推荐",
-        "default_prompt": "使用 $skills-summarize-audit 仅对当前 Codex 可见技能生成中文触发词与简介。",
+        "display_name": "Skills Summarize Audit",
+        "short_description": "技能审查 → 问题·评分·冲突·翻译·推荐",
+        "default_prompt": "使用 $skills-summarize-audit 审查已安装技能与插件的问题、版本、画像匹配、评分、冲突和互补；需要翻译时只处理当前 UI 可见集合。",
     }
     for key, value in expected.items():
         if f'{key}: "{value}"' not in ui:
             errors.append(f"Audit UI 元数据缺少中文 {key}")
 
     skill = (ROOT / "SKILL.md").read_text(encoding="utf-8-sig")
-    for required in ["references/report-template.md", "当前 UI 可见", "--visible-id", "用户交互与反馈", "项目画像", "技能/插件推荐", "## 边界"]:
+    for required in ["references/report-template.md", "references/skill-plugin-issue-audit.md", "当前 UI 可见", "--visible-id", "audit_skill_plugin_issues.py", "用户交互与反馈", "项目画像", "技能/插件推荐", "用户画像", "冲突", "互补", "## 边界"]:
         if required not in skill:
             errors.append(f"SKILL.md 缺少当前输出规则: {required}")
     for stale in ["随后输出评分表片段", "优先输出 30 秒摘要块", "references/installation.md", "CI/CD 无交互模式"]:
@@ -367,6 +392,12 @@ def main():
     ok = not errs
     failed |= not ok
     results.append(("Codex 展示候选只读门禁", ok, errs or ["OK"]))
+
+    # 4b. Installed skill/plugin issue audit
+    errs = skill_plugin_issue_audit_contract()
+    ok = not errs
+    failed |= not ok
+    results.append(("技能/插件问题审查门禁", ok, errs or ["OK"]))
 
     # 5. Translation quality and concise decision report
     errs = translation_and_decision_output_contract()

@@ -1,4 +1,4 @@
 interface:
-  display_name: "可见技能中文导览"
-  short_description: "面向当前可见技能的中文化、项目画像及能力缺口分析推荐"
-  default_prompt: "使用 $skills-summarize-audit 仅对当前 Codex 可见技能生成中文触发词与简介。"
+  display_name: "Skills Summarize Audit"
+  short_description: "技能审查 → 问题·评分·冲突·翻译·推荐"
+  default_prompt: "使用 $skills-summarize-audit 审查已安装技能与插件的问题、版本、画像匹配、评分、冲突和互补；需要翻译时只处理当前 UI 可见集合。"
