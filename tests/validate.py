@@ -288,9 +288,30 @@ def skill_plugin_issue_audit_contract():
         return [f"技能/插件问题审查 fixture 未输出 JSON: {exc}"]
     if payload.get("result") != "passed":
         return ["技能/插件问题审查 fixture 未通过"]
-    for token in ["SOURCE_DIVERGENCE", "METADATA_MISSING", "profile_alignment", "relationships", "relationship_counts", "remediation"]:
+    for token in ["SOURCE_DIVERGENCE", "METADATA_MISSING", "profile_alignment", "relationships", "relationship_counts", "recommendations", "external_candidate_status", "remediation"]:
         if token not in script.read_text(encoding="utf-8") and token not in test.read_text(encoding="utf-8"):
             return [f"问题审查缺少字段或规则: {token}"]
+    return []
+
+
+def project_profile_contract():
+    """项目画像必须有静态扫描入口和可验证的技术/推荐输出。"""
+    script = ROOT / "scripts" / "analyze_project_profile.py"
+    test = ROOT / "tests" / "test_analyze_project_profile.py"
+    if not script.exists() or not test.exists():
+        return ["缺少项目画像扫描器或 fixture 测试"]
+    result = subprocess.run([sys.executable, str(test)], cwd=ROOT, text=True, capture_output=True, timeout=30)
+    if result.returncode:
+        return [f"项目画像 fixture 失败: {(result.stderr or result.stdout).strip()}"]
+    try:
+        payload = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        return [f"项目画像 fixture 未输出 JSON: {exc}"]
+    if payload.get("result") != "passed":
+        return ["项目画像 fixture 未通过"]
+    for token in ["detected_technologies", "inferred_project_types", "recommendations", "fingerprint_errors", "max_files", "read_only"]:
+        if token not in script.read_text(encoding="utf-8") and token not in test.read_text(encoding="utf-8"):
+            return [f"项目画像缺少输出契约: {token}"]
     return []
 
 
@@ -318,7 +339,7 @@ def translation_and_decision_output_contract():
                 errors.append(f"展示来源地图缺少: {token}")
 
     collector = (ROOT / "scripts" / "collect_codex_display_candidates.py").read_text(encoding="utf-8")
-    for token in ["translation_quality", "long_description_quality", "inventory_scope", "codex_plugin_manifest", "manifest_candidates", "INSTALLED_SOURCE_TYPES", "CONFLICT_SOURCE_TYPES", "--scope", "--visible-id", "--user-skill-dir", "--require-chinese", "--expect-visible-count", "--provided-visible-count", "--fail-on-source-conflict", "source_conflict", "source_candidates", "catalog_candidates", "source_resolution_status", "source_resolution_plan", "equivalent_sources", "requires_ui_confirmation", "resolve_visible_ids", "untranslated_visible_items", "user_provided_visible_ui_evidence", "needs_agent_refinement", "GLOSSARY_PATH"]:
+    for token in ["translation_quality", "long_description_quality", "inventory_scope", "codex_plugin_manifest", "manifest_candidates", "INSTALLED_SOURCE_TYPES", "CONFLICT_SOURCE_TYPES", "--scope", "--visible-id", "--user-skill-dir", "--require-chinese", "--require-ready", "--expect-visible-count", "--provided-visible-count", "--fail-on-source-conflict", "source_conflict", "source_candidates", "catalog_candidates", "source_resolution_status", "source_resolution_plan", "equivalent_sources", "requires_ui_confirmation", "resolve_visible_ids", "untranslated_visible_items", "user_provided_visible_ui_evidence", "needs_agent_refinement", "GLOSSARY_PATH"]:
         if token not in collector:
             errors.append(f"采集器缺少翻译质量契约: {token}")
 
@@ -385,7 +406,7 @@ def main():
     errs = behavior_and_output_contract()
     ok = not errs
     failed |= not ok
-    results.append(("三项能力与输出契约", ok, errs or ["OK"]))
+    results.append(("核心能力与输出契约", ok, errs or ["OK"]))
 
     # 4. Codex display candidate collector
     errs = codex_display_candidate_contract()
@@ -398,6 +419,12 @@ def main():
     ok = not errs
     failed |= not ok
     results.append(("技能/插件问题审查门禁", ok, errs or ["OK"]))
+
+    # 4c. Project profile scanner
+    errs = project_profile_contract()
+    ok = not errs
+    failed |= not ok
+    results.append(("项目画像扫描门禁", ok, errs or ["OK"]))
 
     # 5. Translation quality and concise decision report
     errs = translation_and_decision_output_contract()

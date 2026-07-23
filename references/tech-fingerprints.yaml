@@ -595,6 +595,8 @@ languages:
     fingerprints:
       - files: ["pyproject.toml", "setup.py", "requirements.txt", "Pipfile", "**/__init__.py"]
         confidence: high
+      - files: ["**/*.py"]
+        confidence: medium
 
   - id: go
     name: "Go"

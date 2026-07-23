@@ -1,4 +1,4 @@
-# Report Template — Skills-Summarize-Audit v8.1.0
+# Report Template — Skills-Summarize-Audit v8.2.0
 
 只输出本次请求涉及的区块。每个结论标注 `observed`、`inferred` 或 `unavailable`；本轮默认只读。
 

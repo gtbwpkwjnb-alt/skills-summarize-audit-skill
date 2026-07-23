@@ -189,7 +189,7 @@
 
 - pattern:
     contains_files: ["SKILL.md"]
-    count_min: 2
+    count_min: 1
   type: "AI Agent 技能开发"
   description: "AI Agent 技能/插件开发项目"
   aliases: ["Skill Dev", "技能开发", "SKILL.md", "Agent Skill"]

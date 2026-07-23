@@ -58,12 +58,20 @@ def main():
     assert mixed_method == "glossary_partial_needs_refinement"
     assert mixed_candidate != "Build 中 dashboard"
     summary = collector.inventory_summary(items)
+    installed_plugin = next(item for item in items if item["source_type"] == "codex_plugin_cache")
+    assert installed_plugin["plugin_ref"] == "fixture-plugin@fixture-market"
+    assert installed_plugin["installation_status"] == "installed_enabled"
+    assert installed_plugin["installation_evidence"]
     assert by_type["codex_plugin_manifest"]["command_palette"]["display_name"] == by_type["codex_plugin_manifest"]["command_palette"]["original"]
     assert by_type["codex_plugin_manifest"]["sidebar"]["short_description"] == "创建可复用工件模板"
     assert summary["installed_unique_items"] == 3
     assert summary["catalog_only_source_records"] == 1
     assert len(collector.logical_items(items, "installed")) == 3
     assert len(collector.logical_items(items, "catalog")) == 1
+    cached_only = dict(installed_plugin)
+    cached_only.update({"id": "cached-only", "installation_status": "cached_only", "installation_evidence": []})
+    assert "cached-only" not in {item["id"] for item in collector.logical_items([*items, cached_only], "installed")}
+    assert "cached-only" in {item["id"] for item in collector.logical_items([*items, cached_only], "all")}
     visible = collector.logical_items(items, "visible", ["fixture-global", "fixture-plugin"])
     assert [item["id"] for item in visible] == ["fixture-global", "fixture-plugin"]
     assert all(item["inventory_scope"] == "visible" for item in visible)
@@ -102,6 +110,15 @@ def main():
     result = subprocess.run(command, capture_output=True, text=True)
     assert result.returncode != 0
     assert "数量不一致" in (result.stderr + result.stdout)
+
+    ready_command = [
+        sys.executable, str(SCRIPT), "--root", str(FIXTURE), "--catalog-dir", str(FIXTURE / "remote_plugin_catalog"),
+        "--runtime-dir", str(FIXTURE / "missing-runtime"), "--user-skill-dir", str(FIXTURE / "missing-user-skills"),
+        "--scope", "visible", "--visible-id", "fixture-plugin", "--require-ready",
+    ]
+    ready_result = subprocess.run(ready_command, capture_output=True, text=True)
+    assert ready_result.returncode != 0
+    assert "ready" in (ready_result.stderr + ready_result.stdout)
 
     # 可选的 Junction/符号链接目录不可阻断扫描；无法创建时跳过该平台专属部分。
     link_root = Path(tempfile.mkdtemp(prefix="codex-links-"))

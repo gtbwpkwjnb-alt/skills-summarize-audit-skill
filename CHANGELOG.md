@@ -4,6 +4,15 @@ All notable changes to the skills-summarize-audit skill.
 
 ---
 
+## [8.2.0] - 2026-07-23
+
+- 将 `installed`/`visible` 审查绑定到 `config.toml` 插件登记和远程安装回执；缓存、市场目录和未安装残留不再静默视为已安装。
+- 增加 `plugin_ref`、`installation_status`、安装证据和缓存残留边界，修正多版本/等价来源处理方案。
+- 将翻译质量告警限制在有 UI 可见证据的集合；保留英文 `display_name`/skill ID，只精炼 `short_description`，并强化 `--require-ready` 数量、来源和回读门禁。
+- 收紧冲突检测，避免 `summarize` 与 `skills-summarize-audit`、`figma-use` 与其变体因英文 ID 子串误报；互补继续要求具体画像词。
+- 项目画像执行 `project-types.yaml` 的文件、目录、依赖和回退规则，输出截断状态，排除快照/归档/记忆目录并合并重复推荐。
+- 本版本的提交、打标和远程推送属于本次迭代操作，不是 Audit 日常功能。
+
 ## [8.1.0] - 2026-07-23
 
 - 将主审查范围统一为已安装技能与插件的问题、来源、版本、可用性和元数据核验。

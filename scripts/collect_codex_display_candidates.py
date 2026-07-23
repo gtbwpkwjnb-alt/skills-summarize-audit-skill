@@ -8,6 +8,7 @@ import json
 import os
 import re
 import sys
+import tomllib
 from pathlib import Path
 
 try:
@@ -21,6 +22,70 @@ LONG_MAX = 80
 GLOSSARY_PATH = Path(__file__).resolve().parent.parent / "references" / "codex-ui-zh-glossary.json"
 INSTALLED_SOURCE_TYPES = {"codex_global_skill", "codex_system_skill", "codex_plugin_cache", "codex_runtime_plugin", "codex_plugin_manifest"}
 CONFLICT_SOURCE_TYPES = INSTALLED_SOURCE_TYPES | {"codex_plugin_staging"}
+
+
+def plugin_installations(root: Path) -> dict[str, dict]:
+    """Read plugin installation evidence without invoking or mutating Codex."""
+    installations: dict[str, dict] = {}
+    config_path = root / "config.toml"
+    if config_path.exists():
+        try:
+            data = tomllib.loads(read_text(config_path))
+            plugins = data.get("plugins", {})
+            if isinstance(plugins, dict):
+                for plugin_ref, settings in plugins.items():
+                    enabled = settings.get("enabled", True) if isinstance(settings, dict) else True
+                    installations[str(plugin_ref)] = {
+                        "status": "installed_enabled" if enabled else "installed_disabled",
+                        "evidence": [str(config_path.resolve())],
+                    }
+        except (OSError, tomllib.TOMLDecodeError):
+            pass
+
+    cache_root = root / "plugins" / "cache"
+    for marker in walk_files(cache_root, ".codex-remote-plugin-install.json"):
+        try:
+            relative = marker.relative_to(cache_root)
+        except ValueError:
+            continue
+        if len(relative.parts) < 3:
+            continue
+        marketplace, plugin_id = relative.parts[0], relative.parts[1]
+        plugin_ref = f"{plugin_id}@{marketplace}"
+        current = installations.setdefault(plugin_ref, {"status": "installed_remote", "evidence": []})
+        current["evidence"] = sorted(set([*current.get("evidence", []), str(marker.resolve())]))
+    return installations
+
+
+def plugin_identity(path: Path, cache_root: Path) -> tuple[str | None, str | None]:
+    try:
+        relative = path.resolve().relative_to(cache_root.resolve())
+    except (OSError, ValueError):
+        return None, None
+    if len(relative.parts) < 3:
+        return None, None
+    marketplace, plugin_id = relative.parts[0], relative.parts[1]
+    return plugin_id, f"{plugin_id}@{marketplace}"
+
+
+def annotate_plugin_installation(item: dict, path: Path, root: Path, installations: dict[str, dict]) -> None:
+    plugin_id, plugin_ref = plugin_identity(path, root / "plugins" / "cache")
+    if not plugin_ref:
+        return
+    state = installations.get(plugin_ref, {"status": "cached_only", "evidence": []})
+    item["plugin"] = plugin_id
+    item["plugin_ref"] = plugin_ref
+    item["installation_status"] = state["status"]
+    item["installation_evidence"] = list(state.get("evidence", []))
+
+
+def is_installed_item(item: dict) -> bool:
+    source_type = item.get("source_type")
+    if source_type not in INSTALLED_SOURCE_TYPES:
+        return False
+    if source_type in {"codex_plugin_cache", "codex_plugin_manifest"}:
+        return item.get("installation_status") in {"installed_enabled", "installed_disabled", "installed_remote"}
+    return True
 
 
 def read_text(path: Path) -> str:
@@ -221,7 +286,7 @@ def catalog_candidates(catalog: Path) -> tuple[list[dict], list[Path]]:
     return items, [catalog]
 
 
-def manifest_candidates(root: Path) -> tuple[list[dict], list[Path]]:
+def manifest_candidates(root: Path, codex_root: Path, installations: dict[str, dict]) -> tuple[list[dict], list[Path]]:
     """Collect installed Codex plugin-card UI metadata from plugin.json interfaces."""
     items: list[dict] = []
     manifests = [p for p in walk_files(root, "plugin.json") if p.parent.name == ".codex-plugin"]
@@ -229,11 +294,13 @@ def manifest_candidates(root: Path) -> tuple[list[dict], list[Path]]:
         try:
             data = json.loads(read_text(manifest))
         except (OSError, json.JSONDecodeError) as exc:
-            items.append({
+            item = {
                 "id": manifest.parent.parent.name, "source_paths": [str(manifest.resolve())],
                 "source_type": "codex_plugin_manifest", "inventory_scope": "installed", "editable": False,
                 "only_list": True, "fact_status": "unavailable", "error": str(exc),
-            })
+            }
+            annotate_plugin_installation(item, manifest, codex_root, installations)
+            items.append(item)
             continue
         interface = data.get("interface", {}) if isinstance(data.get("interface"), dict) else {}
         plugin_id = str(data.get("name") or manifest.parent.parent.name)
@@ -241,12 +308,14 @@ def manifest_candidates(root: Path) -> tuple[list[dict], list[Path]]:
         sidebar = str(interface.get("shortDescription") or data.get("description") or command)
         long = str(interface.get("longDescription") or data.get("description") or sidebar)
         translated = translated_fields(command, sidebar, long, plugin_id, f"plugin:{plugin_id}")
-        items.append({
+        item = {
             "id": f"plugin:{plugin_id}", "plugin": plugin_id, "source_paths": [str(manifest.resolve())],
             "source_type": "codex_plugin_manifest", "inventory_scope": "installed", "editable": False,
             "editable_reason": "plugin_manifest_read_only",
             "only_list": True, "fact_status": "observed", **translated,
-        })
+        }
+        annotate_plugin_installation(item, manifest, codex_root, installations)
+        items.append(item)
     return items, manifests
 
 
@@ -301,7 +370,11 @@ def enrich_source_conflicts(candidates: list[dict]) -> None:
             item["source_conflict_reason"] = "同一 ID 的安装来源内容不同"
         elif has_duplicate:
             item["source_resolution_status"] = "equivalent_sources"
-            item["source_resolution_plan"] = "内容一致；以 codex_plugin_cache 作为当前 UI 来源，staging 仅作待刷新来源。"
+            source_types = {peer.get("source_type") for peer in actionable}
+            if {"codex_plugin_cache", "codex_plugin_staging"} <= source_types:
+                item["source_resolution_plan"] = "内容一致；以 codex_plugin_cache 作为当前来源，staging 仅作待刷新来源。"
+            else:
+                item["source_resolution_plan"] = "内容一致；按已安装来源优先级选择当前来源，其余记录为等价副本，不阻断使用。"
             item["source_conflict_reason"] = None
         else:
             item["source_resolution_status"] = "single_source"
@@ -312,6 +385,7 @@ def enrich_source_conflicts(candidates: list[dict]) -> None:
 def collect(root: Path, catalog_dir: Path, runtime_dir: Path, staging_dir: Path | None = None, user_skill_dir: Path | None = None) -> tuple[list[dict], list[Path]]:
     candidates: list[dict] = []
     watched: list[Path] = []
+    installations = plugin_installations(root)
     groups = [
         (root / "skills", "codex_global_skill", True, "user_skill"),
         (root / "plugins" / "cache", "codex_plugin_cache", False, "plugin_cache_read_only"),
@@ -332,6 +406,8 @@ def collect(root: Path, catalog_dir: Path, runtime_dir: Path, staging_dir: Path 
             item, paths = candidate_from_skill(path, source_type, item_editable, item_reason)
             if source_type == "codex_global_skill" and not item_editable:
                 item["source_type"] = "codex_system_skill"
+            if source_type == "codex_plugin_cache":
+                annotate_plugin_installation(item, path, root, installations)
             candidates.append(item)
             watched.extend(paths)
             manifest = next((parent / ".codex-plugin" / "plugin.json" for parent in [path.parent, *path.parents] if (parent / ".codex-plugin" / "plugin.json").exists()), None)
@@ -343,7 +419,7 @@ def collect(root: Path, catalog_dir: Path, runtime_dir: Path, staging_dir: Path 
             items, paths = catalog_candidates(catalog)
             candidates.extend(items)
             watched.extend(paths)
-    manifest_items, manifests = manifest_candidates(root / "plugins" / "cache")
+    manifest_items, manifests = manifest_candidates(root / "plugins" / "cache", root, installations)
     candidates.extend(manifest_items)
     watched.extend(manifests)
     enrich_source_conflicts(candidates)
@@ -392,7 +468,7 @@ def logical_items(items: list[dict], scope: str, visible_ids: list[str] | None =
             item["selection_reason"] = "user_provided_visible_ui_evidence"
         return selected
     if scope == "installed":
-        selected = [item for item in items if item["source_type"] in INSTALLED_SOURCE_TYPES]
+        selected = [item for item in items if is_installed_item(item)]
     elif scope == "catalog":
         selected = [item for item in items if item["source_type"] == "remote_plugin_catalog"]
     else:
@@ -426,7 +502,8 @@ def candidate_rank(item: dict) -> tuple:
 
 
 def inventory_summary(items: list[dict]) -> dict:
-    installed = [item for item in items if item["source_type"] in INSTALLED_SOURCE_TYPES]
+    installed = [item for item in items if is_installed_item(item)]
+    cached_only = [item for item in items if item.get("source_type") in {"codex_plugin_cache", "codex_plugin_manifest"} and not is_installed_item(item)]
     catalog = [item for item in items if item["source_type"] == "remote_plugin_catalog"]
     installed_unique = logical_items(items, "installed")
     installed_ids = {item["id"] for item in installed_unique}
@@ -437,6 +514,7 @@ def inventory_summary(items: list[dict]) -> dict:
         "installed_unique_items": len(installed_unique),
         "installed_ready": sum(item["translation_quality"] == "ready" for item in installed_unique),
         "installed_needs_agent_refinement": sum(item["translation_quality"] == "needs_agent_refinement" for item in installed_unique),
+        "cached_only_source_records": len(cached_only),
         "catalog_only_source_records": len(catalog),
         "catalog_matches_installed_id": sum(item["matches_installed_id"] for item in catalog),
         "note": "remote_plugin_catalog 是可发现市场项；不计入已安装健康度或 P1 翻译积压。",
@@ -483,6 +561,7 @@ def main() -> int:
     parser.add_argument("--provided-visible-count", type=int, help="Count stated by the user; rejects a mismatch before any write.")
     parser.add_argument("--fail-on-source-conflict", action="store_true", help="Fail when a visible ID has multiple source candidates.")
     parser.add_argument("--require-chinese", action="store_true", help="Fail when a visible item's sidebar short description has no Chinese text; command names remain original by design.")
+    parser.add_argument("--require-ready", action="store_true", help="Fail when a visible item still needs agent translation refinement or source confirmation.")
     parser.add_argument("--batch-size", type=int, default=0, help="Limit the emitted scope items for P1 refinement batches.")
     parser.add_argument("--offset", type=int, default=0, help="Zero-based offset used with --batch-size.")
     args = parser.parse_args()
@@ -512,6 +591,9 @@ def main() -> int:
     conflicts = [item["id"] for item in scoped_items if item.get("source_conflict")]
     if args.fail_on_source_conflict and conflicts:
         parser.error("可见项存在来源冲突，需先确认实际 UI 来源: " + ", ".join(conflicts))
+    unresolved = unresolved_visible_items(scoped_items) if args.scope == "visible" else []
+    if args.require_ready and unresolved:
+        parser.error("可见项尚未达到 ready 或来源未确认: " + ", ".join(unresolved))
     untranslated = untranslated_visible_items(scoped_items) if args.require_chinese else []
     if args.batch_size < 0 or args.offset < 0:
         parser.error("--batch-size and --offset must be non-negative")
@@ -526,7 +608,7 @@ def main() -> int:
         "batch": {"offset": args.offset, "size": args.batch_size or None},
         "user_provided_visible_count": args.provided_visible_count,
         "source_conflicts": conflicts,
-        "unresolved_visible_items": unresolved_visible_items(scoped_items) if args.scope == "visible" else [],
+        "unresolved_visible_items": unresolved,
         "watched_source_count": len(watched),
     }
     after = source_hashes(watched) if args.check_unchanged else {}

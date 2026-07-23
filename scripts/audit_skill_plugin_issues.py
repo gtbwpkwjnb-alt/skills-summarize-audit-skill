@@ -42,9 +42,9 @@ def audit_item(item: dict) -> list[dict]:
     if item.get("source_conflict"):
         issues.append(issue(item, "SOURCE_DIVERGENCE", "critical", "同一技能 ID 的安装来源内容不同。", "先用 UI 证据确认 cache/staging/用户来源，再只修改确认的可编辑来源。", [str(path) for path in source_paths]))
     elif item.get("source_resolution_status") == "equivalent_sources":
-        issues.append(issue(item, "DUPLICATE_EQUIVALENT_SOURCE", "info", "cache 与 staging 内容一致，存在重复部署来源。", str(item.get("source_resolution_plan") or "以 cache 为当前来源，staging 仅作待刷新来源。"), [str(path) for path in source_paths]))
+        issues.append(issue(item, "DUPLICATE_EQUIVALENT_SOURCE", "info", "检测到内容一致的多个来源。", str(item.get("source_resolution_plan") or "按已安装来源优先级选择当前来源；等价副本不阻断使用。"), [str(path) for path in source_paths]))
 
-    if item.get("translation_quality") != "ready":
+    if item.get("inventory_scope") == "visible" and item.get("translation_quality") != "ready":
         issues.append(issue(item, "DESCRIPTION_NEEDS_REFINEMENT", "warning", "技能展示说明仍需人工精炼。", "按翻译质量规则生成候选，保留 ID 和 display_name 后回读验证。", [str(path) for path in source_paths]))
 
     for skill_path in skill_paths:
@@ -55,6 +55,23 @@ def audit_item(item: dict) -> list[dict]:
         ui_path = skill_path.parent / "agents" / "openai.yaml"
         if not ui_path.exists():
             issues.append(issue(item, "UI_METADATA_FALLBACK", "info", "未找到 agents/openai.yaml，将回退到 SKILL.md frontmatter。", "用户 skill 可补充 UI metadata；系统/插件 skill 保持只读并通过上游发布更新。", [str(skill_path)]))
+        text = skill_path.read_text(encoding="utf-8-sig", errors="replace")
+        references = sorted(set(re.findall(r"(?:references|scripts|agents)/[A-Za-z0-9_.\-/]+", text)))
+        for reference in references:
+            cleaned = reference.rstrip(".,;:)")
+            roots = [skill_path.parent, *list(skill_path.parents)[1:5]]
+            candidates = [root / cleaned for root in roots]
+            if not any(target.exists() for target in candidates):
+                editable = bool(item.get("editable"))
+                code = "REFERENCE_MISSING" if editable else "REFERENCE_UNRESOLVED_READONLY"
+                severity = "warning" if editable else "info"
+                message = f"技能引用不存在: {reference}" if editable else f"只读来源中的引用未在包内解析: {reference}"
+                remediation = (
+                    f"在 {skill_path.parent} 下补齐 {cleaned}，或修正 SKILL.md 中的相对引用；修后重新运行审查。"
+                    if editable else
+                    "记录为上游包问题；不要修改 cache，升级对应插件或系统技能后重新审查。"
+                )
+                issues.append(issue(item, code, severity, message, remediation, [str(skill_path), *[str(target) for target in candidates]]))
     return issues
 
 
@@ -68,7 +85,17 @@ def load_profile(profile_path: Path | None) -> tuple[str, str]:
 
 
 def terms(text: str) -> set[str]:
-    return {token.lower() for token in re.findall(r"[\u4e00-\u9fff]{2,}|[A-Za-z][A-Za-z0-9+.-]{2,}", text)}
+    result = {token.lower() for token in re.findall(r"[A-Za-z][A-Za-z0-9+.-]{2,}", text)}
+    stopwords = {"当前", "使用", "用于", "进行", "支持", "用户", "技能", "功能", "问题", "相关", "可以", "主要"}
+    for chunk in re.findall(r"[\u4e00-\u9fff]{2,}", text):
+        if chunk not in stopwords:
+            result.add(chunk)
+        for size in (2, 3, 4):
+            for index in range(0, len(chunk) - size + 1):
+                token = chunk[index:index + size]
+                if token not in stopwords:
+                    result.add(token)
+    return result
 
 
 def item_terms(item: dict) -> set[str]:
@@ -78,6 +105,20 @@ def item_terms(item: dict) -> set[str]:
         str(item.get("sidebar", {}).get("original", "")),
         str(item.get("sidebar", {}).get("short_description", "")),
     ]))
+
+
+def trigger_terms(item: dict) -> set[str]:
+    description = str(item.get("sidebar", {}).get("short_description") or item.get("sidebar", {}).get("original", ""))
+    trigger = description.split("→", 1)[0] if "→" in description else ""
+    raw = "|".join([str(item.get("command_palette", {}).get("original", "")), trigger])
+    extracted = {token.strip().lower() for token in re.split(r"[|/·、,;]+", raw) if len(token.strip()) >= 2}
+    return extracted or terms(str(item.get("id", "")))
+
+
+def capability_terms(item: dict) -> set[str]:
+    description = str(item.get("sidebar", {}).get("short_description") or item.get("sidebar", {}).get("original", ""))
+    capability = description.split("→", 1)[1] if "→" in description else description
+    return terms(capability)
 
 
 def version_info(item: dict) -> dict:
@@ -108,8 +149,8 @@ def score_items(items: list[dict], item_issues: list[dict], profile_text: str, p
             "existence": 0 if "SOURCE_UNAVAILABLE" in codes else 10,
             "metadata": 4 if "METADATA_MISSING" in codes else 10,
             "source": 0 if "SOURCE_DIVERGENCE" in codes else 10,
-            "description": 6 if "DESCRIPTION_NEEDS_REFINEMENT" in codes else 10,
-            "version": 5 if version_info(item)["status"] == "observed" else None,
+            "description": (6 if "DESCRIPTION_NEEDS_REFINEMENT" in codes else 10) if item.get("inventory_scope") == "visible" else None,
+            "version": 10 if version_info(item)["status"] == "observed" else None,
         }
         available = [value for value in dimensions.values() if value is not None]
         score = round(sum(available) / len(available), 1) if available else 0
@@ -123,29 +164,76 @@ def score_items(items: list[dict], item_issues: list[dict], profile_text: str, p
 
 
 def relationships(items: list[dict], scores: list[dict]) -> tuple[list[dict], dict[str, int]]:
-    score_map = {entry["id"]: entry["profile_alignment"].get("score") for entry in scores}
+    profile_map = {entry["id"]: set(entry["profile_alignment"].get("matched_terms", [])) for entry in scores}
     result: list[dict] = []
     counts = {"conflict": 0, "complementary": 0, "unrelated": 0}
     for index, left in enumerate(items):
-        left_terms = item_terms(left)
+        left_triggers = trigger_terms(left)
+        left_capabilities = capability_terms(left)
         for right in items[index + 1:]:
-            right_terms = item_terms(right)
-            union = left_terms | right_terms
-            overlap = left_terms & right_terms
-            ratio = round(len(overlap) / len(union), 3) if union else 0.0
-            if ratio >= 0.5:
+            right_triggers = trigger_terms(right)
+            right_capabilities = capability_terms(right)
+            trigger_union = left_triggers | right_triggers
+            trigger_overlap = left_triggers & right_triggers
+            trigger_ratio = round(len(trigger_overlap) / len(trigger_union), 3) if trigger_union else 0.0
+            generic_triggers = {"创建", "审查", "查询", "文档", "技能", "通用技能", "分析", "使用", "生成", "控制", "工具", "create", "review", "use"}
+            def meaningful_contains(a: str, b: str) -> bool:
+                shorter, longer = (a, b) if len(a) <= len(b) else (b, a)
+                if shorter in generic_triggers:
+                    return False
+                if re.fullmatch(r"[\u4e00-\u9fff]+", shorter):
+                    return len(shorter) >= 3 and shorter in longer
+                # Identifier substrings such as summarize/skills-summarize-audit or
+                # figma-use/figma-use-motion are distinct invocation IDs, not trigger conflicts.
+                return False
+            contains_trigger = any(meaningful_contains(a, b) for a in left_triggers for b in right_triggers)
+            if contains_trigger:
+                trigger_ratio = max(trigger_ratio, 0.6)
+            capability_union = left_capabilities | right_capabilities
+            capability_overlap = left_capabilities & right_capabilities
+            capability_ratio = round(len(capability_overlap) / len(capability_union), 3) if capability_union else 0.0
+            complement_profile_terms = {"知识", "写作", "调研", "视频", "网页", "历史", "小说", "图像", "游戏", "投资", "安全", "测试", "自动化", "研究"}
+            shared_profile = (profile_map.get(left["id"], set()) & profile_map.get(right["id"], set())) & complement_profile_terms
+            if trigger_ratio >= 0.5:
                 relationship = "conflict"
                 reason = "触发词或描述高度重叠"
-            elif ratio <= 0.15 and (score_map.get(left["id"]) or 0) > 0 and (score_map.get(right["id"]) or 0) > 0:
+            elif trigger_ratio < 0.3 and capability_ratio <= 0.15 and shared_profile:
                 relationship = "complementary"
-                reason = "用户画像相关但能力词集合重叠较低"
+                reason = "服务同一画像需求，但触发词与能力边界不同"
             else:
                 relationship = "unrelated"
                 reason = "当前证据不足以判定冲突或互补"
             counts[relationship] += 1
             if relationship != "unrelated":
-                result.append({"left": left["id"], "right": right["id"], "relationship": relationship, "overlap_score": ratio, "reason": reason})
+                result.append({"left": left["id"], "right": right["id"], "relationship": relationship, "trigger_overlap": trigger_ratio, "capability_overlap": capability_ratio, "shared_profile_terms": sorted(shared_profile), "reason": reason})
     return result, counts
+
+
+def recommendations(scores: list[dict], item_issues: list[dict], relationship_items: list[dict]) -> list[dict]:
+    by_id: dict[str, list[dict]] = {}
+    for entry in item_issues:
+        by_id.setdefault(entry["id"], []).append(entry)
+    result: list[dict] = []
+    for scored in scores:
+        entries = by_id.get(scored["id"], [])
+        severities = {entry["severity"] for entry in entries}
+        if "critical" in severities:
+            decision, reason = "升级/修复", "存在 critical 来源或解析问题"
+        elif "warning" in severities:
+            decision, reason = "优化", "存在元数据或说明质量问题"
+        elif scored["health_score"] >= 8 and (scored["profile_alignment"].get("score") or 0) > 0:
+            decision, reason = "保留", "健康分达标且与用户画像有匹配证据"
+        elif scored["health_score"] >= 8:
+            decision, reason = "观察", "健康分达标但当前画像匹配证据不足"
+        else:
+            decision, reason = "观察", "健康分或证据不足，暂不做安装/归档结论"
+        result.append({"target": scored["id"], "decision": decision, "reason": reason, "evidence": [entry["code"] for entry in entries]})
+    for relation in relationship_items:
+        if relation["relationship"] == "conflict":
+            result.append({"target": f"{relation['left']} + {relation['right']}", "decision": "边界调整", "reason": relation["reason"], "evidence": [f"trigger_overlap={relation['trigger_overlap']}"]})
+        elif relation["relationship"] == "complementary":
+            result.append({"target": f"{relation['left']} + {relation['right']}", "decision": "共存", "reason": relation["reason"], "evidence": [f"capability_overlap={relation['capability_overlap']}", "shared_profile=" + ",".join(relation["shared_profile_terms"])]})
+    return result
 
 
 def audit(root: Path, catalog_dir: Path, runtime_dir: Path, staging_dir: Path | None, user_skill_dir: Path | None, scope: str, visible_ids: list[str], profile_path: Path | None = None) -> tuple[dict, list[Path]]:
@@ -155,7 +243,10 @@ def audit(root: Path, catalog_dir: Path, runtime_dir: Path, staging_dir: Path | 
     profile_text, profile_status = load_profile(profile_path)
     scores = score_items(selected, issues, profile_text, profile_status)
     by_severity = {severity: sum(entry["severity"] == severity for entry in issues) for severity in ("critical", "warning", "info")}
-    relationship_items, relationship_counts = relationships(selected, scores)
+    relationship_candidates = [item for item in selected if item.get("source_type") != "codex_plugin_manifest"]
+    relationship_scores = [entry for entry in scores if any(item["id"] == entry["id"] for item in relationship_candidates)]
+    relationship_items, relationship_counts = relationships(relationship_candidates, relationship_scores)
+    recommendation_items = recommendations(scores, issues, relationship_items)
     report = {
         "schema_version": 1,
         "mode": "read_only",
@@ -167,6 +258,8 @@ def audit(root: Path, catalog_dir: Path, runtime_dir: Path, staging_dir: Path | 
         "skill_scores": scores,
         "relationships": relationship_items,
         "relationship_counts": relationship_counts,
+        "recommendations": recommendation_items,
+        "external_candidate_status": "unavailable: 未取得本次联网同意",
         "items": selected,
         "watched_source_count": len(watched),
     }
