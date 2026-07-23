@@ -44,6 +44,17 @@ def main() -> None:
     assert "DESCRIPTION_NEEDS_REFINEMENT" not in codes
     divergent = next(entry for entry in report["issues"] if entry["code"] == "SOURCE_DIVERGENCE")
     assert "确认" in divergent["remediation"]
+    human_report = audit_module.render_human_report(report)
+    assert "结论:" in human_report
+    assert "需处理" in human_report
+    assert "SOURCE_DIVERGENCE" in human_report
+    assert "附注: 已折叠" not in human_report
+    assert "安装全景" in human_report
+    assert "使用频率" in human_report
+    assert "优化与卸载候选" in human_report
+    assert report["inventory_analysis"]["usage_evidence"].startswith("unavailable")
+    compact_report = {"summary": {"items_scanned": 1, "by_severity": {"critical": 0, "warning": 0, "info": 2}}, "scope": "installed", "mode": "read_only", "issues": [], "relationships": [], "profile": {"status": "observed"}, "external_candidate_status": "observed", "inventory_analysis": {"profile_status": "observed", "usage_evidence": "unavailable: fixture", "bundles": [], "action_candidates": [], "context_pressure_note": "fixture"}}
+    assert "附注: 已折叠 2 条非阻断提示" in audit_module.render_human_report(compact_report)
 
     visible_item = {
         "id": "visible-needs-refinement",

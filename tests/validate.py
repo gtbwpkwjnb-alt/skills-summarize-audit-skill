@@ -240,7 +240,7 @@ def behavior_and_output_contract():
     for required in ["翻译精炼", "项目画像", "推荐", "明确不做"]:
         if required not in flow:
             errors.append(f"主流程缺少精简能力定义: {required}")
-    for required in ["中文翻译候选", "项目画像", "💡 推荐", "➡️ 下一步建议"]:
+    for required in ["中文翻译候选", "项目画像", "### 推荐", "## 下一步", "## 需处理", "影响:", "## 安装全景", "## 评分与证据边界", "## 优化与卸载候选", "--detail"]:
         if required not in report:
             errors.append(f"报告模板缺少核心区块: {required}")
     if "外部搜索必须取得本次明确同意" not in skill:
@@ -344,7 +344,7 @@ def translation_and_decision_output_contract():
             errors.append(f"采集器缺少翻译质量契约: {token}")
 
     report = (ROOT / "references" / "report-template.md").read_text(encoding="utf-8")
-    for section in ["当前用户作用", "中文翻译候选", "项目画像", "💡 推荐", "➡️ 下一步建议"]:
+    for section in ["中文翻译候选", "项目画像", "### 推荐", "## 下一步", "## 需处理", "影响:", "## 安装全景", "## 评分与证据边界", "## 优化与卸载候选", "--detail"]:
         if section not in report:
             errors.append(f"报告模板缺少核心区块: {section}")
     return errors

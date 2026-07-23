@@ -6,6 +6,7 @@ import argparse
 import json
 import re
 import sys
+from collections import Counter, defaultdict
 from pathlib import Path
 
 # Allow direct execution and fixture loading without installing this skill as a package.
@@ -236,6 +237,76 @@ def recommendations(scores: list[dict], item_issues: list[dict], relationship_it
     return result
 
 
+def bundle_name(item: dict) -> str:
+    """Return the installed source group without treating cache entries as UI-visible skills."""
+    paths = "|".join(str(path).replace("\\", "/") for path in item.get("source_paths", []))
+    for name in ("openai-templates", "figma", "github", "browser", "computer-use", "visualize"):
+        if f"/{name}/" in paths:
+            return name
+    if item.get("source_type") == "codex_runtime_plugin":
+        return "runtime"
+    if item.get("source_type") == "codex_system_skill":
+        return "system"
+    return "global"
+
+
+def inventory_analysis(items: list[dict], scores: list[dict], recommendation_items: list[dict], profile_status: str) -> dict:
+    """Summarize installed sources, suitability, and inferred pressure without claiming usage data."""
+    score_by_id = {entry["id"]: entry for entry in scores}
+    recommendation_by_id = {entry["target"]: entry for entry in recommendation_items if " + " not in entry["target"]}
+    bundles: dict[str, list[dict]] = defaultdict(list)
+    source_counts = Counter()
+    decision_counts = Counter()
+    repair_candidates = []
+    for item in items:
+        bundle = bundle_name(item)
+        bundles[bundle].append(item)
+        source_counts[item.get("source_type", "unavailable")] += 1
+        score = score_by_id.get(item["id"], {})
+        alignment = score.get("profile_alignment", {})
+        fit_score = alignment.get("score")
+        suitability = "unavailable" if alignment.get("status") != "observed" else ("高" if (fit_score or 0) >= 4 else "中" if (fit_score or 0) >= 2 else "低")
+        decision = recommendation_by_id.get(item["id"], {}).get("decision", "观察")
+        decision_counts[decision] += 1
+        if decision in {"优化", "升级/修复"}:
+            repair_candidates.append({
+                "id": item["id"], "bundle": bundle, "source_type": item.get("source_type"),
+                "health_score": score.get("health_score"), "suitability": suitability,
+                "decision": decision, "usage": "unavailable",
+            })
+    bundle_rows = []
+    candidates = list(repair_candidates)
+    for name, members in sorted(bundles.items(), key=lambda entry: (-len(entry[1]), entry[0])):
+        plugin_group = name not in {"global", "system", "runtime"}
+        low_fit = 0
+        for item in members:
+            alignment = score_by_id.get(item["id"], {}).get("profile_alignment", {})
+            if alignment.get("status") == "observed" and (alignment.get("score") or 0) == 0:
+                low_fit += 1
+        pressure = "高" if len(members) >= 12 else "中" if len(members) >= 5 else "低"
+        advice = "保留" if not plugin_group else ("评估禁用/卸载" if len(members) >= 10 and low_fit * 2 >= len(members) else "按任务保留")
+        bundle_rows.append({
+            "bundle": name, "items": len(members), "source_types": sorted({item.get("source_type") for item in members}),
+            "low_suitability_items": low_fit, "context_pressure": pressure,
+            "pressure_status": "inferred", "advice": advice,
+        })
+        if advice == "评估禁用/卸载":
+            candidates.append({
+                "id": f"plugin:{name}", "bundle": name, "source_type": "plugin_bundle",
+                "health_score": "-", "suitability": f"低适用 {low_fit}/{len(members)} 项",
+                "decision": "评估禁用/卸载", "usage": "unavailable",
+            })
+    return {
+        "usage_evidence": "unavailable: 未取得可归因的结构化 session/tool-call 事件",
+        "profile_status": profile_status,
+        "source_counts": dict(sorted(source_counts.items())),
+        "decision_counts": dict(sorted(decision_counts.items())),
+        "bundles": bundle_rows,
+        "action_candidates": candidates,
+        "context_pressure_note": "按安装项数量推断来源组的潜在发现/选择噪声；不等同于实际注入 prompt token。",
+    }
+
+
 def audit(root: Path, catalog_dir: Path, runtime_dir: Path, staging_dir: Path | None, user_skill_dir: Path | None, scope: str, visible_ids: list[str], profile_path: Path | None = None) -> tuple[dict, list[Path]]:
     items, watched = collect(root, catalog_dir, runtime_dir, staging_dir, user_skill_dir)
     selected = logical_items(items, scope, visible_ids if scope == "visible" else None)
@@ -247,6 +318,7 @@ def audit(root: Path, catalog_dir: Path, runtime_dir: Path, staging_dir: Path | 
     relationship_scores = [entry for entry in scores if any(item["id"] == entry["id"] for item in relationship_candidates)]
     relationship_items, relationship_counts = relationships(relationship_candidates, relationship_scores)
     recommendation_items = recommendations(scores, issues, relationship_items)
+    inventory = inventory_analysis(selected, scores, recommendation_items, profile_status)
     report = {
         "schema_version": 1,
         "mode": "read_only",
@@ -259,11 +331,80 @@ def audit(root: Path, catalog_dir: Path, runtime_dir: Path, staging_dir: Path | 
         "relationships": relationship_items,
         "relationship_counts": relationship_counts,
         "recommendations": recommendation_items,
+        "inventory_analysis": inventory,
         "external_candidate_status": "unavailable: 未取得本次联网同意",
         "items": selected,
         "watched_source_count": len(watched),
     }
     return report, watched
+
+
+def render_human_report(report: dict, detail: bool = False) -> str:
+    """Render the compact, action-first terminal report; keep --json as the full contract."""
+    summary = report["summary"]
+    severities = summary["by_severity"]
+    issues = report["issues"]
+    actionable = [entry for entry in issues if entry["severity"] in {"critical", "warning"}]
+    relationships = report["relationships"]
+    inventory = report["inventory_analysis"]
+    lines = [
+        "技能/插件审查",
+        f"状态: complete | 范围: {report['scope']} | 模式: {report['mode']}",
+        f"结论: 扫描 {summary['items_scanned']} 项；需处理 {len(actionable)} 项（critical {severities['critical']} / warning {severities['warning']}）。",
+        f"适用度: {inventory['profile_status']} | 使用频率: unavailable（未取得可归因调用证据）。",
+    ]
+    lines.extend(["", "安装全景", "| 来源组 | 项数 | 低适用项 | 上下文压力 | 建议 |", "| --- | ---: | ---: | --- | --- |"])
+    for bundle in inventory["bundles"]:
+        lines.append(f"| {bundle['bundle']} | {bundle['items']} | {bundle['low_suitability_items']} | {bundle['context_pressure']} (inferred) | {bundle['advice']} |")
+    lines.extend(["", "评分与证据边界", "| 维度 | 含义 |", "| --- | --- |", "| 健康分 | 来源、元数据与版本可解析性；不代表常用或适用。 |", "| 适用度 | 仅按用户画像词命中计算；高/中/低为 observed，缺画像则 unavailable。 |", "| 使用频率 | " + inventory["usage_evidence"] + " |", "| 上下文压力 | " + inventory["context_pressure_note"] + " |"])
+    if actionable:
+        lines.extend(["", "需处理"])
+        for index, entry in enumerate(actionable, 1):
+            evidence = entry["evidence"][0] if entry["evidence"] else "unavailable"
+            lines.extend([
+                f"{index}. [{entry['severity'].upper()}] {entry['id']} - {entry['code']}",
+                f"   问题: {entry['message']}",
+                f"   证据: {evidence}",
+                f"   建议: {entry['remediation']}",
+            ])
+    else:
+        lines.extend(["", "需处理", "无。"])
+    if relationships:
+        lines.extend(["", "边界与协同"])
+        for relation in relationships:
+            overlap = relation["trigger_overlap"] if relation["relationship"] == "conflict" else relation["capability_overlap"]
+            action = "明确触发边界" if relation["relationship"] == "conflict" else "保留并按能力分工"
+            lines.append(f"- {relation['left']} + {relation['right']}: {relation['relationship']}（重叠 {overlap}）；{action}。")
+    candidates = inventory["action_candidates"]
+    lines.extend(["", "优化与卸载候选", "| 对象 | 来源组 | 健康 | 适用度 | 使用频率 | 建议 |", "| --- | --- | ---: | --- | --- | --- |"])
+    if candidates:
+        for candidate in candidates:
+            decision = "先维修" if candidate["decision"] in {"优化", "升级/修复"} else "[需确认] 评估禁用/卸载"
+            lines.append(f"| {candidate['id']} | {candidate['bundle']} | {candidate['health_score']} | {candidate['suitability']} | {candidate['usage']} | {decision} |")
+    else:
+        lines.append("| 无 | - | - | - | - | 无足够证据建议卸载。 |")
+    if detail:
+        score_by_id = {entry["id"]: entry for entry in report["skill_scores"]}
+        recommendation_by_id = {entry["target"]: entry for entry in report["recommendations"] if " + " not in entry["target"]}
+        lines.extend(["", "完整安装清单", "| 技能/插件 | 来源组 | 健康 | 适用度 | 使用频率 | 决策 |", "| --- | --- | ---: | --- | --- | --- |"])
+        for item in sorted(report["items"], key=lambda value: (bundle_name(value), value["id"])):
+            score = score_by_id.get(item["id"], {})
+            alignment = score.get("profile_alignment", {})
+            fit = alignment.get("score")
+            suitability = "unavailable" if alignment.get("status") != "observed" else ("高" if (fit or 0) >= 4 else "中" if (fit or 0) >= 2 else "低")
+            decision = recommendation_by_id.get(item["id"], {}).get("decision", "观察")
+            lines.append(f"| {item['id']} | {bundle_name(item)} | {score.get('health_score')} | {suitability} | unavailable | {decision} |")
+    unavailable = []
+    if report["profile"]["status"] != "observed":
+        unavailable.append("用户画像")
+    if report["external_candidate_status"].startswith("unavailable"):
+        unavailable.append("外部候选数据")
+    if unavailable:
+        lines.extend(["", "未获取数据", "、".join(unavailable) + "；未用默认值补齐。"])
+    info_count = severities["info"]
+    if info_count:
+        lines.extend(["", f"附注: 已折叠 {info_count} 条非阻断提示；使用 --json 查看完整证据。"])
+    return "\n".join(lines)
 
 
 def main() -> int:
@@ -278,6 +419,7 @@ def main() -> int:
     parser.add_argument("--visible-id", action="append", default=[])
     parser.add_argument("--fail-on", choices=("none", "info", "warning", "critical"), default="none")
     parser.add_argument("--json", action="store_true", dest="as_json")
+    parser.add_argument("--detail", action="store_true", help="人类可读输出中包含每项安装资产；默认只显示来源组和行动候选。")
     args = parser.parse_args()
     catalog_dir = args.catalog_dir or args.root / "cache" / "remote_plugin_catalog"
     staging_dir = args.staging_dir or args.root / ".tmp" / "bundled-marketplaces"
@@ -294,9 +436,7 @@ def main() -> int:
     if args.as_json:
         print(json.dumps(report, ensure_ascii=False, indent=2))
     else:
-        print(f"技能/插件问题审查（{args.scope}）：扫描 {report['summary']['items_scanned']} 项，发现 {report['summary']['issues']} 项")
-        for entry in report["issues"]:
-            print(f"[{entry['severity']}] {entry['id']} {entry['code']}: {entry['message']} 处理：{entry['remediation']}")
+        print(render_human_report(report, args.detail))
     order = {"info": 1, "warning": 2, "critical": 3, "none": 0}
     if args.fail_on != "none" and any(order[entry["severity"]] >= order[args.fail_on] for entry in report["issues"]):
         return 1
