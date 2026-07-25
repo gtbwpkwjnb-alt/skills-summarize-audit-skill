@@ -362,9 +362,22 @@ def enrich_source_conflicts(candidates: list[dict]) -> None:
         fingerprints = {source_fingerprint(peer) for peer in actionable}
         has_duplicate = len(actionable) > 1
         divergent = has_duplicate and len(fingerprints) > 1
+        display_values = {
+            (
+                str(peer.get("sidebar", {}).get("original", "")).strip(),
+                str(peer.get("command_palette", {}).get("display_name", "")).strip(),
+            )
+            for peer in actionable
+        }
+        display_equivalent = has_duplicate and len(display_values) == 1
         item["catalog_candidates"] = [{"source_type": peer.get("source_type"), "source_paths": peer.get("source_paths", [])} for peer in catalog_peers]
         item["source_conflict"] = divergent
-        if divergent:
+        if divergent and display_equivalent:
+            item["source_conflict"] = False
+            item["source_resolution_status"] = "display_equivalent_sources"
+            item["source_resolution_plan"] = "行为文件存在版本差异，但命令栏展示字段一致；按活动 cache 展示并保留 staging 更新风险。"
+            item["source_conflict_reason"] = "行为文件不同但展示字段一致"
+        elif divergent:
             item["source_resolution_status"] = "requires_ui_confirmation"
             item["source_resolution_plan"] = "暂停写入；以 UI 证据确认 cache 或 staging 后只修改确认来源。"
             item["source_conflict_reason"] = "同一 ID 的安装来源内容不同"

@@ -10,6 +10,8 @@ description: 面向中文用户，审查当前已安装技能与插件的问题�
 核心能力：已安装技能/插件问题审查、用户画像定位与评分、冲突/互补分析、可见技能翻译精炼、项目画像和技能/插件推荐。先明确证据，再输出结论与处理方案；默认只读。
 v8.2.0：在上述核心能力上补齐真实插件安装证据、缓存/远程回执边界、可见翻译一次完成门禁、项目画像规则执行和可解释冲突/互补判定；使用结构化 Codex session/tool-call 事件作为使用证据。
 
+全量翻译硬性协议：用户提供完整截图、可复制 ID 列表或带绝对路径的技能链接时，必须把这些输入作为本次唯一可见集合，逐项处理并回读；不能用旧截图、`installed` 扫描结果或市场目录替代。只有同一集合通过数量、来源、中文质量、名称不变和 SHA256 回读，才可报告“完成”；任一项失败都报告 `partial` 并列出精确路径。
+
 ## 翻译目标与范围
 
 翻译精炼的目标是让中文习惯用户在 Codex 的技能页和命令栏中快速理解“何时触发、能做什么”。`display_name`、技能 ID 与调用名称必须保持原文；仅 `short_description` 使用“中文触发词 → 2–4 个核心能力”的简洁格式，并保留 Codex、API、CLI、GitHub、MCP、PR、YAML 等术语。
@@ -31,10 +33,12 @@ v8.2.0：在上述核心能力上补齐真实插件安装证据、缓存/远程�
 
 ## 能力一：技能库翻译精炼
 
-1. 先取得可见性证据：用户提供的侧栏/命令栏截图、手工列出的技能 ID，或经客户端验收的导出列表。仅凭本地缓存不能推断 UI 可见性；无法取得证据时标记 `unavailable` 并请用户提供截图或 ID 列表。
+1. 先回读 `references/display-source-map.md` 的“命令栏窗口来源快照”，按已验证路径定位真实字段；用户显式提供的 `namespace:id`、`$namespace:id` 和完整路径同样构成可见集合证据，不能只依赖历史截图。只有可见集合变化、ID 无法映射、来源冲突或需要最终 UI 验收时，才取得补充截图。仅凭本地缓存不能推断新的 UI 可见集合；缺少可见性证据时标记 `unavailable`。
 2. 读取 `references/display-source-map.md`，确定每个可见项的展示来源。对 Codex 使用 `scripts/collect_codex_display_candidates.py --scope visible --visible-id <id> --check-unchanged`；每个可见 ID 重复传入一次。该脚本只读，不写入 Codex UI、插件缓存或系统技能。
-3. 依据 `references/codex-ui-zh-glossary.json` 和 `references/description-quality.md` 仅精炼侧栏短说明。保留命令栏名称/技能 ID 原文；短说明以中文触发词开头，后接动词+宾语的核心能力；不翻译未显示项。
-4. 输出可见性证据、绝对来源路径、原文、中文候选、质量状态和可编辑性。只读来源只生成候选；用户自制且 `editable=true` 的技能仅在后续获得明确写入授权后修改。
+3. 依据 `references/codex-ui-zh-glossary.json` 和 `references/description-quality.md` 精炼命令栏短说明及必要的 frontmatter 回退说明。系统技能优先改 `agents/openai.yaml` 的 `interface.short_description`；模板或无 `agents/openai.yaml` 的技能改 `SKILL.md` frontmatter `description`。保留命令栏名称/技能 ID 原文；短说明以中文触发词开头，后接动词+宾语的核心能力。
+4. 输出可见性证据、绝对来源路径、原文、中文候选、质量状态和可编辑性。默认只读；用户明确授权“全量中文化”时，允许进入受控应用模式：用户技能写入真实 `agents/openai.yaml`，插件写入本地 staging 元数据后清理对应活动 cache 并重建。远程市场目录不修改；无 staging 的 curated cache 必须标记 `cache_only`，写入后提示上游覆盖风险。
+5. 应用模式必须先创建文件快照和 SHA256 清单，批量写入后回读 UTF-8/YAML；遇到失效 Junction、代码页损坏或来源重新生成时立即停止扩散，报告精确路径并从快照恢复失败项。
+6. 插件 cache 重建后必须重新解析同一可见 ID 集合；文件层通过但 Codex 尚未刷新时状态为 `pending_ui_refresh`，不得称为最终 UI 完成。
 
 ## 用户交互与反馈
 
@@ -73,6 +77,15 @@ v8.2.0：在上述核心能力上补齐真实插件安装证据、缓存/远程�
 3. **计划阶段**：生成逐项计划，明确只改 `short_description`、保留英文 `display_name`，并分离 `editable=true` 与只读来源；所有目标和质量状态确认完毕后才创建快照。
 4. **写入阶段**：在同一批次内完成最小字段写入；写入前保存目标文件快照，写入失败按快照恢复。不得边扫描边写入，也不得以“先成功的部分”代表全部完成。
 5. **回读阶段**：复用完全相同的 normalized ID 集合和来源映射，检查数量、候选中文、`display_name` 未变化、文件 YAML 可解析及扫描源未被意外改动；再要求刷新/重启并做 UI 截图验收。
+
+### 全量翻译执行清单
+
+1. 保存输入原文：`input_id`、namespace、绝对 `SKILL.md` 路径、用户声明数量和证据类型。
+2. 按来源矩阵逐项回读：系统/用户 `agents/openai.yaml`、插件 cache/staging、插件 `.codex-plugin/plugin.json`、模板 `SKILL.md` frontmatter、runtime 和 remote catalog。
+3. 统一写入优先级：命令栏优先 `agents/openai.yaml:interface.short_description`；无该文件时写 `SKILL.md:description`；`metadata.short-description` 只作为兼容界面字段，不替代命令栏字段。
+4. 先快照再批量写入；PowerShell 5.1 不通过管道向 Python 传中文，使用 UTF-8 文件或直接 patch，写入后检查 `?`、YAML 解析和中文字符。
+5. 用完全相同的 ID 集合执行 `--require-chinese --require-ready --check-unchanged`；对 cache/staging 行为文件不同但展示字段一致的项标记 `display_equivalent_sources`，不误报为阻塞冲突。
+6. 文件层通过后标记 `pending_ui_refresh`，刷新后再做 UI 验收；插件 cache-only 或远程更新覆盖只能报告“本地已优化、存在上游覆盖风险”。
 
 建议采集器调用同时使用 `--expect-visible-count <n> --provided-visible-count <n> --require-chinese --require-ready --check-unchanged`；来源已确认后再加 `--fail-on-source-conflict`。用户说的数量与 ID 数量不一致时，报告差异并停止，不用扫描结果“补齐”或删减用户输入。
 
