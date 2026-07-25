@@ -389,3 +389,54 @@ scheduled_checkup:
 - 权重调整：第四节 WEIGHTS
 - 等级阈值：第四节"健康分等级"
 - 业界对照：OpenSSF Scorecard / npm audit / Skills Directory
+
+## 十一、跨工具类型扩展（v9.0.0 新增）
+
+> v8 的 8 维评分针对 Skill。v9 把健康度评估泛化到 MCP 和 Agent，详见对应 references。
+
+### 11.1 三类工具的健康度框架对应关系
+
+| 工具类型 | 框架文件 | 维度数 | 共享维度 | 特有维度 |
+|---|---|---|---|---|
+| **Skill** | 本文件（health-checklist.md） | 8 维 | 存在性/元数据/依赖/版本/触发词/安全/一致 | 使用证据 |
+| **MCP** | `mcp-health-checklist.md` | 6 维 | 配置完整性/版本/安全/一致 | 启动可达性/Tool Schema 健康/实际调用证据 |
+| **Agent** | `agent-dispatch-ambiguity.md` | 5 维 | 元数据完整/版本（profile 更新）/安全 | 能力维度覆盖/触发词精确度/调用频次/Overlap 风险 |
+
+### 11.2 通用健康分计算规则
+
+无论工具类型，综合健康分计算公式一致：
+
+```
+health_score = Σ(dimension_score_i × weight_i) / Σ(weight_i for available dimensions)
+```
+
+- `pass` = 10 分
+- `warn` = 5 分
+- `fail` = 0 分
+- `unavailable`（无数据）= 不计入分母
+
+### 11.3 维度缺失时的降级
+
+当某类工具无法计算某个维度（如 Agent 没有"依赖可达"概念）：
+- 标 `dimension_status: not_applicable`
+- 不计入健康分分母
+- 报告中明确说明哪些维度被跳过
+
+### 11.4 数据源对应
+
+| 维度 | Skill 数据源 | MCP 数据源 | Agent 数据源 |
+|---|---|---|---|
+| 使用证据 | transcript 的 Skill 调用 | transcript 的 `mcp__*` 计数 | metadata.json 的 profileId 频次 |
+| 触发词 | SKILL.md description | （不适用） | profile.md 描述 |
+| 版本 | VERSION/CHANGELOG | npm/pip 包版本 | profile.md 的 version 字段 |
+
+所有使用证据统一由 `scripts/extract_usage_signals.py` 提供，避免重复扫描 transcript。
+
+### 11.5 报告中的展示
+
+健康审计报告分三区块展示：
+1. **Skill 健康表**（8 维）
+2. **MCP 健康表**（6 维）
+3. **Agent 健康表**（5 维）
+
+不混用维度，每类工具有独立的评分卡片。详见 `report-template.md` 的生态综合评估区块。

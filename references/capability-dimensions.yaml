@@ -256,3 +256,198 @@ tools:
 #
 # 置信度: tag 直接命中 → 7/10, description 含关键词 → 6/10
 # 自动推断的结果写入 .data/auto-capabilities.json 供下次审计参考
+
+# ──────────────────────────────────────────────
+# v9.0.0 新增：已安装 MCP server 的能力映射
+# 来源：Reasonix mcp/*.json 的 tool schema + 手动评估
+# ──────────────────────────────────────────────
+mcp_tools:
+  - name: firecrawl
+    type: mcp
+    capabilities:
+      web-search:
+        level: 9
+        source: "firecrawl_search 工具，多源并搜"
+      web-scrape:
+        level: 9
+        source: "firecrawl_scrape 单页抓取"
+      deep-crawl:
+        level: 9
+        source: "firecrawl_crawl 递归爬取"
+      research:
+        level: 7
+        source: "firecrawl_research_* 研究工具集"
+
+  - name: playwright
+    type: mcp
+    capabilities:
+      browser-auto:
+        level: 10
+        source: "原生浏览器自动化，全功能覆盖"
+      web-scrape:
+        level: 6
+        source: "通过 browser_snapshot 可提取页面内容"
+
+  - name: codegraph
+    type: mcp
+    capabilities:
+      code-analysis:
+        level: 10
+        source: "代码结构/符号/调用链/影响分析的核心工具"
+      file-ops:
+        level: 4
+        source: "通过 query 可读文件"
+
+  - name: windows-mcp
+    type: mcp
+    capabilities:
+      file-ops:
+        level: 9
+        source: "FileSystem 工具全文件操作"
+      integration:
+        level: 8
+        source: "PowerShell/Process/App 控制系统集成"
+      browser-auto:
+        level: 5
+        source: "Snapshot/Click 可控桌面浏览器"
+
+  - name: github
+    type: mcp
+    capabilities:
+      integration:
+        level: 8
+        source: "GitHub API 集成"
+      code-analysis:
+        level: 5
+        source: "可读 repo 内容做基础分析"
+
+  - name: headroom
+    type: mcp
+    capabilities:
+      session-management:
+        level: 8
+        source: "内容压缩/缓存/检索"
+      memory-write:
+        level: 6
+        source: "持久化存储压缩内容"
+
+  - name: rival-search
+    type: mcp
+    capabilities:
+      web-search:
+        level: 9
+        source: "多引擎并行搜索"
+      research:
+        level: 8
+        source: "research_topic 端到端研究"
+      multi-platform-search:
+        level: 8
+        source: "social_search 多平台社交搜索"
+      web-scrape:
+        level: 7
+        source: "content_operations retrieve 抓取"
+
+  - name: node_repl
+    type: mcp
+    capabilities:
+      reasoning:
+        level: 7
+        source: "JavaScript 执行可做计算推理"
+      integration:
+        level: 6
+        source: "可调用 npm 包做集成"
+
+# ──────────────────────────────────────────────
+# v9.0.0 新增：ZCode 11 种 sub-agent 的能力映射
+# 来源：profile.md 的 description + tools 列表 + 实际观察
+# ──────────────────────────────────────────────
+agent_tools:
+  - name: general-purpose
+    type: agent
+    capabilities:
+      reasoning: {level: 7, source: "通用推理"}
+      file-ops: {level: 8, source: "全工具权限"}
+      code-analysis: {level: 6, source: "通用代码处理"}
+      research: {level: 7, source: "通用调研"}
+
+  - name: Explore
+    type: agent
+    capabilities:
+      research: {level: 8, source: "只读搜索广撒网"}
+      file-ops: {level: 7, source: "Read/Bash/Glob"}
+      web-search: {level: 6, source: "WebFetch/WebSearch"}
+
+  - name: data-worker
+    type: agent
+    capabilities:
+      file-ops: {level: 8, source: "大日志批处理"}
+      integration: {level: 6, source: "仓库索引/结构化转换"}
+
+  - name: docs-worker
+    type: agent
+    capabilities:
+      file-ops: {level: 7, source: "文档读写"}
+      reasoning: {level: 5, source: "文档逻辑组织"}
+
+  - name: implementation-worker
+    type: agent
+    capabilities:
+      code-analysis: {level: 8, source: "按 WorkOrder 写代码"}
+      file-ops: {level: 7, source: "Read/Write/Edit"}
+      reasoning: {level: 6, source: "里程碑记录"}
+
+  - name: test-worker
+    type: agent
+    capabilities:
+      code-analysis: {level: 7, source: "复现问题/运行测试"}
+      file-ops: {level: 6, source: "Read/Glob/Grep"}
+
+  - name: quality-expert
+    type: agent
+    capabilities:
+      skill-audit: {level: 8, source: "完成定义/测试策略/质量门禁"}
+      code-analysis: {level: 7, source: "回归范围分析"}
+      reasoning: {level: 8, source: "冻结验证建议"}
+
+  - name: security-expert
+    type: agent
+    capabilities:
+      skill-audit: {level: 7, source: "权限/注入/秘密检测"}
+      reasoning: {level: 8, source: "数据流/副作用边界分析"}
+
+  - name: solution-architect
+    type: agent
+    capabilities:
+      reasoning: {level: 9, source: "总体方案/模块边界"}
+      code-analysis: {level: 7, source: "替代方案/推荐节点 DAG"}
+      research: {level: 7, source: "实施约束分析"}
+
+  - name: research-worker
+    type: agent
+    capabilities:
+      research: {level: 9, source: "批量机械化信息采集"}
+      web-search: {level: 8, source: "WebFetch/WebSearch"}
+      file-ops: {level: 6, source: "Read/Glob/Grep"}
+
+  - name: glm-adversarial-reviewer
+    type: agent
+    capabilities:
+      reasoning: {level: 8, source: "对抗审查/反证"}
+      skill-audit: {level: 7, source: "找不可实现项/越权假设"}
+      code-analysis: {level: 6, source: "不可测验收检测"}
+
+# ──────────────────────────────────────────────
+# 能力维度冲突/互补判定阈值（v9.0.0）
+# 用于 agent-dispatch-ambiguity.md 的 overlap 计算
+# ──────────────────────────────────────────────
+overlap_thresholds:
+  capability_jaccard:
+    high_conflict: 0.7    # >= 0.7 触发合并建议
+    medium_conflict: 0.5  # >= 0.5 触发边界澄清
+    complementary: 0.3    # < 0.3 且有共同画像词 → 互补
+  weighted_overlap:
+    high_conflict: 0.6
+    medium_conflict: 0.4
+  dispatch_frequency_diff:
+    critical: 0.3         # 调用频次差异 >= 30% 触发风险
+    warning: 0.2
