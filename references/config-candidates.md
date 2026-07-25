@@ -2,7 +2,7 @@
 
 > 以下来自 `config.yaml` 的配置块为**未来候选，当前未生效**（无现行消费者或默认关闭）；如需启用，请将对应块原文移回 `config.yaml`。
 
-> v8.2.3 自 `config.yaml` 移出，原文（含注释）保留于此。
+> v8.2.4 自 `config.yaml` 移出，原文（含注释）保留于此。
 
 ## trend_tracking（趋势追踪，enabled: false，无消费者）
 

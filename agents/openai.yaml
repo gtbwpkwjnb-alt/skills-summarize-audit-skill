@@ -1,4 +1,4 @@
-version: "8.2.3"
+version: "8.2.4"
 interface:
   display_name: "Skills Summarize Audit"
   short_description: "技能审查 → 问题·评分·冲突·翻译·推荐"

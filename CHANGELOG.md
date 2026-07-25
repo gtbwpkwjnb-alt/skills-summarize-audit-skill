@@ -4,6 +4,13 @@ All notable changes to the skills-summarize-audit skill.
 
 ---
 
+## [8.2.4] - 2026-07-25
+
+- 翻译回测支持完整截图、显式 `namespace:id`、`$namespace:id` 和绝对路径证据，禁止用历史集合替代本次输入。
+- 补齐系统技能、插件 cache/staging、模板 frontmatter、runtime、manifest、远程目录和安装回执的来源矩阵与字段优先级。
+- 增加全量翻译硬性门禁、UTF-8/代码页损坏检查、快照回滚说明和 `display_equivalent_sources` 来源处理。
+- 修复系统技能和模板技能只改错 frontmatter、命令栏仍读取英文 `agents/openai.yaml` 的回退问题。
+
 ## [8.2.3] - 2026-07-23
 
 - config.yaml 瘦身：trend_tracking（默认关闭、无消费者）与 capacity_analysis（唯一消费者为已归档的 .archived/flow-v7/02-bis-capacity.md）移至 references/config-candidates.md，原位留指针注释；community_feed 与 dev_search_policy 因 security-rules.yaml 现行依赖保留不动。
